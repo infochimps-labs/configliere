@@ -58,6 +58,7 @@ module Thimblerig
     # adds the thimble to this store
     def put_decrypted! handle, thimble
       @thimbles[handle] = thimble.to_decrypted.merge thimble.internals
+      save!
     end
 
     # load the thimble, encrypt it, and save to disk

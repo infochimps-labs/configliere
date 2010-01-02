@@ -18,7 +18,7 @@ module Thimblerig
 
     COMMANDS[:decrypt] = "Store the thimble as decrypted back into the file. Can be undone with 'fix'."
     def decrypt
-      Log.info "Fixing stored info for #{handle}"
+      Log.info "Storing info for #{handle} in **DECRYPTED** form."
       thimble = get(handle)
       store.put_decrypted!(handle, thimble)
     end
