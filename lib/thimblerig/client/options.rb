@@ -2,13 +2,20 @@ module Thimblerig
   class Client
     attr_accessor :options, :store, :thimble_options
 
-    # All internal options
+    # Thimblerigger internal options -- these have special meaning
     INTERNAL_OPTIONS = {
-      :key         => "Key for this handle. Programs must supply this key to access thimble",
-      :thimblefile => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default",
-      :hostname_in_key => "Include the hostname in the key",
-      :macaddr_in_key  => "Include the ethernet MAC address in the key",
+      :key             => "Key to decrypt thimble's contents.",
+      :thimblefile     => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default.",
+      :hostname_in_key => "If true, will include the hostname in the key.",
+      :macaddr_in_key  => "If true, will include the ethernet MAC address in the key.",
     }
+    # You can stuff descriptions for your own options in here, they'll be added
+    # to the usage statement.
+    EXTERNAL_OPTIONS = {
+    }
+    # If your script uses the 'script_name verb [...predicates and options...]'
+    # pattern, list the commands here:
+    COMMANDS= {}
 
     # All commandline name-value options that aren't internal to thimblerigger script
     def external_options

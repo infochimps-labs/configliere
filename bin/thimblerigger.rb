@@ -6,6 +6,10 @@ require 'thimblerig/client/commands'
 Log = Logger.new(STDERR) unless defined?(Log)
 
 class Thimblerigger < Thimblerig::Client
+  def description
+    %Q{Client for the thimblerig gem: manipulate configuration and passwords for automated scripts}
+  end
+
   def process_options! *args
     super *args
     self.command = options[:_rest].shift.to_sym rescue nil

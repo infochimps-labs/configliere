@@ -19,17 +19,16 @@ class Hash
 end
 
 module Thimblerig
-  def self.load handle, passpass, options={}
+  def self.load thimble_key, options={}
     options = options.dup
-    store = ThimbleStore.new(options.delete(:filename))
-    store.get(handle, passpass)
+    handle = options.delete(:handle) || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
+    store  = ThimbleStore.new(options.delete(:filename))
+    store.get(handle, thimble_key)
   end
-  def self.save handle, passpass, hsh={}
+  def self.save thimble_key, hsh={}
     hsh = hsh.dup
+    handle = hsh.delete(:handle) || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
     store = ThimbleStore.new(hsh.delete(:filename))
-    thimble = store.get(handle, passpass)
-    thimble.merge! hsh
-    p [store, thimble, hsh, passpass]
-    store.put!(handle, thimble)
+    store.put!(handle, Thimblerig::Thimble.new(thimble_key, hsh))
   end
 end

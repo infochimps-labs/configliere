@@ -1,14 +1,27 @@
 module Thimblerig
 
   class Thimble < ::Hash
-    attr_accessor :passpass
+    attr_accessor :thimble_key
     attr_accessor :salt
     attr_accessor :options
-    # Initialize with the passphrase, an initial vector (if nil one is created),
-    # and the initial contents of the hash.
-    def initialize passpass, hsh={}
+    # Initialize with the thimble_key and the initial contents of the hash.
+    # To set the salt, pass :_thimble_salt => salt as part of the hash.
+    # To set the thimble_key options, pass :_thimble_options => {...} as part of
+    # the hash.
+    #
+    # Ex.
+    #
+    #    # Create a thimble for a hypothetical database with thimble_key
+    #    # "your_mom" and salt as shown, and which requires the hardware MAC
+    #    # address of the computer to decode
+    #    Thimblerig::Thimble.new 'your_mom',
+    #      :username=>"mysql_username", :decrypted_password=>"mysql_password",
+    #      :_thimble_salt => "\317g\316\023(\350t\036\347\317\264\371\334F\344\271",
+    #      :_thimble_options => { :macaddr => true }
+    #
+    def initialize thimble_key, hsh={}
       super()
-      self.passpass = passpass
+      self.thimble_key = thimble_key
       self.salt     = hsh[:_thimble_salt]    || Crypter.random_iv
       self.options  = hsh[:_thimble_options] || {}
       merge! hsh.reject{|k,v| k.to_s =~ /_thimble_/ }
@@ -20,9 +33,9 @@ module Thimblerig
     def []= attr, val
       super attr, val
       if    encrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.decrypt(val, passpass, salt, options)
+        super attr_counterpart(attr), Crypter.decrypt(val, thimble_key, salt, options)
       elsif decrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.encrypt(val, passpass, salt, options)
+        super attr_counterpart(attr), Crypter.encrypt(val, thimble_key, salt, options)
       end
       val
     end
@@ -102,7 +115,7 @@ module Thimblerig
     end
 
     def to_s
-      s = ["#{self.class} salt [#{salt.inspect}] pass [#{passpass.inspect}]"]
+      s = ["#{self.class} salt [#{salt.inspect}] thimble_key [#{thimble_key.inspect}]"]
       to_decrypted.each do |attr, val|
         s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
       end

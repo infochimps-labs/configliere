@@ -1,16 +1,17 @@
 #!/usr/bin/env ruby
 require 'rubygems' ; $: << File.dirname(__FILE__)+'/../lib'
 require 'pp'
-module Thimblerig ; DEFAULT_FILENAME = File.dirname(__FILE__)+'/thimblerig_example_store.yaml' end
+# module Thimblerig ; DEFAULT_FILENAME = File.dirname(__FILE__)+'/thimblerig_example_store.yaml' end
 require 'thimblerig'
 require 'thimblerig/client'
 
-Thimblerig.save(:example, 'foobar',
+Thimblerig.save('foobar',
   :email_address      => 'bob@company.com',
   :decrypted_password => 'my_password',
   :rate_per_hour      => 10,
   :smtp_domain        => 'smtp.company.com',
-  :_thimble_options   => { :hostname => true, :macaddr => false })
+  :_thimble_options   => { :hostname => false })
+
 
 puts %Q{
 This is a demo of the Thimblerig::Client. It parses all command line options to load keys, global options, etc.

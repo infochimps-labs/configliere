@@ -1,13 +1,13 @@
 --- 
-:example: 
-  :rate_per_hour: 10
+:thimblerig_example: 
   :smtp_domain: smtp.company.com
-  :_thimble_options: {}
-
-  :_thimble_salt: !binary |
-    zBJ/X8ux/4Fba5bPUz57oA==
+  :_thimble_options: 
+    :hostname: true
+  :encrypted_password: !binary |
+    gQ9R5C7SR2u7SXjIRqsc+A==
 
   :email_address: bob@company.com
-  :encrypted_password: !binary |
-    q09EClkVX5fSdwV9xFzbYA==
+  :_thimble_salt: !binary |
+    1eviqeilkbUvod7IefsfWA==
 
+  :rate_per_hour: 10
