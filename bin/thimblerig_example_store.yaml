@@ -1,0 +1,13 @@
+--- 
+:example: 
+  :rate_per_hour: 10
+  :smtp_domain: smtp.company.com
+  :_thimble_options: {}
+
+  :_thimble_salt: !binary |
+    zBJ/X8ux/4Fba5bPUz57oA==
+
+  :email_address: bob@company.com
+  :encrypted_password: !binary |
+    q09EClkVX5fSdwV9xFzbYA==
+

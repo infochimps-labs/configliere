@@ -5,16 +5,17 @@ module Thimblerig
     # All internal options
     INTERNAL_OPTIONS = {
       :key         => "Key for this handle. Programs must supply this key to access thimble",
-      :thimblefile => "YAML file to use, #{Thimblerig::ThimbleStore::DEFAULT_FILENAME} by default",
+      :thimblefile => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default",
       :hostname_in_key => "Include the hostname in the key",
       :macaddr_in_key  => "Include the ethernet MAC address in the key",
     }
 
-  protected
     # All commandline name-value options that aren't internal to thimblerigger script
     def external_options
       options.reject{|name, val| (name.to_s[0..0]=='_') || INTERNAL_OPTIONS.include?(name) }
     end
+
+  protected
 
     # die with a warning
     def die str
@@ -24,8 +25,11 @@ module Thimblerig
     end
 
     # Retrieve the given option, or prompt for it
-    def option_or_ask attr
-      options[attr] ||= ask("#{attr}? ")
+    def option_or_ask attr, hint=nil
+      hint ||= handle
+      return options[attr] if options.include?(attr)
+      require 'highline/import'
+      options[attr] = ask("#{attr} for #{hint}? ")
     end
 
     #
@@ -47,7 +51,7 @@ module Thimblerig
         when arg == '--'
           options[:_rest] += args
           break
-        when arg =~ /\A--(\w+)(?:=(.+))?\z/
+        when arg =~ /\A--([\w\-]+)(?:=(.+))?\z/
           options[$1.to_sym] = $2 || true
         else
           options[:_rest] << arg

@@ -1,16 +1,16 @@
 module Thimblerig
+  DEFAULT_FILENAME = ENV['HOME']+'/.thimblerig' unless defined?(DEFAULT_FILENAME)
   class ThimbleStore
-    DEFAULT_FILENAME = ENV['HOME']+'/.thimblerig' unless defined?(DEFAULT_FILENAME)
     attr_accessor :filename
     # initialize with the filename to load from. Defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
     def initialize filename=nil
-      self.filename = filename || DEFAULT_FILENAME
+      self.filename = filename || Thimblerig::DEFAULT_FILENAME
       load!
     end
 
     def load!
       begin
-        @thimbles = YAML.load_file(filename)
+        @thimbles = YAML.load_file(filename) || {}
       rescue
         warn "Creating new thimblerig password store in #{filename}"
         @thimbles = { }
@@ -36,7 +36,7 @@ module Thimblerig
 
     # retrieve the given thimble
     def delete! handle, passpass
-      # check_pass(handle, passpass)
+      check_pass(handle, passpass) if passpass
       @thimbles.delete(handle)
       save!
     end

@@ -62,7 +62,7 @@ module Thimblerig
     #
     def to_plain
       plain = { }
-      to_decrypted.each{|attr, val| plain[attr_base(attr)] = val }
+      to_decrypted.each{|attr, val| plain[attr_base(attr).to_sym] = val }
       plain
     end
 
@@ -99,6 +99,18 @@ module Thimblerig
     def shift()                   raise "Not implemented" ; end
     def to_hash
       {}.merge! self
+    end
+
+    def to_s
+      s = ["#{self.class} salt [#{salt.inspect}] pass [#{passpass.inspect}]"]
+      to_decrypted.each do |attr, val|
+        s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
+      end
+      s << "  thimble options:" unless options.blank?
+      options.each do |attr, val|
+        s << "    %-19s\t%s"%[attr.to_s+':', val.inspect]
+      end
+      s.join("\n")
     end
 
   protected

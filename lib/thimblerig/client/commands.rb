@@ -1,4 +1,5 @@
-require 'highline/import'
+require 'logger'
+Log = Logger.new(STDERR) unless defined?(Log)
 module Thimblerig
   class Client
 
@@ -18,7 +19,7 @@ module Thimblerig
 
     COMMANDS[:delete] = "removes the thimble"
     def delete
-      store.delete! handle, option_or_ask(:key)
+      store.delete! handle, options[:key]
     end
 
     COMMANDS[:set] = "sets values using remaining arguments from the command line. eg #{File.basename($0)} set my_program --username=bob --password=frank"
@@ -44,14 +45,7 @@ module Thimblerig
 
     COMMANDS[:dump] = "print the decrypted information"
     def dump thimble
-      puts "Stored info for #{handle}:"
-      thimble.to_decrypted.each do |attr, val|
-        puts "  %-21s\t%s"%[attr.to_s+':', val.inspect]
-      end
-      puts "  thimble encryption options:" unless thimble.options.blank?
-      thimble.options.each do |attr, val|
-        puts "    %-19s\t%s"%[attr.to_s+':', val.inspect]
-      end
+      puts "Stored info for #{handle}:\n#{thimble.to_s}"
     end
 
     COMMANDS[:help] = "Show this usage info"
@@ -73,23 +67,19 @@ commands:
     # Run the command
     #
     def run
-      begin
-        # Check options
-        return help if options[:help] || (command == :help)
-        die "Please give a command and the name of the thimble to encrypt" unless command
-        die "Please give the name of the thimble to encrypt" unless handle || ([:help].include?(command))
-        warn "Unknown command" unless COMMANDS.include?(command)
-        #
-        case command
-        when :dump then dump get(handle)
-        when :fix  then fix
-        when :set  then set
-        when :delete  then delete
-        when :change_key then change_key
-        else die "Can't understand command #{command}"
-        end
-      rescue OpenSSL::Cipher::CipherError => e
-        warn "Decrypt error: wrong password for #{handle}"; exit 3
+      # Check options
+      return help if options[:help] || (command == :help)
+      die "Please give a command and the name of the thimble to encrypt" unless command
+      die "Please give the name of the thimble to encrypt" unless handle || ([:help].include?(command))
+      warn "Unknown command" unless COMMANDS.include?(command)
+      #
+      case command
+      when :dump then dump get(handle)
+      when :fix  then fix
+      when :set  then set
+      when :delete  then delete
+      when :change_key then change_key
+      else die "Can't understand command #{command}"
       end
     end
 
