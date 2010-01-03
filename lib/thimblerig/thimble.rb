@@ -16,15 +16,14 @@ module Thimblerig
     #    # address of the computer to decode
     #    Thimblerig::Thimble.new 'your_mom',
     #      :username=>"mysql_username", :decrypted_password=>"mysql_password",
-    #      :_thimble_salt => "\317g\316\023(\350t\036\347\317\264\371\334F\344\271",
-    #      :_thimble_options => { :macaddr => true }
+    #      :_thimble_options => { :salt => "\317g\316\023(\350t\036\347\317\264\371\334F\344\271", }
     #
     def initialize thimble_key, hsh={}
       super()
       self.thimble_key = thimble_key
-      self.salt     = hsh[:_thimble_salt]    || Crypter.random_iv
       self.options  = hsh[:_thimble_options] || {}
-      merge! hsh.reject{|k,v| k.to_s =~ /_thimble_/ }
+      self.salt     = options[:salt] || Crypter.random_iv
+      merge! hsh.reject{|k,v| k == :_thimble_options }
       sync!
     end
 
@@ -81,10 +80,7 @@ module Thimblerig
 
     # internal options for thimble
     def internals
-      internals = { :_thimble_salt => salt }
-      internals[:_thimble_options] = {}
-      options.each{|opt, val| internals[:_thimble_options][opt] = !!val }
-      internals
+      { :_thimble_options => { :salt => salt } }
     end
 
     #
@@ -110,6 +106,7 @@ module Thimblerig
     def reject!(*args, &block)    raise "Not implemented" ; end
     def default=(*args, &block)   raise "Not implemented" ; end
     def shift()                   raise "Not implemented" ; end
+    # returns an actual Hash, not a Thimble < Hash
     def to_hash
       {}.merge! self
     end
@@ -119,7 +116,7 @@ module Thimblerig
       to_decrypted.each do |attr, val|
         s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
       end
-      s << "  thimble options:" unless options.blank?
+      s << "  thimble options:" unless options.empty?
       options.each do |attr, val|
         s << "    %-19s\t%s"%[attr.to_s+':', val.inspect]
       end
@@ -136,20 +133,25 @@ module Thimblerig
       end
     end
 
+    # is this an attribute for an encrypted value?
     def encrypted_attr? attr
       $1 if attr.to_s =~ /^encrypted_(.*)/
     end
+    # is this an attribute for a decrypted value?
     def decrypted_attr? attr
       $1 if attr.to_s =~ /^decrypted_(.*)/
     end
+    # is this an attribute for a special (encrypted or decrypted) value?
+    def special_attr? attr
+      encrypted_attr?(attr) || decrypted_attr?(attr)
+    end
+    # given an en-crypted or de-crypted attribute name, returns its de- or en- counterpart
     def attr_counterpart attr
       attr.to_s.gsub(/^(en|de)crypted_/){ $1 == 'en' ? 'decrypted_' : 'encrypted_'}.to_sym
     end
+    # the base part of a special attribute name, or the whole thing if it's not special.
     def attr_base attr
       attr.to_s.gsub(/^(en|de)crypted_/, "")
-    end
-    def special_attr? attr
-      encrypted_attr?(attr) || decrypted_attr?(attr)
     end
   end
 end

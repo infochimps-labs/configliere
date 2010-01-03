@@ -13,6 +13,7 @@ module Thimblerig
       self.store = Thimblerig::ThimbleStore.new(thimble_file)
     end
 
+    # Filename of thimble file
     def thimble_file
       options[:thimble_file] || Thimblerig::DEFAULT_FILENAME
     end
@@ -28,20 +29,18 @@ module Thimblerig
 
     def help
       help_str = [
-        description,
-        "\nUsage:",   '  '+usage,
+        usage,
         "\nOptions:",  INTERNAL_OPTIONS.map{|cmd, desc| "  %-20s %s"%[cmd.to_s+':', desc]}.join("\n"), ]
       help_str += [
-        "\nCommands", COMMANDS.map{|cmd, desc| "  %-20s %s"%[cmd.to_s+':', desc]}.join("\n")] unless COMMANDS.blank?
+        "\nCommands", COMMANDS.map{|cmd, desc| "  %-20s %s"%[cmd.to_s+':', desc]}.join("\n")] unless COMMANDS.empty?
       help_str.join("\n")
     end
 
-    def description
-      [File.basename($0), "script. Default values stored in", thimble_file, "by default."].join(" ")
-    end
-
+    # Usage line
     def usage
-      %Q{#{File.basename($0)} [...--option=val...]}
+      %Q{usage: #{File.basename($0)} [...--option=val...]
+
+Configuration taken from #{thimble_file} by default.}
     end
 
     # Ouput the help string if requested
@@ -50,6 +49,5 @@ module Thimblerig
       $stderr.puts help
       exit
     end
-
   end
 end

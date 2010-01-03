@@ -8,6 +8,9 @@ module Thimblerig
       load!
     end
 
+    # Load thimbles from disk.
+    # * file is in YAML format, as a hash of handle => thimble_hash pairs
+    # * filename defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
     def load!
       begin
         @thimbles = YAML.load_file(filename) || {}
@@ -18,7 +21,8 @@ module Thimblerig
     end
 
     # save to disk.
-    # the file is in standard YAML format.
+    # * file is in YAML format, as a hash of handle => thimble_hash pairs
+    # * filename defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
     def save!
       File.open(filename, 'w'){|f| f << YAML.dump(@thimbles) }
     end
@@ -29,24 +33,11 @@ module Thimblerig
       Thimble.new thimble_key, contents
     end
 
-    def include? handle
-      @thimbles.include?(handle)
-    end
-
-    # checks password against thimble
-    def check_pass handle, thimble_key
-      get handle, thimble_key
-    end
-
-    # retrieve the given thimble
+    # delete the given thimble from store
     def delete! handle, thimble_key
       check_pass(handle, thimble_key) if thimble_key
       @thimbles.delete(handle)
       save!
-    end
-
-    def handles
-      @thimbles.keys
     end
 
     # adds the thimble to this store
@@ -55,7 +46,7 @@ module Thimblerig
     end
     # add the thimble to this store and save the store to disk
     def put!(*args) put *args ; save! end
-    # adds the thimble to this store
+    # adds the thimble to this store in unencrypted form and save the store to disk
     def put_decrypted! handle, thimble
       @thimbles[handle] = thimble.to_decrypted.merge thimble.internals
       save!
@@ -65,6 +56,21 @@ module Thimblerig
     def fix! handle, thimble_key
       put handle, get(handle, thimble_key)
       save!
+    end
+
+    # checks if store includes the named thimble
+    def include? handle
+      @thimbles.include?(handle)
+    end
+
+    # List handles of each thimble in the store.
+    def thimble_handles
+      @thimbles.keys
+    end
+
+    # checks password against thimble
+    def check_pass handle, thimble_key
+      get handle, thimble_key
     end
   end
 end

@@ -4,10 +4,8 @@ module Thimblerig
 
     # Thimblerigger internal options -- these have special meaning
     INTERNAL_OPTIONS = {
-      :key             => "Key to decrypt thimble's contents.",
-      :thimblefile     => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default.",
-      :hostname_in_key => "If true, will include the hostname in the key.",
-      :macaddr_in_key  => "If true, will include the ethernet MAC address in the key.",
+      :config_key          => "Key to decrypt thimble's contents.",
+      :config_file         => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default.",
     }
     # You can stuff descriptions for your own options in here, they'll be added
     # to the usage statement.
@@ -26,8 +24,8 @@ module Thimblerig
 
     # die with a warning
     def die str
-      warn str
-      help
+      puts help
+      warn "\n****\n#{str}\n****"
       exit -1
     end
 
@@ -52,7 +50,7 @@ module Thimblerig
     def process_argv!
       args = ARGV.dup
       options[:_rest] = []
-      while (! args.blank?) do
+      until args.empty? do
         arg = args.shift
         case
         when arg == '--'
