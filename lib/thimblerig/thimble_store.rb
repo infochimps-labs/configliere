@@ -42,13 +42,13 @@ module Thimblerig
 
     # adds the thimble to this store
     def put handle, thimble
-      @thimbles[handle] = thimble.to_encrypted.merge thimble.internals
+      @thimbles[handle] = thimble.to_encrypted
     end
     # add the thimble to this store and save the store to disk
     def put!(*args) put *args ; save! end
     # adds the thimble to this store in unencrypted form and save the store to disk
     def put_decrypted! handle, thimble
-      @thimbles[handle] = thimble.to_decrypted.merge thimble.internals
+      @thimbles[handle] = thimble.to_decrypted
       save!
     end
 
@@ -64,7 +64,7 @@ module Thimblerig
     end
 
     # List handles of each thimble in the store.
-    def thimble_handles
+    def handles
       @thimbles.keys
     end
 

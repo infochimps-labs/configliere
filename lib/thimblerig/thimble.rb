@@ -1,29 +1,23 @@
 module Thimblerig
-
+  #
+  # Hash of fields to store.
+  #
+  # Any field name beginning with 'decrypted_' automatically creates a
+  # counterpart 'encrypted_' field using the thimble_key.
+  #
   class Thimble < ::Hash
     attr_accessor :thimble_key
-    attr_accessor :salt
-    attr_accessor :options
     # Initialize with the thimble_key and the initial contents of the hash.
-    # To set the salt, pass :_thimble_salt => salt as part of the hash.
-    # To set the thimble_key options, pass :_thimble_options => {...} as part of
-    # the hash.
     #
-    # Ex.
-    #
-    #    # Create a thimble for a hypothetical database with thimble_key
-    #    # "your_mom" and salt as shown, and which requires the hardware MAC
-    #    # address of the computer to decode
-    #    Thimblerig::Thimble.new 'your_mom',
-    #      :username=>"mysql_username", :decrypted_password=>"mysql_password",
-    #      :_thimble_options => { :salt => "\317g\316\023(\350t\036\347\317\264\371\334F\344\271", }
+    # @example
+    #   # Create a thimble for a hypothetical database with thimble_key "your_mom"
+    #   Thimblerig::Thimble.new 'your_mom',
+    #     :username=>"mysql_username", :decrypted_password=>"mysql_password"
     #
     def initialize thimble_key, hsh={}
       super()
       self.thimble_key = thimble_key
-      self.options  = hsh[:_thimble_options] || {}
-      self.salt     = options[:salt] || Crypter.random_iv
-      merge! hsh.reject{|k,v| k == :_thimble_options }
+      merge! hsh
       sync!
     end
 
@@ -32,9 +26,9 @@ module Thimblerig
     def []= attr, val
       super attr, val
       if    encrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.decrypt(val, thimble_key, salt, options)
+        super attr_counterpart(attr), Crypter.decrypt(val, thimble_key)
       elsif decrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.encrypt(val, thimble_key, salt, options)
+        super attr_counterpart(attr), Crypter.encrypt(val, thimble_key)
       end
       val
     end
@@ -78,11 +72,6 @@ module Thimblerig
       plain
     end
 
-    # internal options for thimble
-    def internals
-      { :_thimble_options => { :salt => salt } }
-    end
-
     #
     # These methods set values and so we have to ensure
     # encrypted and decrypted values stay in sync.
@@ -112,13 +101,9 @@ module Thimblerig
     end
 
     def to_s
-      s = ["#{self.class} salt [#{salt.inspect}] thimble_key [#{thimble_key.inspect}]"]
+      s = ["#{self.class} thimble_key [#{thimble_key.inspect}]"]
       to_decrypted.each do |attr, val|
         s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
-      end
-      s << "  thimble options:" unless options.empty?
-      options.each do |attr, val|
-        s << "    %-19s\t%s"%[attr.to_s+':', val.inspect]
       end
       s.join("\n")
     end

@@ -21,10 +21,6 @@ Configuration taken from #{thimble_file} by default.}
     super *args
     self.command = options[:_rest].shift.to_sym rescue nil
     self.handle  = options[:_rest].shift.to_sym rescue nil
-    self.thimble_options = {}
-    thimble_options[:hostname]   = options.delete(:hostname_in_key)
-    thimble_options[:macaddr]    = options.delete(:macaddr_in_key)
-    thimble_options.compact!
   end
 
 
@@ -50,7 +46,7 @@ Configuration taken from #{thimble_file} by default.}
 
     COMMANDS[:list] = "Show all thimbles in the thimblerig file."
     def list
-      puts "List of thimble names: #{store.thimble_handles.inspect}"
+      puts "List of thimble names: #{store.handles.inspect}"
     end
 
     COMMANDS[:delete] = "Permanently deletes the thimble"
@@ -72,15 +68,14 @@ Configuration taken from #{thimble_file} by default.}
     def change_key
       thimble = get(handle)
       new_key = option_or_ask(:new_key)
-      new_hsh = thimble.to_decrypted.merge(thimble.internals)
-      new_hsh.merge!(:_thimble_options => thimble.options.merge(thimble_options))
+      new_hsh = thimble.to_decrypted
       new_thimble = Thimblerig::Thimble.new(new_key, new_hsh)
       store.put! handle, new_thimble
       Log.info "Changed thimble key for #{handle}: #{new_thimble}"
     end
 
-    COMMANDS[:dump] = "print the decrypted information"
-    def dump
+    COMMANDS[:show] = "print the decrypted information"
+    def show
       thimble = get(handle)
       puts "Stored info for #{handle}:\n  #{thimble.to_s}"
     end

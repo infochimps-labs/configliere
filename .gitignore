@@ -1,21 +1,38 @@
-## MAC OS
+## OS
 .DS_Store
+Icon?
+nohup.out
 
-## TEXTMATE
+## EDITORS
 *.tmproj
 tmtags
-
-## EMACS
 *~
 \#*
 .\#*
-
-## VIM
 *.swp
+REVISION
+TAGS*
+*_flymake.*
+.project
+.settings
+
+## COMPILED
+a.out
+*.o
+*.pyc
+*.so
+
+## OTHER SCM
+.bzr
+.hg
+.svn
 
 ## PROJECT::GENERAL
 coverage
 rdoc
+doc
 pkg
+.yardoc
+*private*
 
 ## PROJECT::SPECIFIC
