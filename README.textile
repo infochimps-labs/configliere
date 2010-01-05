@@ -1,23 +1,142 @@
-= thimblerig
+h1. Configliere
 
-Thimblerig provides convenient, lightweight configuration management for unattended scripts.
+bq. So, Consigliere of mine, I think you should tell your Don what everyone knows.
 
-* A no-fuss commandline options parser
+Wise, lightweight configuration management for ruby programs.
 
-With the :hostname => true option,
+You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
+A good configliere provides wise counsel and make problems go away. Design goals:
+
+* *No drama*. Requires almost no external resources and almost no code in your script.
+* *Don't mess with my crew*. Settings for a model over here don't affect settings for a model over there, and don't require asking the boss to set something up.
+* *Be willing to sit down with the Five Families*. Takes settings from (at your option):
+** Pre-defined defaults from constants (lowest precedence -- always loses)
+** Simple config file
+** Environment variables
+** Commandline options
+** Ruby block called when all other options are in place (highest precedence -- always wins)
+* *Be discreet*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
+* *Know how to keep a frickin secret*. Rather than storing passwords and API keys in plain sight, configliere can provide protection and obscuring its value when stored to disk.
+
+h2. Settings structure
+
+Configliere settings are just a plain old normal hash. 
+
+You can define static defaults in your module
+
+    Configliere.defaults({
+      :dest_time => '1955-11-05',
+      :fluxcapacitor => {
+        :speed => 88,
+        },
+      :delorean => {
+        :power_source => 'plutonium',
+        :roads_needed => true,
+        },
+      :username => 'marty',
+      :password => '',
+    })
+
+h2. Configuration files
+
+Call Configliere.load(:my_settings_group) to load from the global config file ~/.configli.yaml (or whatever Configliere::CONFIG_FILE is set to)
+
+    # Settings for version II.
+    :time_machine:
+      :dest_time:        2015-11-05
+      :delorean:
+        :power_source:    Mr. Fusion
+        :roads_needed:    ~
+
+You can instead supply a string, the path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in ~/.configli/ (or whatever Configliere::CONFIG_DIR is set to). 
+
+    Configliere.load('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
+    Configliere.load('time_machine.yaml')       # looks in ~/.configli/time_machine.yaml
+
+When you load directly from a file you should leave off the top-level settings group:
+    
+    # Settings for version II.
+    :dest_time:         2015-11-05
+    :delorean:
+      :power_source:    Mr. Fusion
+      :roads_needed:    ~
+
+You can save defaults with
+
+    Configliere.save(:time_machine)            #=> ~/.configli.yaml, under :time_machine
+    Configliere.save('/etc/time_machine.yaml') #=> /etc/time_machine.yaml
+    Configliere.save('time_machine.yaml')      #=> ~/.configli/time_machine.yaml
+    
+(and also see the --configliere-save commandline parameter,, below)
+    
+h2. Environment Variables
+
+    Configliere.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
+
+
+A dot in the 
+
+h2. Command-line parameters
+
+    # Head back
+    time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05 
+    # (in the time_machine script:)
+    Configliere.use :commandline
+
+Interpretation of command-line parameters:
+* *name-val params*: --param=val sets @Configliere[:param]@ to val.
+* *boolean params*: --param sets @Configliere[:param]@ to be true. --param='' sets @Configliere[:param]@ to be nil. 
+* *scoped params*: --group-sub_group-param=val sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
+** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
+** Only [\w\.\-]+ are accepted in parameter names. 
+* *Configliere.rest*: anything else is stored, in order, in @Configliere.rest@.
+* *stop marker*: a -- alone stops parameter processing and tosses all remaining params (not including the --) into Configliere.rest.
+
+Here are some things you don't get:
+* There are no short parameters (-r, etc).
+* Apart from converting '' (an explicit blank string) to nil, no type coercion is performed on parameters unless requested explicitly (see below).
+* No validation is performed on parameters.
+* No ordering or multiplicity is preserved (you can't say --file=this --file=that).
+
+If you want more, you might like the Trollop gem.  If you enjoy wordy nightmares, use "getoptlog":http://linuxdevcenter.com/pub/a/linux/2003/09/18/ruby_csv.html?page=2 from the ruby standard library.
+
+h2. Fancy Parameters
+
+You don't have to pre-define parameters, but you can:
+
+    Configliere.use :define
+    Configliere.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
+    Configliere.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Configliere.define :password, :required => true, :obscure => true
+
+* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false.
+* *:description* documents a param.
+* *:required* marks params required. Any required parameter found to be nil raises an error (listing all missing params)
+* *:obscured* marks params to be encrypted when saved to disk. See [#Obscured Parameters] below for caveats.
+
+h2. Ruby Block
+
+    Configliere.finally do |c|
+      c.dest_time = (Time.now + 60) if c.username == 'einstein'
+      # you can use hash syntax too
+      c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
+    end
+
+Configliere 'finally' blocks are called after everything but required parameter
+    
+h2. Obscured Parameters
 
 bq.  There are two kinds of cryptography in this world: cryptography that will
   stop your kid sister from reading your files, and cryptography that will stop
   major governments from reading your files. This book is about the latter.
   -- Preface to Applied Cryptography by Bruce Schneier
 
-Thimblerig is about the former.  The goal is to make no-fuss configuration that
-avoids storing passwords in plain sight.
+Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between having to find a paperclip and jimmy open your annoying brother's stupid journal and being able to open to any page.
 
+h2. Project info
 
-  
-== Note on Patches/Pull Requests
+h3. Note on Patches/Pull Requests
  
 * Fork the project.
 * Make your feature addition or bug fix.
@@ -25,8 +144,9 @@ avoids storing passwords in plain sight.
   future version unintentionally.
 * Commit, do not mess with rakefile, version, or history.
   (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+* Send a pull request to github.com/mrflip
+* Drop a line to the mailing list for infochimps open-source projects, infochimps-code@googlegroups.com
 
-== Copyright
+h3. Copyright
 
 Copyright (c) 2010 mrflip. See LICENSE for details.

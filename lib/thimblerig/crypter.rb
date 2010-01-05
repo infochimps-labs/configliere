@@ -36,6 +36,7 @@ module Thimblerig
       plaintext << cipher.final
       plaintext
     end
+  protected
     #
     # Create a new cipher machine, with its dials set in the given direction
     #
