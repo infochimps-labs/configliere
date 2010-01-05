@@ -1,7 +1,7 @@
-require 'thimblerig/client/options'
-module Thimblerig
+require 'configliere/client/options'
+module Configliere
   #
-  # Command line tool to manage thimble info
+  # Command line tool to manage param info
   #
   class Client
     attr_accessor :handle
@@ -10,15 +10,15 @@ module Thimblerig
       self.options = {}
       process_options!
       dump_help_if_requested
-      self.store = Thimblerig::ThimbleStore.new(thimble_file)
+      self.store = Configliere::ParamStore.new(configliere_file)
     end
 
-    # Filename of thimble file
-    def thimble_file
-      options[:thimble_file] || Thimblerig::DEFAULT_FILENAME
+    # Filename of configliere file
+    def configliere_file
+      options[:configliere_file] || Configliere::DEFAULT_FILENAME
     end
 
-    # get the thimble for the given handle
+    # get the param for the given handle
     def get handle, key=nil, options=nil
       begin
         store.get(handle, key || option_or_ask(:key, handle))
@@ -40,7 +40,7 @@ module Thimblerig
     def usage
       %Q{usage: #{File.basename($0)} [...--option=val...]
 
-Configuration taken from #{thimble_file} by default.}
+Configuration taken from #{configliere_file} by default.}
     end
 
     # Ouput the help string if requested

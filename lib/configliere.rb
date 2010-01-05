@@ -2,9 +2,9 @@ require 'openssl'
 require 'digest/sha2'
 require 'yaml'
 
-require 'thimblerig/crypter'
-require 'thimblerig/thimble'
-require 'thimblerig/thimble_store'
+require 'configliere/crypter'
+require 'configliere/param'
+require 'configliere/param_store'
 
 class Hash
   def compact!
@@ -15,39 +15,39 @@ class Hash
   end
 end
 
-module Thimblerig
+module Configliere
   #
-  # Bare-bones interface to load config for a given thimble_name.
+  # Bare-bones interface to load config for a given param_name.
   #
-  # @param [String] thimble_key the passphrase to decrypt any encrypted values
-  # @option options [Symbol] :thimble_name the thimble to load. If no thimble_name is given, uses the basename (without extension) of the running script.
-  # @option options [String] :thimble_file (Thimblerig::DEFAULT_FILENAME) the file to load from
+  # @param [String] decrypt_pass the passphrase to decrypt any encrypted values
+  # @option options [Symbol] :param_name the param to load. If no param_name is given, uses the basename (without extension) of the running script.
+  # @option options [String] :configliere_file (Configliere::DEFAULT_FILENAME) the file to load from
   # @return [Hash] the retrieved hash
   #
   # @example
-  #   config = Thimblerig.load 'sekret1', :thimble_name => :happy_script
+  #   config = Configliere.load 'sekret1', :param_name => :happy_script
   #
-  def self.load thimble_key, options={}
-    thimble_name = options[:thimble_name] || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
-    store        = ThimbleStore.new(options[:thimble_file])
-    store.get(thimble_name, thimble_key)
+  def self.load decrypt_pass, options={}
+    param_name = options[:param_name] || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
+    store        = ParamStore.new(options[:configliere_file])
+    store.get(param_name, decrypt_pass)
   end
   #
-  # Bare-bones interface to load config for a given thimble_name.
+  # Bare-bones interface to load config for a given param_name.
   #
-  # @param [String] thimble_key the passphrase to decrypt any encrypted values
-  # @hsh   [Hash] The hash to save. Special options starting with :thimble_ are pulled out
-  # @option hsh [Symbol] :thimble_name the thimble to load. If no thimble_name is given, uses the basename (without extension) of the running script.
-  # @option hsh [String] :thimble_file (Thimblerig::DEFAULT_FILENAME) the file to load from
+  # @param [String] decrypt_pass the passphrase to decrypt any encrypted values
+  # @hsh   [Hash] The hash to save. Special options starting with :param_ are pulled out
+  # @option hsh [Symbol] :param_name the param to load. If no param_name is given, uses the basename (without extension) of the running script.
+  # @option hsh [String] :configliere_file (Configliere::DEFAULT_FILENAME) the file to load from
   #
   # @example
   #   config = { :username => 'monkeyboy', :decrypted_api_key => 'c22b5f9178342609428d6f51b2c5af4c0bde6a42' }
-  #   Thimblerig.save 'sekret1', config.merge(:thimble_name => :happy_script)
+  #   Configliere.save 'sekret1', config.merge(:param_name => :happy_script)
   #
-  def self.save thimble_key, hsh={}
-    thimble_name = hsh[:thimble_name] || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
-    store        = ThimbleStore.new(hsh[:thimble_file])
-    thimble      = Thimble.new(thimble_key, hsh.reject{|k,v| k.to_s =~ /^thimble_/})
-    store.put!(thimble_name, thimble)
+  def self.save decrypt_pass, hsh={}
+    param_name = hsh[:param_name] || File.basename($0).gsub(/\.[^\.]*$/,"").to_sym
+    store        = ParamStore.new(hsh[:configliere_file])
+    param      = Param.new(decrypt_pass, hsh.reject{|k,v| k.to_s =~ /^param_/})
+    store.put!(param_name, param)
   end
 end

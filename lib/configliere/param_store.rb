@@ -1,76 +1,76 @@
-module Thimblerig
-  DEFAULT_FILENAME = ENV['HOME']+'/.thimblerig' unless defined?(DEFAULT_FILENAME)
-  class ThimbleStore
+module Configliere
+  DEFAULT_FILENAME = ENV['HOME']+'/.configliere' unless defined?(DEFAULT_FILENAME)
+  class ParamStore
     attr_accessor :filename
-    # initialize with the filename to load from. Defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
+    # initialize with the filename to load from. Defaults to ParamStore::DEFAULT_FILENAME (~/.configliere, probably)
     def initialize filename=nil
-      self.filename = filename || Thimblerig::DEFAULT_FILENAME
+      self.filename = filename || Configliere::DEFAULT_FILENAME
       load!
     end
 
-    # Load thimbles from disk.
-    # * file is in YAML format, as a hash of handle => thimble_hash pairs
-    # * filename defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
+    # Load params from disk.
+    # * file is in YAML format, as a hash of handle => param_hash pairs
+    # * filename defaults to ParamStore::DEFAULT_FILENAME (~/.configliere, probably)
     def load!
       begin
-        @thimbles = YAML.load_file(filename) || {}
+        @params = YAML.load_file(filename) || {}
       rescue
-        warn "Creating new thimblerig password store in #{filename}"
-        @thimbles = { }
+        warn "Creating new configliere password store in #{filename}"
+        @params = { }
       end
     end
 
     # save to disk.
-    # * file is in YAML format, as a hash of handle => thimble_hash pairs
-    # * filename defaults to ThimbleStore::DEFAULT_FILENAME (~/.thimblerig, probably)
+    # * file is in YAML format, as a hash of handle => param_hash pairs
+    # * filename defaults to ParamStore::DEFAULT_FILENAME (~/.configliere, probably)
     def save!
-      File.open(filename, 'w'){|f| f << YAML.dump(@thimbles) }
+      File.open(filename, 'w'){|f| f << YAML.dump(@params) }
     end
 
-    # retrieve the given thimble
-    def get handle, thimble_key
-      contents = @thimbles[handle] || {}
-      Thimble.new thimble_key, contents
+    # retrieve the given param
+    def get handle, decrypt_pass
+      contents = @params[handle] || {}
+      Param.new decrypt_pass, contents
     end
 
-    # delete the given thimble from store
-    def delete! handle, thimble_key
-      check_pass(handle, thimble_key) if thimble_key
-      @thimbles.delete(handle)
+    # delete the given param from store
+    def delete! handle, decrypt_pass
+      check_pass(handle, decrypt_pass) if decrypt_pass
+      @params.delete(handle)
       save!
     end
 
-    # adds the thimble to this store
-    def put handle, thimble
-      @thimbles[handle] = thimble.to_encrypted
+    # adds the param to this store
+    def put handle, param
+      @params[handle] = param.to_encrypted
     end
-    # add the thimble to this store and save the store to disk
+    # add the param to this store and save the store to disk
     def put!(*args) put *args ; save! end
-    # adds the thimble to this store in unencrypted form and save the store to disk
-    def put_decrypted! handle, thimble
-      @thimbles[handle] = thimble.to_decrypted
+    # adds the param to this store in unencrypted form and save the store to disk
+    def put_decrypted! handle, param
+      @params[handle] = param.to_decrypted
       save!
     end
 
-    # load the thimble, encrypt it, and save to disk
-    def fix! handle, thimble_key
-      put handle, get(handle, thimble_key)
+    # load the param, encrypt it, and save to disk
+    def fix! handle, decrypt_pass
+      put handle, get(handle, decrypt_pass)
       save!
     end
 
-    # checks if store includes the named thimble
+    # checks if store includes the named param
     def include? handle
-      @thimbles.include?(handle)
+      @params.include?(handle)
     end
 
-    # List handles of each thimble in the store.
+    # List handles of each param in the store.
     def handles
-      @thimbles.keys
+      @params.keys
     end
 
-    # checks password against thimble
-    def check_pass handle, thimble_key
-      get handle, thimble_key
+    # checks password against param
+    def check_pass handle, decrypt_pass
+      get handle, decrypt_pass
     end
   end
 end

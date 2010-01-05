@@ -1,11 +1,11 @@
-module Thimblerig
+module Configliere
   class Client
-    attr_accessor :options, :store, :thimble_options
+    attr_accessor :options, :store, :param_options
 
-    # Thimblerigger internal options -- these have special meaning
+    # Configliere internal options -- these have special meaning
     INTERNAL_OPTIONS = {
-      :config_key          => "Key to decrypt thimble's contents.",
-      :config_file         => "YAML file to use, #{Thimblerig::DEFAULT_FILENAME} by default.",
+      :config_key          => "Key to decrypt configliere group's contents.",
+      :config_file         => "YAML file to use, #{Configliere::DEFAULT_FILENAME} by default.",
     }
     # You can stuff descriptions for your own options in here, they'll be added
     # to the usage statement.
@@ -15,7 +15,7 @@ module Thimblerig
     # pattern, list the commands here:
     COMMANDS= {}
 
-    # All commandline name-value options that aren't internal to thimblerigger script
+    # All commandline name-value options that aren't internal to configliere
     def external_options
       options.reject{|name, val| (name.to_s[0..0]=='_') || INTERNAL_OPTIONS.include?(name) }
     end

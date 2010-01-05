@@ -1,22 +1,22 @@
-module Thimblerig
+module Configliere
   #
   # Hash of fields to store.
   #
   # Any field name beginning with 'decrypted_' automatically creates a
-  # counterpart 'encrypted_' field using the thimble_key.
+  # counterpart 'encrypted_' field using the decrypt_pass.
   #
-  class Thimble < ::Hash
-    attr_accessor :thimble_key
-    # Initialize with the thimble_key and the initial contents of the hash.
+  class Param < ::Hash
+    attr_accessor :decrypt_pass
+    # Initialize with the decrypt_pass and the initial contents of the hash.
     #
     # @example
-    #   # Create a thimble for a hypothetical database with thimble_key "your_mom"
-    #   Thimblerig::Thimble.new 'your_mom',
+    #   # Create a param for a hypothetical database with decrypt_pass "your_mom"
+    #   Configliere::Param.new 'your_mom',
     #     :username=>"mysql_username", :decrypted_password=>"mysql_password"
     #
-    def initialize thimble_key, hsh={}
+    def initialize decrypt_pass, hsh={}
       super()
-      self.thimble_key = thimble_key
+      self.decrypt_pass = decrypt_pass
       merge! hsh
       sync!
     end
@@ -26,9 +26,9 @@ module Thimblerig
     def []= attr, val
       super attr, val
       if    encrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.decrypt(val, thimble_key)
+        super attr_counterpart(attr), Crypter.decrypt(val, decrypt_pass)
       elsif decrypted_attr?(attr)
-        super attr_counterpart(attr), Crypter.encrypt(val, thimble_key)
+        super attr_counterpart(attr), Crypter.encrypt(val, decrypt_pass)
       end
       val
     end
@@ -95,13 +95,13 @@ module Thimblerig
     def reject!(*args, &block)    raise "Not implemented" ; end
     def default=(*args, &block)   raise "Not implemented" ; end
     def shift()                   raise "Not implemented" ; end
-    # returns an actual Hash, not a Thimble < Hash
+    # returns an actual Hash, not a Param < Hash
     def to_hash
       {}.merge! self
     end
 
     def to_s
-      s = ["#{self.class} thimble_key [#{thimble_key.inspect}]"]
+      s = ["#{self.class} decrypt_pass [#{decrypt_pass.inspect}]"]
       to_decrypted.each do |attr, val|
         s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
       end

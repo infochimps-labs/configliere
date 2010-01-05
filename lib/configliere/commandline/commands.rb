@@ -1,6 +1,6 @@
 require 'logger'
 Log = Logger.new(STDERR) unless defined?(Log)
-module Thimblerig
+module Configliere
   class CommandClient < Client
     attr_accessor :command
     COMMANDS[:help] = "Show this usage info"
@@ -10,7 +10,7 @@ module Thimblerig
 where
   command:             One of: #{COMMANDS.keys[0..-2].join(', ')} or #{COMMANDS.keys.last}
 
-Configuration taken from #{thimble_file} by default.}
+Configuration taken from #{configliere_file} by default.}
     end
 
     #
@@ -19,8 +19,8 @@ Configuration taken from #{thimble_file} by default.}
     def run
       dump_help_if_requested
       # Check options
-      die "Please give a command and the name of the thimble to encrypt" unless command
-      die "Please give the name of the thimble to encrypt" unless handle || ([:help, :list].include?(command))
+      die "Please give a command and the name of the configliere group to encrypt" unless command
+      die "Please give the name of the configliere group to encrypt" unless handle || ([:help, :list].include?(command))
       die "\n**\nUnknown command\n**\n" unless COMMANDS.include?(command)
       #
       self.send(command)
