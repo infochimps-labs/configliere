@@ -40,7 +40,7 @@ You can define static defaults in your module
 
 h2. Configuration files
 
-Call Configliere.load(:my_settings_group) to load from the global config file ~/.configli.yaml (or whatever Configliere::CONFIG_FILE is set to)
+Call Configliere.load(:my_settings_group) to load from the global config file ~/.configliere.yaml (or whatever Configliere::CONFIG_FILE is set to)
 
     # Settings for version II.
     :time_machine:
@@ -64,9 +64,9 @@ When you load directly from a file you should leave off the top-level settings g
 
 You can save defaults with
 
-    Configliere.save(:time_machine)            #=> ~/.configli.yaml, under :time_machine
+    Configliere.save(:time_machine)            #=> ~/.configliere.yaml, under :time_machine
     Configliere.save('/etc/time_machine.yaml') #=> /etc/time_machine.yaml
-    Configliere.save('time_machine.yaml')      #=> ~/.configli/time_machine.yaml
+    Configliere.save('time_machine.yaml')      #=> ~/.configliere/time_machine.yaml
     
 (and also see the --configliere-save commandline parameter,, below)
     
