@@ -40,10 +40,10 @@ describe "Configliere::Encrypted" do
 
   describe 'decrypting encryptable params' do
     it 'decrypts all params marked encrypted' do
-      @config.defaults :existing_param => 'existing'
+      @config.defaults :existing_param => 'existing', :encrypted_param => 'decrypt_me'
       Configliere::Crypter.should_receive(:decrypt).with('decrypt_me', 'pass').and_return('ok_decrypted')
-      hsh = { :normal_param => 'new_val', :encrypted_param => 'decrypt_me' }
-      @config.send(:import, hsh).should == { :existing_param => 'existing', :normal_param => 'new_val', :encrypted_param => 'ok_decrypted'}
+      @config.send(:resolve_encrypted!)
+      @config.should == { :existing_param => 'existing', :normal_param => 'normal', :encrypted_param => 'ok_decrypted'}
     end
   end
 
@@ -61,6 +61,7 @@ describe "Configliere::Encrypted" do
       File.stub(:open)
       YAML.should_receive(:load).and_return(@hsh)
       @config.read 'file.yaml'
+      @config.resolve!
       @config.should == { :loaded_param => "loaded", :encrypted_param => 'decrypt_me', :normal_param => 'normal' }
     end
   end

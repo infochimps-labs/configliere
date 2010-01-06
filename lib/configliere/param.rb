@@ -6,6 +6,7 @@ module Configliere
   # counterpart 'encrypted_' field using the encrypt_pass.
   #
   class Param < ::Hash
+
     # Initialize with the encrypt_pass and the initial contents of the hash.
     #
     # @example
@@ -26,24 +27,29 @@ module Configliere
     # @param hsh the defaults to set.
     #
     # @example
-    #    Config.defaults :hat => :cat, :basket => :lotion, :moon => { :man => :smiling }
-    #    Config.defaults :basket => :tasket, :moon => { :cow => :smiling }
+    #    Settings.defaults :hat => :cat, :basket => :lotion, :moon => { :man => :smiling }
+    #    Settings.defaults :basket => :tasket, :moon => { :cow => :smiling }
     #    Config  #=> { :hat => :cat, :basket => :tasket, :moon => { :man => :smiling, :cow => :jumping } }
     #
     def defaults hsh
       deep_merge! hsh
     end
 
-    #
+    # Finalize and validate params
     def resolve!
-      super() if super.respond_to?(:resolve!)
+      begin ; super() ; rescue NoMethodError ; nil ; end
+      validate!
+    end
+    # Check that all defined params are valid
+    def validate!
+      begin ; super() ; rescue NoMethodError ; nil ; end
     end
 
     def []= param, val
       if param =~ /\./
         return deep_set( *( dotted_to_deep_keys(param) | [val] ))
       else
-        super param, val
+        super param.to_sym, val
       end
     end
 
@@ -51,7 +57,7 @@ module Configliere
       if param =~ /\./
         return deep_get( *dotted_to_deep_keys(param) )
       else
-        super param
+        super param.to_sym
       end
     end
 
@@ -60,10 +66,8 @@ module Configliere
       {}.merge! self
     end
 
-    def method_missing meth, *args
-      if args.empty?
-        self[meth]
-      else super(meth, *args) end
+    def use *args
+      Configliere.use *args
     end
 
   protected
@@ -71,6 +75,15 @@ module Configliere
     # an array of sequential keys for deep_set and deep_get
     def dotted_to_deep_keys dotted
       dotted.split(".").map{|key| key.to_sym}
+    end
+
+    # simple (no-arg) method_missing callse
+    def method_missing meth, *args
+      if args.empty? && meth =~ /^\w+$/
+        self[meth]
+      elsif args.size == 1 && meth =~ /^\w+=$/
+        self[meth] = args.first
+      else super(meth, *args) end
     end
   end
 end

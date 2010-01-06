@@ -16,7 +16,7 @@ module Configliere
         params = {}
       end
       params = params[handle] if handle.is_a?(Symbol)
-      import params
+      deep_merge! params
     end
 
     # save to disk.
@@ -37,12 +37,6 @@ module Configliere
     # (e.g. the encryption done in configliere/encrypted)
     def export
       to_hash
-    end
-
-    # load, undoing any modifications in serialization
-    # (e.g. the decryption done in configliere/encrypted)
-    def import hsh
-      deep_merge! hsh
     end
 
     def self.write_yaml_file filename, hsh

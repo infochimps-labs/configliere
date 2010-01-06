@@ -24,13 +24,13 @@ module Configliere
 end
 
 # Defines a global config object
-Config = Configliere.new unless defined?(Config)
+Settings = Configliere.new unless defined?(Settings)
 
 #
 # Allows the
 #   Config :this => that, :cat => :hat
 # pattern.
 #
-def Config *args
-  Config.defaults *args
+def Settings *args
+  Settings.defaults *args
 end

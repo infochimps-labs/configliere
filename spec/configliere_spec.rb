@@ -7,7 +7,7 @@ describe "Configliere" do
     Configliere.new(:this => :that).should == mock_param
   end
   it 'creates a global variable Config' do
-    Config.class.should == Configliere::Param
+    Settings.class.should == Configliere::Param
   end
 
   it 'requires modules with use' do

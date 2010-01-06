@@ -13,9 +13,9 @@ module Configliere
     # @params definitions the defineables to set (:description, :type, :encrypted, etc.)
     #
     # @example
-    #   Config.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
-    #   Config.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    #   Config.define :password, :required => true, :obscure => true
+    #   Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
+    #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    #   Settings.define :password, :required => true, :obscure => true
     #
     def finally &block
       self.final_blocks << block
@@ -23,7 +23,7 @@ module Configliere
 
     # calls superclass resolution
     def resolve!
-      super() if super.respond_to?(:resolve!)
+      begin ; super() ; rescue NoMethodError ; nil ; end
       resolve_finally_blocks!
       self
     end

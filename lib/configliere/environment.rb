@@ -1,4 +1,5 @@
 require 'yaml'
+Configliere.use :define
 module Configliere
   #
   # Environment -- load configuration from environment variables
@@ -19,8 +20,13 @@ module Configliere
     end
 
     def adopt_environment_variable! env, param
+      define param, :environment => env
       val = ENV[env]
       self[param] = val if val
+    end
+
+    def params_from_environment
+      definitions_for(:environment)
     end
   end
 

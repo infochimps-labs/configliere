@@ -14,6 +14,12 @@ describe "Configliere::Param" do
   end
 
   describe 'setting vals' do
+    it 'symbolizes keys' do
+      @config.defaults :hat => :cat, :basket => :lotion
+      @config['hat'] = :fedora
+      @config['new'] = :unseen
+      @config.should == { :hat => :fedora, :basket => :lotion, :new => :unseen }
+    end
     it 'deep-sets dotted vals' do
       @config.defaults :hat => :cat, :basket => :lotion, :moon => { :man => :smiling }
       @config['moon.man'] = :cheesy

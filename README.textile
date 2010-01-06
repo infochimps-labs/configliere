@@ -1,23 +1,25 @@
 h1. Configliere
 
-bq. So, Consigliere of mine, I think you should tell your Don what everyone knows.
+Configliere provides wise, lightweight configuration management for ruby programs.
 
-Wise, lightweight configuration management for ruby programs.
+bq. So, Consigliere of mine, I think you should tell your Don what everyone knows. -- Don Corleone
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-A good configliere provides wise counsel and make problems go away. Design goals:
+Configliere's wise counsel takes care of these problems. Design goals:
 
-* *No drama*. Requires almost no external resources and almost no code in your script.
-* *Don't mess with my crew*. Settings for a model over here don't affect settings for a model over there, and don't require asking the boss to set something up.
+* *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
+* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
 * *Be willing to sit down with the Five Families*. Takes settings from (at your option):
 ** Pre-defined defaults from constants
 ** Simple config files
 ** Environment variables
 ** Commandline options
 ** Ruby block called when all other options are in place 
-* *Be discreet*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
-* *Know how to keep a frickin secret*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
+* *Code of Silence*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
+* *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
+
+fuhgeddaboudit.
 
 h2. Settings structure
 
@@ -25,7 +27,7 @@ Configliere settings are just a plain old normal hash.
 
 You can define static defaults in your module
 
-    Config.defaults({
+    Settings.defaults({
       :dest_time => '1955-11-05',
       :fluxcapacitor => {
         :speed => 88,
@@ -51,7 +53,7 @@ Retrieve them as:
   Config['delorean.missing']         #=> nil
   Config['delorean.missing.fail']    #=> nil
   # method-like (can't use this with deep keys)
-  Config.dest_time                   #=> '1955-11-05'
+  Settings.dest_time                   #=> '1955-11-05'
 
 Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with the mixins to require (:all to load all functionality).
 
@@ -60,7 +62,7 @@ Configliere doesn't load any other functionality by default -- you may not want 
 
 h2. Configuration files
 
-Call Config.read(:my_settings_group) to read a param group from the YAML global config file (Configliere::DEFAULT_CONFIG_FILE, normally ~/.configliere.yaml)
+Call Settings.read(:my_settings_group) to read a param group from the YAML global config file (Configliere::DEFAULT_CONFIG_FILE, normally ~/.configliere.yaml)
 
     # Settings for version II.
     :time_machine:
@@ -69,11 +71,11 @@ Call Config.read(:my_settings_group) to read a param group from the YAML global 
         :power_source:    Mr. Fusion
         :roads_needed:    ~
 
-You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in Configliere::DEFAULT_CONFIG_DIR (normally ~/.configliere)
+You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in Configliere::DEFAULT_CONFIG_DIR (normally ~/.configliere). Otherwise it loads the given file.
 
-    Config.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
-    Config.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
-    Config.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
+    Settings.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
+    Settings.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
+    Settings.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
 
 When you read directly from a file you should leave off the top-level settings group:
     
@@ -85,13 +87,13 @@ When you read directly from a file you should leave off the top-level settings g
 
 You can save defaults with
 
-    Config.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
-    Config.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
-    Config.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
+    Settings.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
+    Settings.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
+    Settings.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
     
 h2. Environment Variables
 
-    Config.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
+    Settings.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
 
 As usual, dotted keys set the corresponeding nested key ('delorean.power_source' sets Config[:delorean][:power_source])
 
@@ -100,7 +102,7 @@ h2. Command-line parameters
     # Head back
     time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05 
     # (in the time_machine script:)
-    Config.use :commandline
+    Settings.use :commandline
 
 Interpretation of command-line parameters:
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val.
@@ -108,8 +110,8 @@ Interpretation of command-line parameters:
 * *scoped params*: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
 ** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
 ** Only @[\w\.\-]+@ are accepted in parameter names. 
-* *Config.rest*: anything else is stored, in order, in @Config.rest@.
-* *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Config.rest.
+* *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
+* *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Settings.rest.
 
 Here are some things you don't get:
 * There are no short parameters (-r, etc).
@@ -123,27 +125,21 @@ h2. Fancy Parameters
 
 You don't have to pre-define parameters, but you can:
 
-    Config.use :define
-    Config.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
-    Config.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    Config.define :password, :required => true, :obscure => true
+    Settings.use :define
+    Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
+    Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Settings.define :password, :required => true, :obscure => true
 
-* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false. Make sure to call Config.resolve! in your script.
+* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false. Make sure to call Settings.resolve! in your script.
 * *:description* documents a param.
-* *:required* marks params required. Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Config.resolve! in your script.)
+* *:required* marks params required. 
 * *:encrypted* marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
 
-h2. Ruby Block
+h3. Required Parameters
 
-    Config.finally do |c|
-      c.dest_time = (Time.now + 60) if c.username == 'einstein'
-      # you can use hash syntax too
-      c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
-    end
+Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Settings.resolve! in your script.)
 
-Configliere 'finally' blocks are called after everything but required parameter
-    
-h2. Encrypted Parameters
+h3. Encrypted Parameters
 
 bq.  There are two kinds of cryptography in this world: cryptography that will
   stop your kid sister from reading your files, and cryptography that will stop
@@ -151,6 +147,36 @@ bq.  There are two kinds of cryptography in this world: cryptography that will
   -- Preface to Applied Cryptography by Bruce Schneier
 
 Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between having to find a paperclip and jimmy open your annoying brother's stupid journal and being able to open to any page.
+
+h2. Ruby Block
+
+    Settings.finally do |c|
+      c.dest_time = (Time.now + 60) if c.username == 'einstein'
+      # you can use hash syntax too
+      c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
+    end
+    #
+    # ... rest of setup
+    #
+    Settings.resolve!    # the finally blocks will be called in order
+
+Configliere 'finally' blocks are called after everything but required parameter    
+
+h2. Independent Settings
+
+All of the above uses the Settings global variable defined in configliere.rb.  However, you're free to define your own settings universe. 
+
+    module MyProject
+      cattr_accessor :config
+      self.config = Configliere.new({
+        :helicity => 'homotopic',
+        :froebenius_matrix => 'unitary',
+        })
+    end
+    pr = proj.new
+    pr.config   #=> {:helicity => 'homotopic', :froebenius_matrix => 'unitary' }
+
+Values in here don't overlap with the Settings object or any other settings universe. However, every one that pulls in commandline params gets a full copy of the commandline params.
 
 h2. Project info
 

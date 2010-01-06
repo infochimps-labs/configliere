@@ -52,6 +52,7 @@ describe "Configliere::Define" do
       @config.required_params.should == [ :param_1, :param_2 ]
     end
     it 'counts false values as required' do
+      p [@config]
       @config.defaults :param_1 => true, :param_2 => false
       @config.validate!.should == true
     end
@@ -63,7 +64,8 @@ describe "Configliere::Define" do
       lambda{ @config.validate! }.should raise_error "Missing values for param_1, param_2"
     end
     it 'lists all missing values when it raises' do
-      lambda{ @config.validate! }.should raise_error "Missing values for param_1, param_2"
+      Configliere.use :define
+      lambda{ p @config.validate! }.should raise_error "Missing values for param_1, param_2"
     end
   end
 end

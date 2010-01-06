@@ -8,9 +8,9 @@ module Configliere
   protected
 
     # @example
-    #   Config.defaults :username=>"mysql_username", :password=>"mysql_password"
-    #   Config.define :password, :encrypted => true
-    #   Config.exportable
+    #   Settings.defaults :username=>"mysql_username", :password=>"mysql_password"
+    #   Settings.define :password, :encrypted => true
+    #   Settings.exportable
     #     #=> {:username => 'mysql_username', :password=>"\345?r`\222\021"\210\312\331\256\356\351\037\367\326" }
     def export
       hsh = super()
@@ -20,14 +20,18 @@ module Configliere
       hsh
     end
 
+    def resolve!
+      begin ; super() ; rescue NoMethodError ; nil ; end
+      resolve_encrypted!
+      self
+    end
+
     # import values, decrypting all params marked as encrypted
-    def import hsh
-      # done this way so we don't piss on the values in hsh
-      overlay = {}
+    def resolve_encrypted!
+      self.encrypt_pass = self.delete(:encrypt_pass) if self[:encrypt_pass]
       encrypted_params.each do |param|
-        overlay.deep_set(param, self.decrypted(hsh.deep_get(param)))
+        self[param] = self.decrypted(self[param])
       end
-      super hsh.deep_merge(overlay)
     end
 
     # list of all params to encrypt on serialization
@@ -36,6 +40,7 @@ module Configliere
     end
 
     def decrypted val
+      return val if val.to_s == ''
       Configliere::Crypter.decrypt(val, encrypt_pass)
     end
 

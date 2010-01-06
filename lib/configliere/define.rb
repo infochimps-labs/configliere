@@ -3,22 +3,21 @@ module Configliere
     # Definitions for params: :description, :type, :encrypted, etc.
     attr_accessor :param_definitions
 
-    def initialize *args, &block
-      super *args, &block
-      # an auto-vivifying hash
-      self.param_definitions = Hash.new{|hsh, key| hsh[key] = {} }
-    end
-
     # @params param the setting to describe. Either a simple symbol or a dotted param string.
     # @params definitions the defineables to set (:description, :type, :encrypted, etc.)
     #
     # @example
-    #   Config.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
-    #   Config.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    #   Config.define :password, :required => true, :obscure => true
+    #   Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
+    #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    #   Settings.define :password, :required => true, :obscure => true
     #
     def define param, definitions={}
       self.param_definitions[param].merge! definitions
+    end
+
+    def param_definitions
+      # initialize the param_definitions as an auto-vivifying hash if it's never been set
+      @param_definitions ||= Hash.new{|hsh, key| hsh[key] = {} }
     end
 
     protected
@@ -41,12 +40,13 @@ module Configliere
     # performs type coercion
     def resolve!
       resolve_types!
-      super() if superclass.respond_to?(:resolve!)
+      begin ; super() ; rescue NoMethodError ; nil ; end
       self
     end
 
     def validate!
       validate_requireds!
+      begin ; super() ; rescue NoMethodError ; nil ; end
       true
     end
 
@@ -54,7 +54,7 @@ module Configliere
     #
     # Describe params with
     #
-    #   Config.define :param, :description => '...'
+    #   Settings.define :param, :description => '...'
     #
 
     # gets the description (if any) for the param
@@ -79,7 +79,7 @@ module Configliere
     #
     # Define types with
     #
-    #   Config.define :param, :type => Date
+    #   Settings.define :param, :type => Date
     #
 
     def type_for param
@@ -112,7 +112,7 @@ module Configliere
         when (type == Time)     then
           require 'time'
           val = Time.parse(val) rescue nil
-        when (type == Symbol)   then val = val.to_s.to_sym
+        when (type == Symbol)   then val = val.to_s.to_sym rescue nil
         end
         self[param] = val
       end
@@ -124,7 +124,7 @@ module Configliere
     #
     # Define requireds with
     #
-    #   Config.define :param, :required => true
+    #   Settings.define :param, :required => true
     #
 
     # List of params that are required
