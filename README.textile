@@ -6,7 +6,11 @@ bq. So, Consigliere of mine, I think you should tell your Don what everyone know
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-Configliere is a no-fuss library for flexibly managing your configuration settings. Design goals:
+Configliere is a no-fuss library for flexibly managing your configuration settings.
+
+
+
+Design goals:
 
 * *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
 * *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
@@ -42,40 +46,48 @@ You can define static defaults in your module
     
 Retrieve them as:
 
-  # hash keys       
-  Config[:dest_time]                 #=> '1955-11-05'
-  # deep keys
-  Config[:delorean][:power_source]   #=> 'plutonium'
-  Config[:delorean][:missing]        #=> nil
-  Config[:delorean][:missing][:fail] #=> raises an error
-  # dotted keys resolve to deep keys
-  Config['delorean.power_source']    #=> 'plutonium'
-  Config['delorean.missing']         #=> nil
-  Config['delorean.missing.fail']    #=> nil
-  # method-like (can't use this with deep keys)
-  Settings.dest_time                   #=> '1955-11-05'
+<pre>
+    # hash keys       
+    Config[:dest_time]                 #=> '1955-11-05'
+    # deep keys
+    Config[:delorean][:power_source]   #=> 'plutonium'
+    Config[:delorean][:missing]        #=> nil
+    Config[:delorean][:missing][:fail] #=> raises an error
+    # dotted keys resolve to deep keys
+    Config['delorean.power_source']    #=> 'plutonium'
+    Config['delorean.missing']         #=> nil
+    Config['delorean.missing.fail']    #=> nil
+    # method-like (no deep keys tho)
+    Settings.dest_time                 #=> '1955-11-05'
+</pre>
 
 Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with the mixins to require (:all to load all functionality).
 
+<pre>
     Configliere.use :param_store, :define # Load config files and pre-define 
     Configliere.use :all                  # all of them
+</pre>
 
 h2. Configuration files
 
 Call Settings.read(:my_settings_group) to read a param group from the YAML global config file (Configliere::DEFAULT_CONFIG_FILE, normally ~/.configliere.yaml)
 
+<pre>
     # Settings for version II.
     :time_machine:
       :dest_time:        2015-11-05
       :delorean:
         :power_source:    Mr. Fusion
         :roads_needed:    ~
+</pre>
 
 You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in Configliere::DEFAULT_CONFIG_DIR (normally ~/.configliere). Otherwise it loads the given file.
 
+<pre>
     Settings.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
     Settings.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
     Settings.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
+</pre>
 
 When you read directly from a file you should leave off the top-level settings group:
     
