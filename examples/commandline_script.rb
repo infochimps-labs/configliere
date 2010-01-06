@@ -27,6 +27,7 @@ Settings.define :password, :encrypted => true
 Settings :wocket => 'pocket', :key => 'asdf'
 # from environment
 Settings.environment_variables 'PLACES', 'NOISES' => 'horton.hears_a'
+
 # from config file
 Settings.read(File.dirname(__FILE__)+'/commandline_script.yaml')
 
@@ -34,7 +35,6 @@ Settings.read(File.dirname(__FILE__)+'/commandline_script.yaml')
 Settings.finally do |c|
   c.lorax = 'tree'
 end
-
 
 # bookkeeping
 Settings.resolve!
@@ -45,5 +45,29 @@ Settings.param_or_ask :key
 print '  actual: '
 p Settings
 
+
+fiddle = Configliere.new
+fiddle.define 'amazon.api.key', :encrypted => true
+fiddle[:'encrypted_amazon.api.key'] = "{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035"
+print "actual: "; p [fiddle[:'encrypted_amazon.api.key'], fiddle['amazon.api.key'], fiddle.send(:export)]
+fiddle.resolve!
+puts  'expect: [nil, "bite_me"]'
+print "actual: "; p [fiddle[:'encrypted_amazon.api.key'], fiddle['amazon.api.key'], fiddle.send(:export)]
+#
+fiddle = Configliere.new
+fiddle['amazon.api.key'] = 'bite_me'
+fiddle.resolve!
+puts  'expect: [nil, "bite_me"]'
+print "actual: "; p [fiddle.encrypted_api_key, fiddle.api_key, fiddle.send(:export)]
+#
+fiddle = Configliere.new
+fiddle['amazon.api.encrypted_key'] = "{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035"
+fiddle.resolve!
+puts  'expect: [nil, "bite_me"]'
+print "actual: "; p [fiddle.encrypted_api_key, fiddle.api_key, fiddle.send(:export)]
+
+
+
 # save to disk
+# you can check that :password and :api_key have been properly encrypted.
 Settings.save! File.dirname(__FILE__)+'/foo.yaml'

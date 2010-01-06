@@ -87,7 +87,7 @@ class Hash
     val      = args.pop
     last_key = args.pop
     # dig down to last subtree (building out if necessary)
-    hsh = args.inject(self){|hsh, key| hsh[key] ||= {} }
+    hsh = args.empty? ? self : args.inject(self){|hsh, key| hsh[key] ||= {} }
     # set leaf value
     hsh[last_key] = val
   end
@@ -111,6 +111,12 @@ class Hash
     hsh = args.inject(self){|hsh, key| hsh[key] || {} }
     # get leaf value
     hsh[last_key]
+  end
+
+  def deep_delete *args
+    last_key  = args.pop
+    last_hsh  = args.empty? ? self : (deep_get(*args)||{})
+    last_hsh.delete(last_key)
   end
 
   # Stolen from ActiveSupport::CoreExtensions::Hash::ReverseMerge.

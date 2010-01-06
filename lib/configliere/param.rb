@@ -63,10 +63,7 @@ module Configliere
 
     def delete param
       if param =~ /\./
-        most_keys = dotted_to_deep_keys(param)
-        last_key  = most_keys.pop
-        last_hsh  = deep_get( *most_keys )
-        last_hsh.delete(last_key)
+        return deep_delete( *dotted_to_deep_keys(param) )
       else
         super param.to_sym
       end
@@ -85,7 +82,7 @@ module Configliere
     # turns a dotted param ('moon.cheese.type') into
     # an array of sequential keys for deep_set and deep_get
     def dotted_to_deep_keys dotted
-      dotted.split(".").map{|key| key.to_sym}
+      dotted.to_s.split(".").map{|key| key.to_sym}
     end
 
     # simple (no-arg) method_missing callse

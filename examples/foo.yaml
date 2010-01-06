@@ -1,14 +1,14 @@
 --- 
+:rate_per_hour: 10
+:places: go
+:key: asdf
 :horton: 
   :hears_a: who
-:password: !binary |
-  LEueVOk4yCAzQfUYzHroEZAzXJZgu8MlNe//RBlQMkM=
-
-:key: asdf
 :cat: hat
+:encrypted_password: !binary |
+  k5OzFcfAJAPNxA/0zDnfYmufpJGCSYErHkv/0az8ylI=
+
+:wocket: pocket
 :things: 
 - thing_1
 - thing_2
-:rate_per_hour: 10
-:wocket: pocket
-:places: go

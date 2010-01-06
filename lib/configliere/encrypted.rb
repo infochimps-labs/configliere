@@ -15,26 +15,44 @@ module Configliere
     def export
       hsh = super()
       encrypted_params.each do |param|
-        encrypted_param_name = "encrypted_#{param}".to_sym
-        val = hsh.delete(param)
-        hsh.deep_set(encrypted_param_name, encrypted(val))
+        val = hsh.deep_delete(*dotted_to_deep_keys(param)) or next
+        hsh.deep_set( *(dotted_to_encrypted_keys(param) | [encrypted(val)]) )
       end
       hsh
     end
 
+    # decrypts any encrypted params
+    # then calls the next step in the resolve! chain.
     def resolve!
-      begin ; super() ; rescue NoMethodError ; nil ; end
       resolve_encrypted!
+      begin ; super() ; rescue NoMethodError ; nil ; end
       self
     end
 
     # import values, decrypting all params marked as encrypted
     def resolve_encrypted!
-      self.encrypt_pass = self.delete(:encrypt_pass) if self[:encrypt_pass]
+      remove_and_adopt_encrypt_pass_param_if_any!
       encrypted_params.each do |param|
-        encrypted_val = delete("encrypted_#{param}".to_sym)
+        encrypted_val = deep_delete(*dotted_to_encrypted_keys(param)) or next
         self[param] = self.decrypted(encrypted_val)
       end
+    end
+
+    # if :encrypted_pass was set as a param, remove it from the hash and set it as an attribute
+    def remove_and_adopt_encrypt_pass_param_if_any!
+      @encrypt_pass = self.delete(:encrypt_pass) if self[:encrypt_pass]
+    end
+
+    # the chain of symbol keys for a dotted path key,
+    # prefixing the last one with "encrypted_"
+    #
+    # @example
+    #    dotted_to_encrypted_keys('amazon.api.key')
+    #    #=> [:amazon, :api, :encrypted_key]
+    def dotted_to_encrypted_keys param
+      encrypted_path = dotted_to_deep_keys(param).dup
+      encrypted_path[-1] = "encrypted_#{encrypted_path.last}".to_sym
+      encrypted_path
     end
 
     # list of all params to encrypt on serialization
