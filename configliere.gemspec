@@ -44,6 +44,7 @@ fuhgeddaboudit.
      "Rakefile",
      "VERSION",
      "bin/configliere",
+     "configliere.gemspec",
      "examples/commandline_script.rb",
      "examples/commandline_script.yaml",
      "examples/foo.yaml",
