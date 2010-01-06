@@ -21,7 +21,7 @@ A simple script:
     #/usr/bin/env ruby
     require 'configliere'
     
-    Settings.use :commandline, :param_store
+    Settings.use :commandline, :config_file
     Settings.read 'my_script.yaml'
     Settings.resolve!
 
