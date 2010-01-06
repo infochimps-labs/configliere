@@ -38,11 +38,9 @@ module Configliere
     def resolve!
     end
 
-
     def []= param, val
       if param =~ /\./
-        params_and_val = param.split(".").map{|param| param.to_sym} | [val]
-        return deep_set( *params_and_val )
+        return deep_set( *( dotted_to_deep_keys(param) | [val] ))
       else
         super param, val
       end
@@ -50,53 +48,11 @@ module Configliere
 
     def [] param
       if param =~ /\./
-        params = param.split(".").map{|param| param.to_sym}
-        return deep_get( *params )
+        return deep_get( *dotted_to_deep_keys(param) )
       else
         super param
       end
     end
-
-  #
-  #   # calls back to Hash#[], but ensures that for an en/decrypted attribute its
-  #   # de/encrypted counterpart is also correctly set.
-  #   def []= attr, val
-  #     super attr, val
-  #     if    encrypted_attr?(attr)
-  #       super attr_counterpart(attr), Crypter.decrypt(val, decrypt_pass)
-  #     elsif decrypted_attr?(attr)
-  #       super attr_counterpart(attr), Crypter.encrypt(val, decrypt_pass)
-  #     end
-  #     val
-  #   end
-  #
-  #
-  #   #
-  #   # These methods set values and so we have to ensure
-  #   # encrypted and decrypted values stay in sync.
-  #   #
-  #
-  #   def merge! hsh
-  #     super hsh
-  #     hsh.each{|attr, val| self[attr] = val if special_attr?(attr) }
-  #     self
-  #   end
-  #   def delete(attr)
-  #     super(attr_counterpart(attr)) if special_attr?(attr)
-  #     super(attr)
-  #   end
-  #   def delete_if!(*args, &block) raise "Not implemented" ; end
-  #   def reject!(*args, &block)    raise "Not implemented" ; end
-  #   def default=(*args, &block)   raise "Not implemented" ; end
-  #   def shift()                   raise "Not implemented" ; end
-    # def replace hsh
-    #   super hsh
-    #   sync!
-    #   self
-    # end
-    # def rehash
-    #   sync!
-    # end
 
     # returns an actual Hash, not a Param < Hash
     def to_hash
@@ -112,6 +68,10 @@ module Configliere
     end
 
   protected
-
+    # turns a dotted param ('moon.cheese.type') into
+    # an array of sequential keys for deep_set and deep_get
+    def dotted_to_deep_keys dotted
+      dotted.split(".").map{|key| key.to_sym}
+    end
   end
 end

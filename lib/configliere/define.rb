@@ -1,20 +1,20 @@
 module Configliere
   module Define
-    def define param, definitions
-      # definitions.each do
-      # end
-      self.param_definitions[param]= definitions
-    end
+    # Definitions for params: :description, :type, :encrypted, etc.
+    attr_accessor :param_definitions
 
     def initialize *args, &block
       super *args, &block
       self.param_definitions = {}
     end
 
-    def self.included base
-      base.class_eval do
-        attr_accessor :param_definitions
-      end
+    def define param, definitions
+      self.param_definitions[param]= definitions
+    end
+
+    def description param
+      definition = param_definitions[param] or return
+      definition[:description]
     end
   end
 
