@@ -3,10 +3,8 @@ module Configliere
   module Block
     # Config blocks to be executed at end of resolution (just before validation)
     attr_accessor :final_blocks
-
-    def initialize *args, &block
-      super *args, &block
-      self.final_blocks = []
+    def final_blocks
+      @final_blocks ||= []
     end
 
     # @params param the setting to describe. Either a simple symbol or a dotted param string.

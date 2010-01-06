@@ -3,19 +3,19 @@ Configliere.use :encrypted
 
 describe "Configliere::Encrypted" do
   before do
-    @config = Configliere::Param.new :encrypted_param => 'encrypt_me', :normal_param => 'normal'
-    @config.define :encrypted_param, :encrypted => true
+    @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
+    @config.define :secret, :encrypted => true
     @config.encrypt_pass = 'pass'
   end
 
   describe 'defining encrypted params' do
     it 'is encrypted if defined with :encrypted => true' do
-      @config.send(:encrypted_params).should include(:encrypted_param)
+      @config.send(:encrypted_params).should include(:secret)
     end
     it 'is not encrypted if defined with :encrypted => false' do
       @config.define :another_param,   :encrypted => false
       @config.send(:encrypted_params).should_not include(:another_param)
-      @config.send(:encrypted_params).should     include(:encrypted_param)
+      @config.send(:encrypted_params).should     include(:secret)
     end
     it 'is encrypted if not defined' do
       @config.send(:encrypted_params).should_not include(:missing_param)
@@ -25,25 +25,26 @@ describe "Configliere::Encrypted" do
   describe 'encrypting encryptable params' do
     it 'encrypts all params marked encrypted' do
       Configliere::Crypter.should_receive(:encrypt).with('encrypt_me', 'pass').and_return('ok_encrypted')
-      @config.send(:export).should == { :normal_param => 'normal', :encrypted_param => 'ok_encrypted'}
+      @config.send(:export).should == { :normal_param => 'normal', :encrypted_secret => 'ok_encrypted'}
     end
     it 'gets encrypted params successfully' do
       Configliere::Crypter.should_receive(:encrypt).with('encrypt_me', 'pass').and_return('ok_encrypted')
-      @config.send(:encrypted_get, :encrypted_param).should == 'ok_encrypted'
+      @config.send(:encrypted, @config[:secret]).should == 'ok_encrypted'
     end
     it 'fails if no pass is set' do
       # create the config but don't set an encrypt_pass
-      @config = Configliere::Param.new :encrypted_param => 'encrypt_me', :normal_param => 'normal'
-      lambda{ @config.send(:encrypted_get, :encrypted_param) }.should raise_error('Blank encryption password!')
+      @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
+      lambda{ @config.send(:encrypted, @config[:secret]) }.should raise_error('Blank encryption password!')
     end
   end
 
   describe 'decrypting encryptable params' do
     it 'decrypts all params marked encrypted' do
-      @config.defaults :existing_param => 'existing', :encrypted_param => 'decrypt_me'
+      @config.delete   :secret
+      @config.defaults :encrypted_secret => 'decrypt_me'
       Configliere::Crypter.should_receive(:decrypt).with('decrypt_me', 'pass').and_return('ok_decrypted')
       @config.send(:resolve_encrypted!)
-      @config.should == { :existing_param => 'existing', :normal_param => 'normal', :encrypted_param => 'ok_decrypted'}
+      @config.should == { :normal_param => 'normal', :secret => 'ok_decrypted'}
     end
   end
 
@@ -53,16 +54,16 @@ describe "Configliere::Encrypted" do
     end
     it 'encrypts' do
       Configliere::Crypter.should_receive(:encrypt).and_return(@encrypted_str)
-      Configliere::ParamStore.should_receive(:write_yaml_file).with('/fake/file', :normal_param=>"normal", :encrypted_param => @encrypted_str)
+      Configliere::ParamStore.should_receive(:write_yaml_file).with('/fake/file', :normal_param=>"normal", :encrypted_secret => @encrypted_str)
       @config.save! '/fake/file'
     end
     it 'decrypts' do
-      @hsh = { :loaded_param => "loaded", :encrypted_param => @encrypted_str }
+      @hsh = { :loaded_param => "loaded", :encrypted_secret => @encrypted_str }
       File.stub(:open)
       YAML.should_receive(:load).and_return(@hsh)
       @config.read 'file.yaml'
       @config.resolve!
-      @config.should == { :loaded_param => "loaded", :encrypted_param => 'decrypt_me', :normal_param => 'normal' }
+      @config.should == { :loaded_param => "loaded", :secret => 'decrypt_me', :normal_param => 'normal' }
     end
   end
 end

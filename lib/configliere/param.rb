@@ -61,6 +61,17 @@ module Configliere
       end
     end
 
+    def delete param
+      if param =~ /\./
+        most_keys = dotted_to_deep_keys(param)
+        last_key  = most_keys.pop
+        last_hsh  = deep_get( *most_keys )
+        last_hsh.delete(last_key)
+      else
+        super param.to_sym
+      end
+    end
+
     # returns an actual Hash, not a Param < Hash
     def to_hash
       {}.merge! self
@@ -79,10 +90,10 @@ module Configliere
 
     # simple (no-arg) method_missing callse
     def method_missing meth, *args
-      if args.empty? && meth =~ /^\w+$/
+      if args.empty? && meth.to_s =~ /^\w+$/
         self[meth]
-      elsif args.size == 1 && meth =~ /^\w+=$/
-        self[meth] = args.first
+      elsif args.size == 1 && meth.to_s =~ /^(\w+)=$/
+        self[$1] = args.first
       else super(meth, *args) end
     end
   end

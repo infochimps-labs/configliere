@@ -13,8 +13,9 @@ with those args, we
 }
 
 # Configuration
-Settings.use :commandline, :param_store
+Settings.use :commandline, :param_store, :config_blocks
 Settings.read SCRIPT_DIR+'/simple_script.yaml'
+
 Settings.resolve!
 
 # Print results

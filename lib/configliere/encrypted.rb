@@ -15,7 +15,9 @@ module Configliere
     def export
       hsh = super()
       encrypted_params.each do |param|
-        hsh.deep_set(param, encrypted_get(param))
+        encrypted_param_name = "encrypted_#{param}".to_sym
+        val = hsh.delete(param)
+        hsh.deep_set(encrypted_param_name, encrypted(val))
       end
       hsh
     end
@@ -30,7 +32,8 @@ module Configliere
     def resolve_encrypted!
       self.encrypt_pass = self.delete(:encrypt_pass) if self[:encrypt_pass]
       encrypted_params.each do |param|
-        self[param] = self.decrypted(self[param])
+        encrypted_val = delete("encrypted_#{param}".to_sym)
+        self[param] = self.decrypted(encrypted_val)
       end
     end
 
@@ -44,8 +47,8 @@ module Configliere
       Configliere::Crypter.decrypt(val, encrypt_pass)
     end
 
-    def encrypted_get(param)
-      val = self[param] or return
+    def encrypted(val)
+      return if ( !val )
       Configliere::Crypter.encrypt(val, encrypt_pass)
     end
   end

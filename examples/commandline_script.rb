@@ -15,7 +15,7 @@ Try running it as
 
 which should create
 
-    {:cat=>"hat", :places=>"go", :horton=>{:hears_a=>"who"}, :wocket=>"pocket", :key => '[what you entered]'}
+  expect: {:password=>"zike_bike", :horton=>{:hears_a=>"who"}, :key=>"asdf", :cat=>"hat", :things=>["thing_1", "thing_2"], :rate_per_hour=>10, :places=>"go", :wocket=>"pocket"}
 }
 
 # describe and define params
@@ -28,43 +28,22 @@ Settings :wocket => 'pocket', :key => 'asdf'
 # from environment
 Settings.environment_variables 'PLACES', 'NOISES' => 'horton.hears_a'
 # from config file
-Settings.read(File.dirname(__FILE__)+'/simple_script.yaml')
+Settings.read(File.dirname(__FILE__)+'/commandline_script.yaml')
+
+# from finally block
+Settings.finally do |c|
+  c.lorax = 'tree'
+end
+
 
 # bookkeeping
 Settings.resolve!
 # Get the value for param[:key] from the keyboard if missing
 Settings.param_or_ask :key
 
+# Print results
+print '  actual: '
 p Settings
 
+# save to disk
 Settings.save! File.dirname(__FILE__)+'/foo.yaml'
-
-
-# puts %Q{
-# ---------------------------------------------------------------------------
-#
-# Here\'s the one-line version. It loads the file, takes the key from the
-# commandline or a prompt, and extracts the decrypted hash of values.
-#
-# To supply the key from the command line, run
-#   #{$0} --key=foobar
-# }
-#
-# puts %Q{
-# ---------------------------------------------------------------------------
-#
-# If you\'d like access to the command-line options as well, keep the client
-# around. In this example, we load config options from the param group but allow
-# the commandline options to override.
-#
-# To supply some override options, try
-#   #{$0} --key=foobar --email_address="me@example.com" --password="alt_pass"
-# }
-#
-# configliere_client = Configliere::Client.new
-# config = configliere_client.get(:example).to_plain
-# config.merge! configliere_client.external_options
-#
-# print "Configuration with override: "
-# pp config
-
