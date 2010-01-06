@@ -1,21 +1,18 @@
 #!/usr/bin/env ruby
-require 'rubygems' ; $: << File.dirname(__FILE__)+'/../lib'
+$: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
-SCRIPT_DIR = File.dirname(__FILE__)
 
 # Intro text
 puts %Q{
 This is a demo of the Configliere interface. It takse settings
 Try running it as
-   ./examples/simple_script.rb --cat=hat
+  ./examples/simple_script.rb --sprats.wife=fat --spider=drainspout
 with those args, we
-  expect: {:things=>["thing_1", "thing_2"], :rate_per_hour=>10, :cat=>"hat"}
+  expect: {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}
 }
 
-# Configuration
-Settings.use :commandline, :param_store, :config_blocks
-Settings.read SCRIPT_DIR+'/simple_script.yaml'
-
+Settings.use :commandline, :param_store
+Settings.read File.dirname(__FILE__)+'/simple_script.yaml'
 Settings.resolve!
 
 # Print results
