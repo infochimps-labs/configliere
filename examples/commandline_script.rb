@@ -4,7 +4,7 @@ require 'pp'
 # module Configliere ; DEFAULT_CONFIG_FILENAME = File.dirname(__FILE__)+'/commandline_script.yaml' end
 require 'configliere'
 
-Settings.use :commandline, :define, :environment, :param_store, :encrypted
+Settings.use :all
 
 puts %Q{
 This is a demo of the Configliere interface. It parses all command line options to load keys, global options, etc.
@@ -46,25 +46,26 @@ print '  actual: '
 p Settings
 
 
-fiddle = Configliere.new
+fiddle = Configliere.new; fiddle.encrypt_pass = 'pass'
 fiddle.define 'amazon.api.key', :encrypted => true
-fiddle[:'encrypted_amazon.api.key'] = "{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035"
-print "actual: "; p [fiddle[:'encrypted_amazon.api.key'], fiddle['amazon.api.key'], fiddle.send(:export)]
-fiddle.resolve!
-puts  'expect: [nil, "bite_me"]'
-print "actual: "; p [fiddle[:'encrypted_amazon.api.key'], fiddle['amazon.api.key'], fiddle.send(:export)]
-#
-fiddle = Configliere.new
-fiddle['amazon.api.key'] = 'bite_me'
-fiddle.resolve!
-puts  'expect: [nil, "bite_me"]'
-print "actual: "; p [fiddle.encrypted_api_key, fiddle.api_key, fiddle.send(:export)]
-#
-fiddle = Configliere.new
 fiddle['amazon.api.encrypted_key'] = "{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035"
 fiddle.resolve!
 puts  'expect: [nil, "bite_me"]'
-print "actual: "; p [fiddle.encrypted_api_key, fiddle.api_key, fiddle.send(:export)]
+print "actual: "; p [fiddle['amazon.api.encrypted_key'], fiddle['amazon.api.key'], fiddle.send(:export)]
+#
+fiddle = Configliere.new; fiddle.encrypt_pass = 'pass'
+fiddle.define 'amazon.api.key', :encrypted => true
+fiddle['amazon.api.key'] = 'bite_me'
+fiddle.resolve!
+puts  'expect: [nil, "bite_me"]'
+print "actual: "; p [fiddle['amazon.api.encrypted_key'], fiddle['amazon.api.key'], fiddle.send(:export)]
+#
+fiddle = Configliere.new; fiddle.encrypt_pass = 'pass'
+fiddle.define 'amazon.api.key', :encrypted => true
+fiddle['amazon.api.encrypted_key'] = "{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035"
+# fiddle.resolve!
+puts  'expect: ["{bo\335\256nt2Rc\016\244\216c\030\2627g\233%\300\035l\225\325\305z\207LR\333\035", nil]'
+print "actual: "; p [fiddle['amazon.api.encrypted_key'], fiddle['amazon.api.key'], fiddle.send(:export)]
 
 
 
