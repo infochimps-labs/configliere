@@ -6,7 +6,7 @@ bq. So, Consigliere of mine, I think you should tell your Don what everyone know
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-Configliere's wise counsel takes care of these problems. Design goals:
+Configliere is a no-fuss library for flexibly managing your configuration settings. Design goals:
 
 * *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
 * *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
