@@ -9,30 +9,24 @@ You've got a script. It's got some settings. Some settings are for this module, 
 Configliere is a no-fuss library for flexibly managing your configuration settings.
 
 A config file, in ~/.configliere/simple_script.yaml
-<pre>
-    :cat:     hat
+<pre>    :cat:     hat
     :spider:  tuffet
     :sprats:
-      :jack:  lean
-</pre>
+      :jack:  lean</pre>
 
 A simple script:
-<pre>
-    #/usr/bin/env ruby
+<pre>    #/usr/bin/env ruby
     require 'configliere'
     
     Settings.use :commandline, :config_file
     Settings.read 'my_script.yaml'
     Settings.resolve!
 
-    p Settings
-</pre>
+    p Settings</pre>
 
 Output:
-<pre>
-    ./simple_script.rb --sprats.wife=fat --spider=drainspout
-    {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}
-</pre>
+<pre>    ./simple_script.rb --sprats.wife=fat --spider=drainspout
+    {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}</pre>
 
 h3. Design goals:
 
