@@ -3,13 +3,13 @@ module Configliere
   # Hash of fields to store.
   #
   # Any field name beginning with 'decrypted_' automatically creates a
-  # counterpart 'encrypted_' field using the decrypt_pass.
+  # counterpart 'encrypted_' field using the encrypt_pass.
   #
   class Param < ::Hash
-    # Initialize with the decrypt_pass and the initial contents of the hash.
+    # Initialize with the encrypt_pass and the initial contents of the hash.
     #
     # @example
-    #   # Create a param for a hypothetical database with decrypt_pass "your_mom"
+    #   # Create a param for a hypothetical database with encrypt_pass "your_mom"
     #   Configliere::Param.new 'your_mom',
     #     :username=>"mysql_username", :decrypted_password=>"mysql_password"
     #
@@ -61,8 +61,8 @@ module Configliere
     end
 
     def to_s
-      s = ["#{self.class} decrypt_pass [#{decrypt_pass.inspect}]"]
-      to_decrypted.each do |attr, val|
+      s = ["#{self.class} encrypt_pass [#{encrypt_pass.inspect}]"]
+      each do |attr, val|
         s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
       end
       s.join("\n")

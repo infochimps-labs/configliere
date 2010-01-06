@@ -53,17 +53,17 @@ describe "Configliere::Define" do
     end
     it 'counts false values as required' do
       @config.defaults :param_1 => true, :param_2 => false
-      @config.resolve!.should == {:param_1=>true, :param_2=>false, :normal_param=>"normal"}
+      @config.validate!.should == true
     end
     it 'counts nil-but-set values as missing' do
       @config.defaults :param_1 => true, :param_2 => nil
-      lambda{ @config.resolve! }.should raise_error "Missing values for param_2"
+      lambda{ @config.validate! }.should raise_error "Missing values for param_2"
     end
     it 'counts never-set values as missing' do
-      lambda{ @config.resolve! }.should raise_error "Missing values for param_1, param_2"
+      lambda{ @config.validate! }.should raise_error "Missing values for param_1, param_2"
     end
     it 'lists all missing values when it raises' do
-      lambda{ @config.resolve! }.should raise_error "Missing values for param_1, param_2"
+      lambda{ @config.validate! }.should raise_error "Missing values for param_1, param_2"
     end
   end
 end

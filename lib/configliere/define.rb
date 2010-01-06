@@ -40,8 +40,12 @@ module Configliere
 
     def resolve!
       resolve_types!
-      resolve_requireds!
       self
+    end
+
+    def validate!
+      validate_requireds!
+      true
     end
 
     # ===========================================================================
@@ -127,7 +131,7 @@ module Configliere
     end
 
     # Check that all required params are present.
-    def resolve_requireds!
+    def validate_requireds!
       missing = []
       required_params.each do |param|
         missing << param if self[param].nil?
