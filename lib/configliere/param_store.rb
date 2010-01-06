@@ -25,9 +25,9 @@ module Configliere
     def save! handle
       filename = filename_for_handle(handle)
       if handle.is_a?(Symbol)
-        ParamStore.merge_into_yaml_file filename, handle, self.to_exportable
+        ParamStore.merge_into_yaml_file filename, handle, self.export
       else
-        ParamStore.write_yaml_file filename, self.to_exportable
+        ParamStore.write_yaml_file filename, self.export
       end
     end
 
@@ -35,7 +35,7 @@ module Configliere
 
     # form suitable for serialization to disk
     # (e.g. the encryption done in configliere/encrypted)
-    def to_exportable
+    def export
       to_hash
     end
 

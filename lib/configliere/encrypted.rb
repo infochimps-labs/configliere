@@ -12,7 +12,7 @@ module Configliere
     #   Config.define :password, :encrypted => true
     #   Config.exportable
     #     #=> {:username => 'mysql_username', :password=>"\345?r`\222\021"\210\312\331\256\356\351\037\367\326" }
-    def to_exportable
+    def export
       hsh = super()
       encrypted_params.each do |param|
         hsh.deep_set(param, encrypted_get(param))
@@ -32,7 +32,7 @@ module Configliere
 
     # list of all params to encrypt on serialization
     def encrypted_params
-      param_definitions.keys.find_all{|param| param_definitions[param][:encrypted] }
+      params_with(:encrypted)
     end
 
     def decrypted val

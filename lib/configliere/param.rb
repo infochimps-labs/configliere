@@ -36,6 +36,7 @@ module Configliere
 
     #
     def resolve!
+      super()
     end
 
     def []= param, val

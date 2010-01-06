@@ -113,9 +113,9 @@ You don't have to pre-define parameters, but you can:
     Config.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Config.define :password, :required => true, :obscure => true
 
-* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false.
+* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false. Make sure to call Config.resolve! in your script.
 * *:description* documents a param.
-* *:required* marks params required. Any required parameter found to be nil raises an error (listing all missing params)
+* *:required* marks params required. Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Config.resolve! in your script.)
 * *:obscured* marks params to be encrypted when saved to disk. See [#Obscured Parameters] below for caveats.
 
 h2. Ruby Block

@@ -25,7 +25,7 @@ describe "Configliere::Encrypted" do
   describe 'encrypting encryptable params' do
     it 'encrypts all params marked encrypted' do
       Configliere::Crypter.should_receive(:encrypt).with('encrypt_me', 'pass').and_return('ok_encrypted')
-      @config.send(:to_exportable).should == { :normal_param => 'normal', :encrypted_param => 'ok_encrypted'}
+      @config.send(:export).should == { :normal_param => 'normal', :encrypted_param => 'ok_encrypted'}
     end
     it 'gets encrypted params successfully' do
       Configliere::Crypter.should_receive(:encrypt).with('encrypt_me', 'pass').and_return('ok_encrypted')
