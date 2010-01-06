@@ -21,8 +21,9 @@ module Configliere
       self.final_blocks << block
     end
 
+    # calls superclass resolution
     def resolve!
-      super()
+      super() if super.respond_to?(:resolve!)
       resolve_finally_blocks!
       self
     end
@@ -40,4 +41,3 @@ module Configliere
     include Configliere::Block
   end
 end
-

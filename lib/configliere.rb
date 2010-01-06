@@ -22,4 +22,15 @@ module Configliere
     end
   end
 end
+
+# Defines a global config object
 Config = Configliere.new unless defined?(Config)
+
+#
+# Allows the
+#   Config :this => that, :cat => :hat
+# pattern.
+#
+def Config *args
+  Config.defaults *args
+end

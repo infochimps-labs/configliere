@@ -36,7 +36,7 @@ module Configliere
 
     #
     def resolve!
-      super()
+      super() if super.respond_to?(:resolve!)
     end
 
     def []= param, val
@@ -60,12 +60,10 @@ module Configliere
       {}.merge! self
     end
 
-    def to_s
-      s = ["#{self.class} encrypt_pass [#{encrypt_pass.inspect}]"]
-      each do |attr, val|
-        s << "  %-21s\t%s"%[attr.to_s+':', val.inspect]
-      end
-      s.join("\n")
+    def method_missing meth, *args
+      if args.empty?
+        self[meth]
+      else super(meth, *args) end
     end
 
   protected

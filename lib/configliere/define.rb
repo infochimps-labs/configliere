@@ -38,8 +38,10 @@ module Configliere
     end
     public
 
+    # performs type coercion
     def resolve!
       resolve_types!
+      super() if superclass.respond_to?(:resolve!)
       self
     end
 
@@ -94,6 +96,7 @@ module Configliere
       params_with(:type)
     end
 
+    # Coerce all params with types defined to their proper form
     def resolve_types!
       types.each do |param, type|
         val = self[param]
