@@ -3,8 +3,8 @@ module Configliere
     # Definitions for params: :description, :type, :encrypted, etc.
     attr_accessor :param_definitions
 
-    # @params param the setting to describe. Either a simple symbol or a dotted param string.
-    # @params definitions the defineables to set (:description, :type, :encrypted, etc.)
+    # @param param the setting to describe. Either a simple symbol or a dotted param string.
+    # @param definitions the defineables to set (:description, :type, :encrypted, etc.)
     #
     # @example
     #   Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
@@ -58,7 +58,7 @@ module Configliere
     #
 
     # gets the description (if any) for the param
-    # @params param the setting to describe. Either a simple symbol or a dotted param string.
+    # @param param the setting to describe. Either a simple symbol or a dotted param string.
     def description_for param
       param_definitions[param][:description]
     end

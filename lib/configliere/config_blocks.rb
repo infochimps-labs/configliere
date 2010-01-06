@@ -7,8 +7,8 @@ module Configliere
       @final_blocks ||= []
     end
 
-    # @params param the setting to describe. Either a simple symbol or a dotted param string.
-    # @params definitions the defineables to set (:description, :type, :encrypted, etc.)
+    # @param param the setting to describe. Either a simple symbol or a dotted param string.
+    # @param definitions the defineables to set (:description, :type, :encrypted, etc.)
     #
     # @example
     #   Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
