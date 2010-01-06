@@ -101,12 +101,12 @@ module Configliere
       types.each do |param, type|
         val = self[param]
         case
+        when val.nil? then val = nil
+        when (type == :boolean) then
+          if ['false', '0', ''].include?(val.to_s) then val = false else val = true end
+        when (val.to_s == '')   then val = nil
         when (type == Float)    then val = val.to_f
         when (type == Integer)  then val = val.to_i
-        when (type == nil)      then val = nil   if val.blank?
-        when (type == false)    then val = false if val.blank? && (! val.nil?)
-        when (type == :boolean) then
-          if ['false', 0, '0', nil, '', false].include?(val) then val = false else val = true end
         when (type == Date)     then val = Date.parse(val)     rescue nil
         when (type == DateTime) then val = DateTime.parse(val) rescue nil
         when (type == Time)     then
@@ -139,7 +139,7 @@ module Configliere
       required_params.each do |param|
         missing << param if self[param].nil?
       end
-      raise "Missing values for #{missing.join(", ")}" if (! missing.empty?)
+      raise "Missing values for #{missing.map{|s| s.to_s }.sort.join(", ")}" if (! missing.empty?)
     end
 
   end

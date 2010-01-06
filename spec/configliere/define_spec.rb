@@ -21,7 +21,8 @@ describe "Configliere::Define" do
       @config.define :param_1, :description => 'desc 1'
       @config.define :param_2, :description => 'desc 2'
       @config.define :param_3, :something_else => 'foo'
-      @config.send(:params_with, :description).should == [:param_1, :param_2]
+      @config.send(:params_with, :description).should include(:param_1)
+      @config.send(:params_with, :description).should include(:param_2)
     end
   end
 
@@ -37,9 +38,31 @@ describe "Configliere::Define" do
       @config.descriptions.should == { :param_1 => 'desc 1', :param_2 => 'desc 2'}
     end
     it 'lists descriptions' do
-      @config.described_params.should == [ :param_1, :param_2 ]
+      @config.described_params.should include(:param_1)
+      @config.described_params.should include(:param_2)
     end
   end
+
+  require 'date'; require 'time'
+  describe 'type coercion' do
+    [
+      [:boolean, '0', false],  [:boolean, 0, false], [:boolean, '',  false], [:boolean, [], false], [:boolean, nil, nil],
+      [:boolean, '1', true],   [:boolean, 1, true],  [:boolean, '5', true],  [:boolean, 'true', true],
+      [Integer, '5', 5],       [Integer, 5,   5],    [Integer, nil, nil],    [Integer, '', nil],
+      [Integer, '5', 5],       [Integer, 5,   5],    [Integer, nil, nil],    [Integer, '', nil],
+      [Float,   '5.2', 5.2],   [Float,   5.2, 5.2],  [Float, nil, nil],      [Float, '', nil],
+      [Symbol,   'foo', :foo], [Symbol, :foo, :foo], [Symbol, nil, nil],     [Symbol, '', nil],
+      [Date,    '1985-11-05',           Date.parse('1985-11-05')],               [Date, nil, nil], [Date, '', nil],
+      [DateTime, '1985-11-05 11:00:00', DateTime.parse('1985-11-05 11:00:00')],  [DateTime, nil, nil], [DateTime, '', nil],
+      [Time,     '1985-11-05 11:00:00', Time.parse('1985-11-05 11:00:00')],      [Time, nil, nil], [Time, '', nil],
+    ].each do |type, orig, desired|
+      it "for #{type} converts #{orig.inspect} to #{desired.inspect}" do
+        @config.define :param, :type => type
+        @config[:param] = orig ; @config.resolve! ; @config[:param].should == desired
+      end
+    end
+  end
+
 
   describe 'defining requireds' do
     before do
@@ -49,7 +72,8 @@ describe "Configliere::Define" do
       @config.define :optional_2
     end
     it 'lists required params' do
-      @config.required_params.should == [ :param_1, :param_2 ]
+      @config.required_params.should include(:param_1)
+      @config.required_params.should include(:param_2)
     end
     it 'counts false values as required' do
       p [@config]
