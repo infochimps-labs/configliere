@@ -8,9 +8,33 @@ You've got a script. It's got some settings. Some settings are for this module, 
 
 Configliere is a no-fuss library for flexibly managing your configuration settings.
 
+A config file, in ~/.configliere/simple_script.yaml
+<pre>
+    :cat:     hat
+    :spider:  tuffet
+    :sprats:
+      :jack:  lean
+</pre>
 
+A simple script:
+<pre>
+    #/usr/bin/env ruby
+    require 'configliere'
+    
+    Settings.use :commandline, :param_store
+    Settings.read 'my_script.yaml'
+    Settings.resolve!
 
-Design goals:
+    p Settings
+</pre>
+
+Output:
+<pre>
+    ./simple_script.rb --sprats.wife=fat --spider=drainspout
+    {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}
+</pre>
+
+h3. Design goals:
 
 * *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
 * *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
@@ -91,30 +115,38 @@ You can instead supply a path to a config file.  If a bare filename (no '/') is 
 
 When you read directly from a file you should leave off the top-level settings group:
     
+<pre>
     # Settings for version II.
     :dest_time:         2015-11-05
     :delorean:
       :power_source:    Mr. Fusion
       :roads_needed:    ~
+</pre>
 
 You can save defaults with
 
+<pre>
     Settings.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
     Settings.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
     Settings.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
+</pre>
     
 h2. Environment Variables
 
+<pre>
     Settings.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
+</pre>
 
 As usual, dotted keys set the corresponeding nested key ('delorean.power_source' sets Config[:delorean][:power_source])
 
 h2. Command-line parameters
 
+<pre>
     # Head back
     time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05 
     # (in the time_machine script:)
     Settings.use :commandline
+</pre>
 
 Interpretation of command-line parameters:
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val.
@@ -137,10 +169,12 @@ h2. Fancy Parameters
 
 You don't have to pre-define parameters, but you can:
 
+<pre>
     Settings.use :define
     Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
     Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Settings.define :password, :required => true, :obscure => true
+</pre>
 
 * *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false. Make sure to call Settings.resolve! in your script.
 * *:description* documents a param.
@@ -153,15 +187,13 @@ Any required parameter found to be nil raises an error (listing all missing para
 
 h3. Encrypted Parameters
 
-bq.  There are two kinds of cryptography in this world: cryptography that will
-  stop your kid sister from reading your files, and cryptography that will stop
-  major governments from reading your files. This book is about the latter.
-  -- Preface to Applied Cryptography by Bruce Schneier
+bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
 
 Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between having to find a paperclip and jimmy open your annoying brother's stupid journal and being able to open to any page.
 
 h2. Ruby Block
 
+<pre>
     Settings.finally do |c|
       c.dest_time = (Time.now + 60) if c.username == 'einstein'
       # you can use hash syntax too
@@ -171,6 +203,7 @@ h2. Ruby Block
     # ... rest of setup
     #
     Settings.resolve!    # the finally blocks will be called in order
+</pre>
 
 Configliere 'finally' blocks are called after everything but required parameter    
 
@@ -178,6 +211,7 @@ h2. Independent Settings
 
 All of the above uses the Settings global variable defined in configliere.rb.  However, you're free to define your own settings universe. 
 
+<pre>
     module MyProject
       cattr_accessor :config
       self.config = Configliere.new({
@@ -187,6 +221,7 @@ All of the above uses the Settings global variable defined in configliere.rb.  H
     end
     pr = proj.new
     pr.config   #=> {:helicity => 'homotopic', :froebenius_matrix => 'unitary' }
+</pre>
 
 Values in here don't overlap with the Settings object or any other settings universe. However, every one that pulls in commandline params gets a full copy of the commandline params.
 

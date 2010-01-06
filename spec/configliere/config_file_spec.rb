@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-Configliere.use :param_store
+Configliere.use :config_file
 
-describe "Configliere::ParamStore" do
+describe "Configliere::ConfigFile" do
   before do
     @config = Configliere.new :my_param => 'val'
   end
@@ -40,7 +40,7 @@ describe "Configliere::ParamStore" do
   describe 'saves to a config file' do
     describe 'successfully' do
       it 'saves a symbol name to the default config file' do
-        Configliere::ParamStore.should_receive(:merge_into_yaml_file).
+        Configliere::ConfigFile.should_receive(:merge_into_yaml_file).
           with(Configliere::DEFAULT_CONFIG_FILE, :my_settings, { :my_param => 'val'})
         @config.save! :my_settings
       end
@@ -61,7 +61,7 @@ describe "Configliere::ParamStore" do
       mock_dump = 'mock_dump'
       YAML.should_receive(:dump).with({ :my_settings => { :my_param => 'new_val'}, :other_settings => { :that_param => 'other_val'}}).and_return(mock_dump)
       fake_file.should_receive(:<<).with(mock_dump)
-      Configliere::ParamStore.merge_into_yaml_file '/fake/path.yaml', :my_settings, :my_param => 'new_val'
+      Configliere::ConfigFile.merge_into_yaml_file '/fake/path.yaml', :my_settings, :my_param => 'new_val'
     end
   end
 

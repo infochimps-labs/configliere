@@ -54,7 +54,7 @@ describe "Configliere::Encrypted" do
     end
     it 'encrypts' do
       Configliere::Crypter.should_receive(:encrypt).and_return(@encrypted_str)
-      Configliere::ParamStore.should_receive(:write_yaml_file).with('/fake/file', :normal_param=>"normal", :encrypted_secret => @encrypted_str)
+      Configliere::ConfigFile.should_receive(:write_yaml_file).with('/fake/file', :normal_param=>"normal", :encrypted_secret => @encrypted_str)
       @config.save! '/fake/file'
     end
     it 'decrypts' do

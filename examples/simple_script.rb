@@ -11,7 +11,7 @@ with those args, we
   expect: {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}
 }
 
-Settings.use :commandline, :param_store
+Settings.use :commandline, :config_file
 Settings.read File.dirname(__FILE__)+'/simple_script.yaml'
 Settings.resolve!
 

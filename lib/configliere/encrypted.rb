@@ -1,4 +1,4 @@
-Configliere.use :param_store, :define, :crypter
+Configliere.use :config_file, :define, :crypter
 
 module Configliere
   module EncryptedParam

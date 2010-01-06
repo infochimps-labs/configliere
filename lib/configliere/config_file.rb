@@ -1,12 +1,12 @@
 require 'yaml'
 module Configliere
   #
-  # ParamStore -- load configuration from a simple YAML file
+  # ConfigFile -- load configuration from a simple YAML file
   #
-  module ParamStore
+  module ConfigFile
     # Load params from disk.
     # * file is in YAML format, as a hash of handle => param_hash pairs
-    # * filename defaults to ParamStore::DEFAULT_CONFIG_FILE (~/.configliere, probably)
+    # * filename defaults to Configliere::DEFAULT_CONFIG_FILE (~/.configliere, probably)
     def read handle
       filename = filename_for_handle(handle)
       begin
@@ -21,13 +21,13 @@ module Configliere
 
     # save to disk.
     # * file is in YAML format, as a hash of handle => param_hash pairs
-    # * filename defaults to ParamStore::DEFAULT_CONFIG_FILE (~/.configliere, probably)
+    # * filename defaults to Configliere::DEFAULT_CONFIG_FILE (~/.configliere, probably)
     def save! handle
       filename = filename_for_handle(handle)
       if handle.is_a?(Symbol)
-        ParamStore.merge_into_yaml_file filename, handle, self.export
+        ConfigFile.merge_into_yaml_file filename, handle, self.export
       else
-        ParamStore.write_yaml_file filename, self.export
+        ConfigFile.write_yaml_file filename, self.export
       end
     end
 
@@ -65,6 +65,6 @@ module Configliere
 
   Param.class_eval do
     # include read / save operations
-    include ParamStore
+    include ConfigFile
   end
 end
