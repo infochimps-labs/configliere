@@ -25,7 +25,7 @@ Configliere settings are just a plain old normal hash.
 
 You can define static defaults in your module
 
-    Configliere.defaults({
+    Config.defaults({
       :dest_time => '1955-11-05',
       :fluxcapacitor => {
         :speed => 88,
@@ -38,9 +38,14 @@ You can define static defaults in your module
       :password => '',
     })
 
+Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with the mixins to require (:all to load all functionality).
+
+    Configliere.use :param_store, :define # Load config files and pre-define 
+    Configliere.use :all                  # all of them
+
 h2. Configuration files
 
-Call Configliere.load(:my_settings_group) to load from the global config file ~/.configliere.yaml (or whatever Configliere::CONFIG_FILE is set to)
+Call Config.read(:my_settings_group) to read a param group from the YAML global config file (Configliere::DEFAULT_CONFIG_FILE, normally ~/.configliere.yaml)
 
     # Settings for version II.
     :time_machine:
@@ -49,12 +54,13 @@ Call Configliere.load(:my_settings_group) to load from the global config file ~/
         :power_source:    Mr. Fusion
         :roads_needed:    ~
 
-You can instead supply a string, the path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in ~/.configli/ (or whatever Configliere::CONFIG_DIR is set to). 
+You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in Configliere::DEFAULT_CONFIG_DIR (normally ~/.configliere)
 
-    Configliere.load('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
-    Configliere.load('time_machine.yaml')       # looks in ~/.configli/time_machine.yaml
+    Config.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
+    Config.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
+    Config.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
 
-When you load directly from a file you should leave off the top-level settings group:
+When you read directly from a file you should leave off the top-level settings group:
     
     # Settings for version II.
     :dest_time:         2015-11-05
@@ -64,16 +70,13 @@ When you load directly from a file you should leave off the top-level settings g
 
 You can save defaults with
 
-    Configliere.save(:time_machine)            #=> ~/.configliere.yaml, under :time_machine
-    Configliere.save('/etc/time_machine.yaml') #=> /etc/time_machine.yaml
-    Configliere.save('time_machine.yaml')      #=> ~/.configliere/time_machine.yaml
-    
-(and also see the --configliere-save commandline parameter,, below)
+    Config.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
+    Config.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
+    Config.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
     
 h2. Environment Variables
 
-    Configliere.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
-
+    Config.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
 
 A dot in the 
 
@@ -82,7 +85,7 @@ h2. Command-line parameters
     # Head back
     time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05 
     # (in the time_machine script:)
-    Configliere.use :commandline
+    Config.use :commandline
 
 Interpretation of command-line parameters:
 * *name-val params*: --param=val sets @Configliere[:param]@ to val.
@@ -90,8 +93,8 @@ Interpretation of command-line parameters:
 * *scoped params*: --group-sub_group-param=val sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
 ** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
 ** Only [\w\.\-]+ are accepted in parameter names. 
-* *Configliere.rest*: anything else is stored, in order, in @Configliere.rest@.
-* *stop marker*: a -- alone stops parameter processing and tosses all remaining params (not including the --) into Configliere.rest.
+* *Config.rest*: anything else is stored, in order, in @Config.rest@.
+* *stop marker*: a -- alone stops parameter processing and tosses all remaining params (not including the --) into Config.rest.
 
 Here are some things you don't get:
 * There are no short parameters (-r, etc).
@@ -105,10 +108,10 @@ h2. Fancy Parameters
 
 You don't have to pre-define parameters, but you can:
 
-    Configliere.use :define
-    Configliere.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
-    Configliere.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    Configliere.define :password, :required => true, :obscure => true
+    Config.use :define
+    Config.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
+    Config.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Config.define :password, :required => true, :obscure => true
 
 * *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false.
 * *:description* documents a param.
@@ -117,7 +120,7 @@ You don't have to pre-define parameters, but you can:
 
 h2. Ruby Block
 
-    Configliere.finally do |c|
+    Config.finally do |c|
       c.dest_time = (Time.now + 60) if c.username == 'einstein'
       # you can use hash syntax too
       c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'

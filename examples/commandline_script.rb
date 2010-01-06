@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems' ; $: << File.dirname(__FILE__)+'/../lib'
 require 'pp'
-# module Configliere ; DEFAULT_FILENAME = File.dirname(__FILE__)+'/commandline_script.yaml' end
+# module Configliere ; DEFAULT_CONFIG_FILE = File.dirname(__FILE__)+'/commandline_script.yaml' end
 require 'configliere'
 require 'configliere/client'
 

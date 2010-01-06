@@ -5,7 +5,7 @@ module Configliere
     # Configliere internal options -- these have special meaning
     INTERNAL_OPTIONS = {
       :config_key          => "Key to decrypt configliere group's contents.",
-      :config_file         => "YAML file to use, #{Configliere::DEFAULT_FILENAME} by default.",
+      :config_file         => "YAML file to use, #{Configliere::DEFAULT_CONFIG_FILE} by default.",
     }
     # You can stuff descriptions for your own options in here, they'll be added
     # to the usage statement.

@@ -1,19 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Configliere" do
-  it "a simple load followed by save does the right thing" do
-    test_hsh = { :cat => :hat, :lotion => :basket, :decrypted_foo => 'foo_val' }
-    Configliere.save 'sekrit', test_hsh
-    result_param = Configliere.load('sekrit')
-    result_param.to_decrypted.should == test_hsh
+  it 'creates a new param on new' do
+    mock_param = 'mock_param'
+    Configliere::Param.should_receive(:new).with(:this => :that).and_return(mock_param)
+    Configliere.new(:this => :that).should == mock_param
+  end
+  it 'creates a global variable Config' do
+    Config.class.should == Configliere::Param
   end
 
-  it "The simple load / store accept a param_name" do
-    test_hsh = { :cat => :hat, :lotion => :basket, :decrypted_foo => 'foo_val' }
-    Configliere.save 'sekrit', test_hsh.merge(:param_name => :bob)
-    result_param = Configliere.load('sekrit', :param_name => :bob)
-    result_param.to_decrypted.should == test_hsh
-    Configliere::ParamStore.new().handles.should include(:bob)
+  it 'requires modules with use' do
+    lambda{ Configliere.use(:param, :foo) }.should raise_error(LoadError, 'no such file to load -- configliere/foo')
   end
-
 end

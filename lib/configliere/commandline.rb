@@ -15,7 +15,7 @@ module Configliere
 
     # Filename of configliere file
     def configliere_file
-      options[:configliere_file] || Configliere::DEFAULT_FILENAME
+      options[:configliere_file] || Configliere::DEFAULT_CONFIG_FILE
     end
 
     # get the param for the given handle
