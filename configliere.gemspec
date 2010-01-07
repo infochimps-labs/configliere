@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
@@ -41,9 +41,10 @@ Configliere manage settings from many sources: static constants, simple config f
      "lib/configliere/commandline.rb",
      "lib/configliere/commandline/commands.rb",
      "lib/configliere/commandline/options.rb",
-     "lib/configliere/config_blocks.rb",
+     "lib/configliere/config_block.rb",
      "lib/configliere/config_file.rb",
      "lib/configliere/core_ext.rb",
+     "lib/configliere/core_ext/blank.rb",
      "lib/configliere/core_ext/hash.rb",
      "lib/configliere/crypter.rb",
      "lib/configliere/define.rb",
@@ -51,7 +52,7 @@ Configliere manage settings from many sources: static constants, simple config f
      "lib/configliere/environment.rb",
      "lib/configliere/param.rb",
      "spec/configliere/commandline_spec.rb",
-     "spec/configliere/config_blocks_spec.rb",
+     "spec/configliere/config_block_spec.rb",
      "spec/configliere/config_file_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
@@ -69,7 +70,7 @@ Configliere manage settings from many sources: static constants, simple config f
   s.summary = %q{Wise, discreet configuration management}
   s.test_files = [
     "spec/configliere/commandline_spec.rb",
-     "spec/configliere/config_blocks_spec.rb",
+     "spec/configliere/config_block_spec.rb",
      "spec/configliere/config_file_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
