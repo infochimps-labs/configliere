@@ -61,7 +61,7 @@ module Configliere
     end
 
     def decrypted val
-      return val if val.to_s == ''
+      return val if val.blank?
       Configliere::Crypter.decrypt(val, encrypt_pass)
     end
 

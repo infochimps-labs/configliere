@@ -64,7 +64,7 @@ module Configliere
 
     # Convert the encrypt_pass passphrase into the key used for encryption
     def self.encrypt_key encrypt_pass, options={}
-      raise 'Blank encryption password!' if encrypt_pass.to_s == ''
+      raise 'Blank encryption password!' if encrypt_pass.blank?
       # this provides the required 256 bits of key for the aes-256-cbc cipher
       Digest::SHA256.digest(encrypt_pass)
     end

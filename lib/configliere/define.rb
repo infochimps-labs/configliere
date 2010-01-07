@@ -87,15 +87,18 @@ module Configliere
         when val.nil? then val = nil
         when (type == :boolean) then
           if ['false', '0', ''].include?(val.to_s) then val = false else val = true end
-        when (val.to_s == '')   then val = nil
+        when (type == Array) && (val.is_a?(String))
+          val = val.split(",")  rescue nil
+        # following types map blank to nil
+        when (val.blank?)       then val = nil
         when (type == Float)    then val = val.to_f
         when (type == Integer)  then val = val.to_i
+        when (type == Symbol)   then val = val.to_s.to_sym     rescue nil
         when (type == Date)     then val = Date.parse(val)     rescue nil
         when (type == DateTime) then val = DateTime.parse(val) rescue nil
         when (type == Time)     then
           require 'time'
           val = Time.parse(val) rescue nil
-        when (type == Symbol)   then val = val.to_s.to_sym rescue nil
         end
         self[param] = val
       end

@@ -55,6 +55,11 @@ describe "Configliere::Define" do
       [Date,    '1985-11-05',           Date.parse('1985-11-05')],               [Date, nil, nil], [Date, '', nil],
       [DateTime, '1985-11-05 11:00:00', DateTime.parse('1985-11-05 11:00:00')],  [DateTime, nil, nil], [DateTime, '', nil],
       [Time,     '1985-11-05 11:00:00', Time.parse('1985-11-05 11:00:00')],      [Time, nil, nil], [Time, '', nil],
+      [Array,  ['this', 'that', 'thother'], ['this', 'that', 'thother']],
+      [Array,  'this,that,thother',         ['this', 'that', 'thother']],
+      [Array,  'alone',                     ['alone'] ],
+      [Array,  '',                          []        ],
+      [Array,  nil,                         nil       ],
     ].each do |type, orig, desired|
       it "for #{type} converts #{orig.inspect} to #{desired.inspect}" do
         @config.define :param, :type => type
@@ -62,7 +67,6 @@ describe "Configliere::Define" do
       end
     end
   end
-
 
   describe 'defining requireds' do
     before do

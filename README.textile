@@ -186,7 +186,16 @@ You don't have to pre-define parameters, but you can:
 
 h3. Type Conversion
 
-Configliere understands Integer, Float, :boolean, Symbol, Date, Time and DateTime. (Make sure to call Settings.resolve! in your script.)
+Configliere understands Integer, Float, :boolean, Symbol, Array, Date, Time and DateTime. (Make sure to call Settings.resolve! in your script.)
+
+Array just does a simple split on ",". It doesn't do any escaping or quoting.
+
+<pre>
+    Settings.define :groceries, :type => Array
+    Settings :groceries => 'apples,honey,walnuts'
+    Settings.resolve!
+    Settings[:groceries]   #=> ['apples', 'honey', 'walnuts']
+</pre>
 
 h3. Description
 
@@ -203,7 +212,7 @@ Define a param to be encrypted and invoke Settings.save!
    define 'amazon.api.key', :encrypted => true
    Settings 'amazon.api.key' => 'fnord'
 
-In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@
+In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@. The code currently doesn't look for a collision between a :param and :encrypted_param, so be careful; you can preemptively call resolve_encrypted! to enforce order.
 
 bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
 
