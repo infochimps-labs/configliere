@@ -69,36 +69,38 @@ module Configliere
       param_definitions[param][:type]
     end
 
-    # All described params with their descriptions
-    def types
+    # All typed params with their descriptions
+    def typed_params
       definitions_for(:type)
     end
 
     # List of params that have descriptions
-    def typed_params
+    def typed_param_names
       params_with(:type)
     end
 
+    require 'date'
+
     # Coerce all params with types defined to their proper form
     def resolve_types!
-      types.each do |param, type|
+      typed_params.each do |param, type|
         val = self[param]
         case
-        when val.nil? then val = nil
+        when val.nil?           then val = nil
         when (type == :boolean) then
-          if ['false', '0', ''].include?(val.to_s) then val = false else val = true end
-        when (type == Array) && (val.is_a?(String))
+          if ['false', false, 0, '0', ''].include?(val) then val = false else val = true end
+        when ((type == Array) && val.is_a?(String))
           val = val.split(",")  rescue nil
-        # following types map blank to nil
+          # following types map blank to nil
         when (val.blank?)       then val = nil
         when (type == Float)    then val = val.to_f
         when (type == Integer)  then val = val.to_i
         when (type == Symbol)   then val = val.to_s.to_sym     rescue nil
+        when ((val.to_s == 'now') && (type == Date))     then val = Date.today
+        when ((val.to_s == 'now') && (type == DateTime)) then val = DateTime.now
         when (type == Date)     then val = Date.parse(val)     rescue nil
         when (type == DateTime) then val = DateTime.parse(val) rescue nil
-        when (type == Time)     then
-          require 'time'
-          val = Time.parse(val) rescue nil
+        else # nothing
         end
         self[param] = val
       end

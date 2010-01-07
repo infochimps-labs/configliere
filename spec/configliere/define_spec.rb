@@ -46,15 +46,14 @@ describe "Configliere::Define" do
   require 'date'; require 'time'
   describe 'type coercion' do
     [
-      [:boolean, '0', false],  [:boolean, 0, false], [:boolean, '',  false], [:boolean, [], false], [:boolean, nil, nil],
+      [:boolean, '0', false],  [:boolean, 0, false], [:boolean, '',  false], [:boolean, [],     true], [:boolean, nil, nil],
       [:boolean, '1', true],   [:boolean, 1, true],  [:boolean, '5', true],  [:boolean, 'true', true],
       [Integer, '5', 5],       [Integer, 5,   5],    [Integer, nil, nil],    [Integer, '', nil],
       [Integer, '5', 5],       [Integer, 5,   5],    [Integer, nil, nil],    [Integer, '', nil],
       [Float,   '5.2', 5.2],   [Float,   5.2, 5.2],  [Float, nil, nil],      [Float, '', nil],
       [Symbol,   'foo', :foo], [Symbol, :foo, :foo], [Symbol, nil, nil],     [Symbol, '', nil],
-      [Date,    '1985-11-05',           Date.parse('1985-11-05')],               [Date, nil, nil], [Date, '', nil],
-      [DateTime, '1985-11-05 11:00:00', DateTime.parse('1985-11-05 11:00:00')],  [DateTime, nil, nil], [DateTime, '', nil],
-      [Time,     '1985-11-05 11:00:00', Time.parse('1985-11-05 11:00:00')],      [Time, nil, nil], [Time, '', nil],
+      [Date,     '1985-11-05',           Date.parse('1985-11-05')],               [Date, nil, nil],     [Date, '', nil],     [Date, 'blah', nil],
+      [DateTime, '1985-11-05 11:00:00', DateTime.parse('1985-11-05 11:00:00')],  [DateTime, nil, nil], [DateTime, '', nil], [DateTime, 'blah', nil],
       [Array,  ['this', 'that', 'thother'], ['this', 'that', 'thother']],
       [Array,  'this,that,thother',         ['this', 'that', 'thother']],
       [Array,  'alone',                     ['alone'] ],
@@ -65,6 +64,14 @@ describe "Configliere::Define" do
         @config.define :param, :type => type
         @config[:param] = orig ; @config.resolve! ; @config[:param].should == desired
       end
+    end
+    it 'converts :now to the current moment' do
+      @config.define :param, :type => DateTime
+      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_close(DateTime.now, 4)
+      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_close(DateTime.now, 4)
+      @config.define :param, :type => Date
+      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_close(Date.today, 4)
+      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_close(Date.today, 4)
     end
   end
 

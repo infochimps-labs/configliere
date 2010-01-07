@@ -186,9 +186,11 @@ You don't have to pre-define parameters, but you can:
 
 h3. Type Conversion
 
-Configliere understands Integer, Float, :boolean, Symbol, Array, Date, Time and DateTime. (Make sure to call Settings.resolve! in your script.)
+Configliere understands Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
 
-Array just does a simple split on ",". It doesn't do any escaping or quoting.
+* :boolean converts nil to nil ; false, 'false', 0, '0' and '' to false; and everything else to true.
+* Array just does a simple split on ",". It doesn't do any escaping or quoting.
+* Date and DateTime convert unparseable inputs to nil.
 
 <pre>
     Settings.define :groceries, :type => Array

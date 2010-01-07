@@ -35,7 +35,7 @@ describe "Configliere::Param" do
       @config['moon.cheese.smell'].should be_nil
       @config['moon.non.existent.interim.values'].should be_nil
       @config['moon.non'].should be_nil
-      if (RUBY_VERSION >= '1.9') then lambda{ @config['hat.cat'] }.should raise_error(TypeError,     'TypeError: can\'t convert Symbol into Integer')
+      if (RUBY_VERSION >= '1.9') then lambda{ @config['hat.cat'] }.should raise_error(TypeError)
       else                            lambda{ @config['hat.cat'] }.should raise_error(NoMethodError, 'undefined method `[]\' for :cat:Symbol') end
       @config.should == hsh # shouldn't change from reading
     end
