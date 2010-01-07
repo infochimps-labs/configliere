@@ -10,23 +10,24 @@ module Configliere
         case env
         when Hash
           env.each do |env, param|
-            adopt_environment_variable! env, param
+            adopt_environment_variable! env.to_s, param
           end
         else
           param = env.to_s.downcase.to_sym
-          adopt_environment_variable! env, param
+          adopt_environment_variable! env.to_s, param
         end
       end
     end
 
-    def adopt_environment_variable! env, param
-      define param, :environment => env
-      val = ENV[env]
-      self[param] = val if val
-    end
-
     def params_from_environment
       definitions_for(:environment)
+    end
+
+  protected
+    def adopt_environment_variable! env, param
+      param_definitions[param][:environment] ||= env
+      val = ENV[env]
+      self[param] = val if val
     end
   end
 

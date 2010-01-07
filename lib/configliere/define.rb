@@ -13,6 +13,8 @@ module Configliere
     #
     def define param, definitions={}
       self.param_definitions[param].merge! definitions
+      self[param] = definitions[:default] if definitions.include?(:default)
+      self.environment_variables definitions[:environment], param if definitions.include?(:environment)
     end
 
     def param_definitions
@@ -130,12 +132,18 @@ module Configliere
       raise "Missing values for #{missing.map{|s| s.to_s }.sort.join(", ")}" if (! missing.empty?)
     end
 
-  protected
     # all params with a value for the definable aspect
     #
     # @param definable the aspect to list (:description, :type, :encrypted, etc.)
     def params_with defineable
       param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
+    end
+
+    # all params without a value for the definable aspect
+    #
+    # @param definable the aspect to reject (:description, :type, :encrypted, etc.)
+    def params_without defineable
+      param_definitions.keys.reject{|param| param_definitions[param].include?(defineable) } || []
     end
 
     def definitions_for defineable
