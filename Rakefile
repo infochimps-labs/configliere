@@ -10,29 +10,16 @@ begin
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
 
-Configliere's wise counsel takes care of these problems. Design goals:
-
-* *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
-* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
-* *Be willing to sit down with the Five Families*. Takes settings from (at your option):
-** Pre-defined defaults from constants
-** Simple config files
-** Environment variables
-** Commandline options
-** Ruby block called when all other options are in place
-* *Code of Silence*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
-* *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
-
-fuhgeddaboudit.
+Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 } #'
     gem.email = "flip@infochimps.org"
     gem.homepage = "http://github.com/mrflip/configliere"
     gem.authors = ["mrflip"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
     gem.add_development_dependency "yard", ">= 0"
-    gem.add_dependency "highline", ">= 0"
-    gem.add_dependency "yaml", ">= 0"
-    gem.add_dependency "openssl", ">= 0"
+    # gem.add_dependency "highline", ">= 0"
+    # gem.add_dependency "yaml", ">= 0"
+    # gem.add_dependency "openssl", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new

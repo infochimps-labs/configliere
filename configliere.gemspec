@@ -9,26 +9,13 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2010-01-06}
+  s.date = %q{2010-01-07}
   s.default_executable = %q{configliere}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
 
-Configliere's wise counsel takes care of these problems. Design goals:
-
-* *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
-* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
-* *Be willing to sit down with the Five Families*. Takes settings from (at your option):
-** Pre-defined defaults from constants
-** Simple config files
-** Environment variables
-** Commandline options
-** Ruby block called when all other options are in place
-* *Code of Silence*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
-* *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
-
-fuhgeddaboudit.
+Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 }
   s.email = %q{flip@infochimps.org}
   s.executables = ["configliere"]
@@ -55,6 +42,7 @@ fuhgeddaboudit.
      "lib/configliere/commandline/commands.rb",
      "lib/configliere/commandline/options.rb",
      "lib/configliere/config_blocks.rb",
+     "lib/configliere/config_file.rb",
      "lib/configliere/core_ext.rb",
      "lib/configliere/core_ext/hash.rb",
      "lib/configliere/crypter.rb",
@@ -62,15 +50,14 @@ fuhgeddaboudit.
      "lib/configliere/encrypted.rb",
      "lib/configliere/environment.rb",
      "lib/configliere/param.rb",
-     "lib/configliere/param_store.rb",
      "spec/configliere/commandline_spec.rb",
      "spec/configliere/config_blocks_spec.rb",
+     "spec/configliere/config_file_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
      "spec/configliere/environment_spec.rb",
      "spec/configliere/param_spec.rb",
-     "spec/configliere/param_store_spec.rb",
      "spec/configliere_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
@@ -83,12 +70,12 @@ fuhgeddaboudit.
   s.test_files = [
     "spec/configliere/commandline_spec.rb",
      "spec/configliere/config_blocks_spec.rb",
+     "spec/configliere/config_file_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
      "spec/configliere/environment_spec.rb",
      "spec/configliere/param_spec.rb",
-     "spec/configliere/param_store_spec.rb",
      "spec/configliere_spec.rb",
      "spec/spec_helper.rb",
      "examples/commandline_script.rb",
@@ -102,22 +89,13 @@ fuhgeddaboudit.
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0"])
-      s.add_runtime_dependency(%q<highline>, [">= 0"])
-      s.add_runtime_dependency(%q<yaml>, [">= 0"])
-      s.add_runtime_dependency(%q<openssl>, [">= 0"])
     else
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0"])
-      s.add_dependency(%q<highline>, [">= 0"])
-      s.add_dependency(%q<yaml>, [">= 0"])
-      s.add_dependency(%q<openssl>, [">= 0"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0"])
-    s.add_dependency(%q<highline>, [">= 0"])
-    s.add_dependency(%q<yaml>, [">= 0"])
-    s.add_dependency(%q<openssl>, [">= 0"])
   end
 end
 
