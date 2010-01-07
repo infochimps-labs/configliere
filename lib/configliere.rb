@@ -14,7 +14,7 @@ module Configliere
     Configliere::Param.new *args, &block
   end
 
-  ALL_MIXINS = [:define, :encrypted, :environment, :config_file, :commandline, :config_blocks]
+  ALL_MIXINS = [:define, :encrypted, :environment, :config_file, :commandline, :config_block]
   def self.use *mixins
     mixins = ALL_MIXINS if mixins.include?(:all)
     mixins.each do |mixin|

@@ -1,6 +1,6 @@
 Configliere.use :define
 module Configliere
-  module Block
+  module ConfigBlock
     # Config blocks to be executed at end of resolution (just before validation)
     attr_accessor :final_blocks
     def final_blocks
@@ -36,6 +36,6 @@ module Configliere
   end
 
   Param.class_eval do
-    include Configliere::Block
+    include Configliere::ConfigBlock
   end
 end

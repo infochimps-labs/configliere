@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-Configliere.use :config_blocks
+Configliere.use :config_block
 
-describe "Configliere::ConfigBlocks" do
+describe "Configliere::ConfigBlock" do
   before do
     @config = Configliere::Param.new :normal_param => 'normal'
   end
@@ -14,7 +14,7 @@ describe "Configliere::ConfigBlocks" do
       @config.resolve!
     end
     it 'resolves blocks last' do
-      Configliere.use :config_blocks, :define, :encrypted
+      Configliere.use :config_block, :define, :encrypted
       @config.should_receive(:resolve_types!).ordered
       @config.should_receive(:resolve_finally_blocks!).ordered
       @config.resolve!

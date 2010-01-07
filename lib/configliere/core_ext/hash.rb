@@ -76,6 +76,16 @@ class Hash
     hsh[last_key]
   end
 
+
+  #
+  # Treat hash as tree of hashes:
+  #
+  #     x = { 1 => :val, :subhash => { 1 => :val1, 2 => :val2 } }
+  #     x.deep_delete(:subhash, 1)
+  #     #=> :val
+  #     x
+  #     #=> { 1 => :val, :subhash => { 2 => :val2 } }
+  #
   def deep_delete *args
     last_key  = args.pop
     last_hsh  = args.empty? ? self : (deep_get(*args)||{})
