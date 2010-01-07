@@ -75,7 +75,9 @@ module Configliere
     end
 
     def use *args
+      hsh = args.pop if args.last.is_a?(Hash)
       Configliere.use *args
+      defaults(hsh) unless hsh.nil?
     end
 
   protected

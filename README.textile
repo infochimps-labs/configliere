@@ -6,21 +6,26 @@ bq. So, Consigliere of mine, I think you should tell your Don what everyone know
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-Configliere is a no-fuss library for flexibly managing your configuration settings.
+Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 
-A config file, in ~/.configliere/simple_script.yaml
+h3. Example
 
-<pre>    :cat:     hat
+Here's a simple example, using params from a config file and the command line. A config file, in ~/.configliere/simple_script.yaml
+
+<pre>
+    :cat:     hat
     :spider:  tuffet
     :sprats:
       :jack:  lean</pre>
 
 A simple script:
 
-<pre>    #/usr/bin/env ruby
+<pre>
+    #/usr/bin/env ruby
     require 'configliere'
     
-    Settings.use :commandline, :config_file
+    Settings.use(:commandline, :config_file, 
+      :dish => 'spoon', :cow => 'moon')
     Settings.read 'my_script.yaml'
     Settings.resolve!
 
@@ -28,8 +33,9 @@ A simple script:
 
 Output:
 
-<pre>    ./simple_script.rb --sprats.wife=fat --spider=drainspout
-    {:cat=>"hat", :spider=>"drainspout", :sprats=>{:jack=>"lean", :wife=>"fat"}}</pre>
+<pre>
+    ./simple_script.rb --sprats.wife=fat --spider=drainspout
+    {:spider=>"drainspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}  </pre>
 
 h3. Design goals:
 
