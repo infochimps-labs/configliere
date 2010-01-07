@@ -5,22 +5,6 @@ module Configliere
     # The password used in encrypting params during serialization
     attr_accessor :encrypt_pass
 
-  protected
-
-    # @example
-    #   Settings.defaults :username=>"mysql_username", :password=>"mysql_password"
-    #   Settings.define :password, :encrypted => true
-    #   Settings.exportable
-    #     #=> {:username => 'mysql_username', :password=>"\345?r`\222\021"\210\312\331\256\356\351\037\367\326" }
-    def export
-      hsh = super()
-      encrypted_params.each do |param|
-        val = hsh.deep_delete(*dotted_to_deep_keys(param)) or next
-        hsh.deep_set( *(dotted_to_encrypted_keys(param) | [encrypted(val)]) )
-      end
-      hsh
-    end
-
     # decrypts any encrypted params
     # then calls the next step in the resolve! chain.
     def resolve!
@@ -36,6 +20,22 @@ module Configliere
         encrypted_val = deep_delete(*dotted_to_encrypted_keys(param)) or next
         self[param] = self.decrypted(encrypted_val)
       end
+    end
+
+  protected
+
+    # @example
+    #   Settings.defaults :username=>"mysql_username", :password=>"mysql_password"
+    #   Settings.define :password, :encrypted => true
+    #   Settings.exportable
+    #     #=> {:username => 'mysql_username', :password=>"\345?r`\222\021"\210\312\331\256\356\351\037\367\326" }
+    def export
+      hsh = super()
+      encrypted_params.each do |param|
+        val = hsh.deep_delete(*dotted_to_deep_keys(param)) or next
+        hsh.deep_set( *(dotted_to_encrypted_keys(param) | [encrypted(val)]) )
+      end
+      hsh
     end
 
     # if :encrypted_pass was set as a param, remove it from the hash and set it as an attribute
@@ -65,8 +65,8 @@ module Configliere
       Configliere::Crypter.decrypt(val, encrypt_pass)
     end
 
-    def encrypted(val)
-      return if ( !val )
+    def encrypted val
+      return unless val
       Configliere::Crypter.encrypt(val, encrypt_pass)
     end
   end

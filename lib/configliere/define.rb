@@ -20,23 +20,6 @@ module Configliere
       @param_definitions ||= Hash.new{|hsh, key| hsh[key] = {} }
     end
 
-    protected
-    # all params with a value for the definable aspect
-    #
-    # @param definable the aspect to list (:description, :type, :encrypted, etc.)
-    def params_with defineable
-      param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
-    end
-
-    def definitions_for defineable
-      hsh = {}
-      param_definitions.each do |param, defs|
-        hsh[param] = defs[defineable] if defs[defineable]
-      end
-      hsh
-    end
-    public
-
     # performs type coercion
     def resolve!
       resolve_types!
@@ -142,6 +125,22 @@ module Configliere
       raise "Missing values for #{missing.map{|s| s.to_s }.sort.join(", ")}" if (! missing.empty?)
     end
 
+  protected
+    # all params with a value for the definable aspect
+    #
+    # @param definable the aspect to list (:description, :type, :encrypted, etc.)
+    def params_with defineable
+      param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
+    end
+
+    def definitions_for defineable
+      hsh = {}
+      param_definitions.each do |param, defs|
+        hsh[param] = defs[defineable] if defs[defineable]
+      end
+      hsh
+    end
+  public
   end
 
   Param.class_eval do

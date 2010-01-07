@@ -162,7 +162,7 @@ Interpretation of command-line parameters:
 
 Here are some things you don't get:
 * There are no short parameters (-r, etc).
-* Apart from converting @''@ (an explicit blank string) to nil, no type coercion is performed on parameters unless requested explicitly (see below).
+* Apart from converting @''@ (an explicit blank string) to @nil@, no type coercion is performed on parameters unless requested explicitly (see below).
 * No validation is performed on parameters.
 * No ordering or multiplicity is preserved (you can't say @--file=this --file=that@).
 
@@ -176,13 +176,21 @@ You don't have to pre-define parameters, but you can:
     Settings.use :define
     Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
     Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    Settings.define :password, :required => true, :obscure => true
+    Settings.define :password, :required => true, :encrypted => true
 </pre>
 
-* *:type*: converts params to a desired form. It understands Date, Time, Integer, :boolean and Symbol. :blank => nil and :blank => false. Make sure to call Settings.resolve! in your script.
+* *:type*: converts params to a desired form. 
 * *:description* documents a param.
 * *:required* marks params required. 
 * *:encrypted* marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
+
+h3. Type Conversion
+
+Configliere understands Integer, Float, :boolean, Symbol, Date, Time and DateTime. (Make sure to call Settings.resolve! in your script.)
+
+h3. Description
+
+If you define a param's description, besides nicely documenting it within your code the description will be stuffed into the output when the --help commandline option is invoked.
 
 h3. Required Parameters
 
@@ -190,9 +198,16 @@ Any required parameter found to be nil raises an error (listing all missing para
 
 h3. Encrypted Parameters
 
+Define a param to be encrypted and invoke Settings.save!
+
+   define 'amazon.api.key', :encrypted => true
+   Settings 'amazon.api.key' => 'fnord'
+
+In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@
+
 bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
 
-Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between having to find a paperclip and jimmy open your annoying brother's stupid journal and being able to open to any page.
+Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between immediate access and having to find a paperclip and jimmy open your annoying older brother's stupid journal.
 
 h2. Ruby Block
 
@@ -203,16 +218,16 @@ h2. Ruby Block
       c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
     end
     #
-    # ... rest of setup
+    # ... rest of setup ...
     #
     Settings.resolve!    # the finally blocks will be called in order
 </pre>
 
-Configliere 'finally' blocks are called after everything but required parameter    
+Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
 
 h2. Independent Settings
 
-All of the above uses the Settings global variable defined in configliere.rb.  However, you're free to define your own settings universe. 
+All of the above uses the global variable @Settings@, defined in configliere.rb.  You're free to define your own settings universe though:
 
 <pre>
     module MyProject
