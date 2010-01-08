@@ -58,6 +58,7 @@ Configliere settings are just a plain old normal hash.
 
 You can define static defaults in your module
 
+<pre>
     Settings.defaults({
       :dest_time => '1955-11-05',
       :fluxcapacitor => {
@@ -70,6 +71,7 @@ You can define static defaults in your module
       :username => 'marty',
       :password => '',
     })
+</pre>
     
 Retrieve them as:
 
@@ -88,16 +90,16 @@ Retrieve them as:
     Settings.dest_time                 #=> '1955-11-05'
 </pre>
 
-Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with the mixins to require (:all to load all functionality).
+Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
 
 <pre>
-    Configliere.use :param_store, :define # Load config files and pre-define 
+    Configliere.use :config_file, :define # Load config files and pre-define 
     Configliere.use :all                  # all of them
 </pre>
 
 h2. Configuration files
 
-Call Settings.read(:my_settings_group) to read a param group from the YAML global config file (Configliere::DEFAULT_CONFIG_FILE, normally ~/.configliere.yaml)
+Call @Settings.read(:my_settings_group)@ to read a param group from the YAML global config file (@Configliere::DEFAULT_CONFIG_FILE@ -- normally ~/.configliere.yaml)
 
 <pre>
     # Settings for version II.
@@ -108,7 +110,7 @@ Call Settings.read(:my_settings_group) to read a param group from the YAML globa
         :roads_needed:    ~
 </pre>
 
-You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in Configliere::DEFAULT_CONFIG_DIR (normally ~/.configliere). Otherwise it loads the given file.
+You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in @Configliere::DEFAULT_CONFIG_DIR@ (normally ~/.configliere). Otherwise it loads the given file.
 
 <pre>
     Settings.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
@@ -140,7 +142,7 @@ h2. Environment Variables
     Settings.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
 </pre>
 
-As usual, dotted keys set the corresponeding nested key ('delorean.power_source' sets Config[:delorean][:power_source])
+As usual, dotted keys set the corresponeding nested key ('delorean.power_source' sets Config[:delorean][:power_source]). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
 
 h2. Command-line parameters
 
@@ -174,30 +176,33 @@ You don't have to pre-define parameters, but you can:
 
 <pre>
     Settings.use :define
-    Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
-    Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Settings.define :dest_time, :type => Date, :description => 'Arrival time'
+    Settings.define 'delorean.power_source', :environment => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Settings.define :password, :required => true, :encrypted => true
 </pre>
 
 * *:type*: converts params to a desired form. 
-* *:description* documents a param.
-* *:required* marks params required. 
-* *:encrypted* marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
+* *:description*: documents a param.
+* *:required*: marks params required. 
+* *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
+* *:environment*: take param from given environment variable if set.
 
 h3. Type Conversion
 
-Configliere understands Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
+<pre>
+    Settings.define :dest_time,     :type => DateTime
+    Settings.define :fugeddaboudit, :type => Array
+    Settings :fugeddaboudit => 'badabing,badaboom,hey', :dest_time => '1955-11-05'
+    Settings.resolve!
+    Settings[:fugeddaboudit]   #=> ['badabing', 'badaboom', 'hey']
+    Settings[:dest_time]       #=> #<DateTime: 4870833/2,0,2299161>
+</pre>
+
+Configliere can coerce parameter values to Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
 
 * :boolean converts nil to nil ; false, 'false', 0, '0' and '' to false; and everything else to true.
 * Array just does a simple split on ",". It doesn't do any escaping or quoting.
 * Date and DateTime convert unparseable inputs to nil.
-
-<pre>
-    Settings.define :groceries, :type => Array
-    Settings :groceries => 'apples,honey,walnuts'
-    Settings.resolve!
-    Settings[:groceries]   #=> ['apples', 'honey', 'walnuts']
-</pre>
 
 h3. Description
 
@@ -211,8 +216,10 @@ h3. Encrypted Parameters
 
 Define a param to be encrypted and invoke Settings.save!
 
+<pre>
    define 'amazon.api.key', :encrypted => true
    Settings 'amazon.api.key' => 'fnord'
+</pre>
 
 In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@. The code currently doesn't look for a collision between a :param and :encrypted_param, so be careful; you can preemptively call resolve_encrypted! to enforce order.
 
@@ -238,7 +245,7 @@ Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're gua
 
 h2. Independent Settings
 
-All of the above uses the global variable @Settings@, defined in configliere.rb.  You're free to define your own settings universe though:
+All of the above examples use the global variable @Settings@, defined in configliere.rb.  You're free to define your own settings universe though:
 
 <pre>
     module MyProject
