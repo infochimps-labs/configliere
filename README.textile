@@ -1,12 +1,12 @@
 h1. Configliere
 
-Configliere provides wise, lightweight configuration management for ruby programs.
+Configliere provides discreet configuration for ruby scripts.
 
 bq. So, Consigliere of mine, I think you should tell your Don what everyone knows. -- Don Corleone
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
+Configliere manages settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 
 h3. Example
 
@@ -36,6 +36,8 @@ Output:
 <pre>
     ./simple_script.rb --sprats.wife=fat --spider=drainspout
     {:spider=>"drainspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}  </pre>
+
+For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
 
 h3. Design goals:
 
@@ -128,7 +130,7 @@ When you read directly from a file you should leave off the top-level settings g
       :roads_needed:    ~
 </pre>
 
-You can save defaults with
+Save defaults by inserting a line like:
 
 <pre>
     Settings.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
@@ -142,7 +144,7 @@ h2. Environment Variables
     Settings.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
 </pre>
 
-As usual, dotted keys set the corresponeding nested key ('delorean.power_source' sets Config[:delorean][:power_source]). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
+As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Config[:delorean][:power_source]@). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
 
 h2. Command-line parameters
 
@@ -155,7 +157,7 @@ h2. Command-line parameters
 
 Interpretation of command-line parameters:
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val.
-* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. --param='' sets @Configliere[:param]@ to be nil. 
+* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil. 
 * *scoped params*: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
 ** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
 ** Only @[\w\.\-]+@ are accepted in parameter names. 
