@@ -50,7 +50,7 @@ module Configliere
 
     # All described params with their descriptions
     def descriptions
-      definitions_for(:description)
+      definitions_for(:description).reject{|param, desc| param_definitions[param][:hide_help] }
     end
 
     # List of params that have descriptions
