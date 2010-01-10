@@ -7,6 +7,14 @@ module Configliere
   module Commandline
     attr_accessor :rest
 
+    # Processing to reconcile all options
+    #
+    # Configliere::Commandline's resolve!:
+    # * processes all commandline params
+    # * if the --help param was given, prints out a usage statement (using
+    #   any +:description+ set with #define) and then exits
+    # * lastly, calls the next method in the resolve! chain.
+    #
     def resolve!
       process_argv!
       dump_help_if_requested
@@ -59,10 +67,13 @@ module Configliere
     end
 
     # die with a warning
-    def die str
+    #
+    # @param str [String] the string to dump out before exiting
+    # @param exit_code [Integer] UNIX exit code to set, default -1
+    def die str, exit_code=-1
       puts help
       warn "\n****\n#{str}\n****"
-      exit -1
+      exit exit_code
     end
 
     # Retrieve the given param, or prompt for it
