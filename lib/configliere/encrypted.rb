@@ -30,10 +30,14 @@ module Configliere
     #   Settings.exportable
     #     #=> {:username => 'mysql_username', :password=>"\345?r`\222\021"\210\312\331\256\356\351\037\367\326" }
     def export
+      p ['exporting', self, encrypted_params]
       hsh = super()
       encrypted_params.each do |param|
         val = hsh.deep_delete(*dotted_to_deep_keys(param)) or next
+        p ['exporting', self, param, encrypted_params, dotted_to_deep_keys(param), self.class, self.is_a?(Mash), val, encrypted(val)]
+        p [dotted_to_encrypted_keys(param) ]
         hsh.deep_set( *(dotted_to_encrypted_keys(param) | [encrypted(val)]) )
+        p hsh
       end
       hsh
     end
@@ -51,7 +55,7 @@ module Configliere
     #    #=> [:amazon, :api, :encrypted_key]
     def dotted_to_encrypted_keys param
       encrypted_path = dotted_to_deep_keys(param).dup
-      encrypted_path[-1] = "encrypted_#{encrypted_path.last}".to_sym
+      encrypted_path[-1] = "encrypted_#{encrypted_path.last}"
       encrypted_path
     end
 
@@ -67,6 +71,7 @@ module Configliere
 
     def encrypted val
       return unless val
+      p ['encrypted', val, encrypt_pass]
       Configliere::Crypter.encrypt(val, encrypt_pass)
     end
   end

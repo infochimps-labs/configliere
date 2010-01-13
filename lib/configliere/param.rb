@@ -1,11 +1,25 @@
+require 'configliere/core_ext/sash.rb'
 module Configliere
+  class ParamParent < ::Sash
+    def finally *args, &block
+      nil #no-op
+    end
+    # default export method: self
+    def export
+      to_hash
+    end
+    # terminate resolution chain
+    def resolve!
+    end
+  end
+
   #
   # Hash of fields to store.
   #
   # Any field name beginning with 'decrypted_' automatically creates a
   # counterpart 'encrypted_' field using the encrypt_pass.
   #
-  class Param < ::Hash
+  class Param < Configliere::ParamParent
 
     # Initialize with the encrypt_pass and the initial contents of the hash.
     #
@@ -49,7 +63,7 @@ module Configliere
       if param =~ /\./
         return deep_set( *( dotted_to_deep_keys(param) | [val] ))
       else
-        super param.to_sym, val
+        super param, val
       end
     end
 
@@ -57,7 +71,7 @@ module Configliere
       if param =~ /\./
         return deep_get( *dotted_to_deep_keys(param) )
       else
-        super param.to_sym
+        super param
       end
     end
 
@@ -65,35 +79,27 @@ module Configliere
       if param =~ /\./
         return deep_delete( *dotted_to_deep_keys(param) )
       else
-        super param.to_sym
+        super param
       end
-    end
-
-    # returns an actual Hash, not a Param < Hash
-    def to_hash
-      {}.merge! self
     end
 
     def use *args
       hsh = args.pop if args.last.is_a?(Hash)
       Configliere.use *args
-      defaults(hsh) unless hsh.nil?
+      self.defaults(hsh) unless hsh.nil?
     end
 
+    # see Configliere::ConfigBlock#finally
+    def finally *args, &block
+      use :config_block
+      super
+    end
   protected
     # turns a dotted param ('moon.cheese.type') into
     # an array of sequential keys for deep_set and deep_get
     def dotted_to_deep_keys dotted
-      dotted.to_s.split(".").map{|key| key.to_sym}
+      dotted.to_s.split(".").map{|key| key.to_sym }
     end
 
-    # simple (no-arg) method_missing callse
-    def method_missing meth, *args
-      if args.empty? && meth.to_s =~ /^\w+$/
-        self[meth]
-      elsif args.size == 1 && meth.to_s =~ /^(\w+)=$/
-        self[$1] = args.first
-      else super(meth, *args) end
-    end
   end
 end

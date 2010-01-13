@@ -13,13 +13,15 @@ module Configliere
     #
     def define param, definitions={}
       self.param_definitions[param].merge! definitions
+      self.use(:environment) if definitions.include?(:encrypted)
+      self.use(:encrypted)   if definitions.include?(:encrypted)
       self[param] = definitions[:default] if definitions.include?(:default)
       self.environment_variables definitions[:environment], param if definitions.include?(:environment)
     end
 
     def param_definitions
       # initialize the param_definitions as an auto-vivifying hash if it's never been set
-      @param_definitions ||= Hash.new{|hsh, key| hsh[key] = {} }
+      @param_definitions ||= Sash.new{|hsh, key| hsh[key.to_sym] = {} }
     end
 
     # performs type coercion
@@ -153,7 +155,21 @@ module Configliere
       end
       hsh
     end
-  public
+
+    # simple (no-arg) method_missing callse
+    def method_missing meth, *args
+      p ['method_missing', meth, args, param_definitions]
+      meth.to_s =~ /^(\w+)(=)?$/
+      name, setter = [$1, $2]
+      super unless name && param_definitions.include?(name)
+      if setter && (args.size == 1)
+        p ['method_missing: write', meth, args]
+        self[$1] = args.first
+      elsif (!setter) && args.empty?
+        p ['method_missing: read', meth, args]
+        self[meth]
+      else super ; end
+    end
   end
 
   Param.class_eval do

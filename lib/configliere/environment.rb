@@ -13,7 +13,7 @@ module Configliere
             adopt_environment_variable! env.to_s, param
           end
         else
-          param = env.to_s.downcase.to_sym
+          param = env.to_s.downcase
           adopt_environment_variable! env.to_s, param
         end
       end
