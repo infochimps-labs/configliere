@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 module Configliere
   #
   # ConfigFile -- load configuration from a simple YAML file
@@ -36,10 +37,11 @@ module Configliere
     # form suitable for serialization to disk
     # (e.g. the encryption done in configliere/encrypted)
     def export
-      to_hash
+      super.to_hash
     end
 
     def self.write_yaml_file filename, hsh
+      FileUtils.mkdir_p(File.dirname(filename))
       File.open(filename, 'w'){|f| f << YAML.dump(hsh) }
     end
 
