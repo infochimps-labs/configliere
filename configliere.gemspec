@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2010-01-08}
+  s.date = %q{2010-01-15}
   s.default_executable = %q{configliere}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
@@ -34,18 +34,19 @@ Configliere manage settings from many sources: static constants, simple config f
      "configliere.gemspec",
      "examples/commandline_script.rb",
      "examples/commandline_script.yaml",
+     "examples/config_block.rb",
+     "examples/encrypted_script.rb",
      "examples/foo.yaml",
      "examples/simple_script.rb",
      "examples/simple_script.yaml",
      "lib/configliere.rb",
      "lib/configliere/commandline.rb",
-     "lib/configliere/commandline/commands.rb",
-     "lib/configliere/commandline/options.rb",
      "lib/configliere/config_block.rb",
      "lib/configliere/config_file.rb",
      "lib/configliere/core_ext.rb",
      "lib/configliere/core_ext/blank.rb",
      "lib/configliere/core_ext/hash.rb",
+     "lib/configliere/core_ext/sash.rb",
      "lib/configliere/crypter.rb",
      "lib/configliere/define.rb",
      "lib/configliere/encrypted.rb",
@@ -54,6 +55,8 @@ Configliere manage settings from many sources: static constants, simple config f
      "spec/configliere/commandline_spec.rb",
      "spec/configliere/config_block_spec.rb",
      "spec/configliere/config_file_spec.rb",
+     "spec/configliere/core_ext/hash_spec.rb",
+     "spec/configliere/core_ext/sash_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
@@ -72,6 +75,8 @@ Configliere manage settings from many sources: static constants, simple config f
     "spec/configliere/commandline_spec.rb",
      "spec/configliere/config_block_spec.rb",
      "spec/configliere/config_file_spec.rb",
+     "spec/configliere/core_ext/hash_spec.rb",
+     "spec/configliere/core_ext/sash_spec.rb",
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
@@ -80,6 +85,8 @@ Configliere manage settings from many sources: static constants, simple config f
      "spec/configliere_spec.rb",
      "spec/spec_helper.rb",
      "examples/commandline_script.rb",
+     "examples/config_block.rb",
+     "examples/encrypted_script.rb",
      "examples/simple_script.rb"
   ]
 
