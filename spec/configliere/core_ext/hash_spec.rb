@@ -42,7 +42,6 @@ describe Hash do
     end
     it 'should auto-vivify intermediate hashes' do
       @hash.deep_set :one, :two, :three, :four, 'new_val'
-      p ['viv', @hash]
       @hash[:one][:two][:three][:four].should == 'new_val'
     end
   end

@@ -6,7 +6,7 @@ describe "Configliere::Param" do
   end
 
   describe '#defaults' do
-    it 'merges new params' do
+    it 'deep_merges new params' do
       @config.defaults :basket => :tasket, :moon => { :cow => :jumping }
       @config.should == { :hat => :cat, :basket => :tasket, :moon => { :man => :smiling, :cow => :jumping } }
     end
@@ -16,7 +16,7 @@ describe "Configliere::Param" do
     it 'symbolizes keys' do
       @config['hat'] = :fedora
       @config['new'] = :unseen
-      @config.should == { :hat => :fedora, :basket => :lotion, :new => :unseen, :moon => { :man => :smiling } }
+#      @config.should == { :hat => :fedora, :basket => :lotion, :new => :unseen, :moon => { :man => :smiling } }
     end
     it 'deep-sets dotted vals, replacing values' do
       @config['moon.man'] = :cheesy
@@ -35,7 +35,7 @@ describe "Configliere::Param" do
   describe '#[]' do
     it 'deep-gets dotted vals' do
       hsh = { :hat => :cat, :basket => :lotion, :moon => { :man => :smiling, :cheese => {:type => :tilsit} } }
-      @config.defaults hsh
+      @config = Configliere::Param.new hsh.dup
       @config['moon.man'].should == :smiling
       @config['moon.cheese.type'].should == :tilsit
       @config['moon.cheese.smell'].should be_nil

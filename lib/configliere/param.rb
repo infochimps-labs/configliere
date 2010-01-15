@@ -1,6 +1,6 @@
 require 'configliere/core_ext/sash.rb'
 module Configliere
-  class ParamParent < ::Sash
+  class ParamParent < ::Hash
     def finally *args, &block
       nil #no-op
     end
@@ -25,16 +25,24 @@ module Configliere
   #
   class Param < Configliere::ParamParent
 
-    # Initialize with the encrypt_pass and the initial contents of the hash.
+    # @param constructor<Object>
+    #   The default value for the mash. Defaults to an empty hash.
     #
-    # @example
-    #   # Create a param for a hypothetical database with encrypt_pass "your_mom"
-    #   Configliere::Param.new 'your_mom',
-    #     :username=>"mysql_username", :decrypted_password=>"mysql_password"
-    #
-    def initialize hsh={}
-      super()
-      merge! hsh
+    # @details [Alternatives]
+    #   If constructor is a Hash, a new mash will be created based on the keys of
+    #   the hash and no default value will be set.
+    def initialize(constructor = {})
+      if constructor.is_a?(Hash)
+        super()
+        update(constructor) unless constructor.empty?
+      else
+        super(constructor)
+      end
+    end
+
+    # @return [Hash] The mash as a Hash with string keys.
+    def to_hash
+      Hash.new(default).merge(self)
     end
 
     #
@@ -65,7 +73,7 @@ module Configliere
 
     def []= param, val
       if param =~ /\./
-        return deep_set( *(dotted_to_deep_keys(param) | [val]) )
+        return deep_set( *(convert_key(param) | [val]) )
       else
         super param, val
       end
@@ -73,7 +81,7 @@ module Configliere
 
     def [] param
       if param =~ /\./
-        return deep_get( *dotted_to_deep_keys(param) )
+        return deep_get( *convert_key(param) )
       else
         super param
       end
@@ -81,7 +89,7 @@ module Configliere
 
     def delete param
       if param =~ /\./
-        return deep_delete( *dotted_to_deep_keys(param) )
+        return deep_delete( *convert_key(param) )
       else
         super param
       end
@@ -90,7 +98,7 @@ module Configliere
     def use *args
       hsh = args.pop if args.last.is_a?(Hash)
       Configliere.use *args
-      self.defaults(hsh) unless hsh.nil?
+      self.deep_merge!(hsh) unless hsh.nil?
     end
 
     # see Configliere::ConfigBlock#finally
@@ -101,7 +109,7 @@ module Configliere
   protected
     # turns a dotted param ('moon.cheese.type') into
     # an array of sequential keys for deep_set and deep_get
-    def dotted_to_deep_keys dotted
+    def convert_key dotted
       dotted.to_s.split(".").map{|key| key.to_sym }
     end
 
