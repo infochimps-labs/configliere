@@ -1,10 +1,10 @@
 require 'configliere/core_ext/hash'
 
 #
-# Taken from extlib/lib/mash.rb
+# Hash with indifferent access
 #
-# This class has dubious semantics and we only have it so that people can write
-# params[:key] instead of params['key'].
+# Adapted from extlib/lib/mash.rb
+#
 class Sash < ::Hash
 
   # @param constructor<Object>
@@ -83,8 +83,6 @@ class Sash < ::Hash
     Hash.new(default).merge(self)
   end
 
-# ---------------------------------------------------------------------------
-  
   # @param key<Object> The default value for the mash. Defaults to nil.
   #
   # @details [Alternatives]
@@ -104,7 +102,7 @@ class Sash < ::Hash
   #
   # @return [Mash] The updated mash.
   def update(other_hash, &block)
-    sash = Sash.new
+    sash = self.class.new
     other_hash.each_pair do |key, value|
       val = convert_value(value)
       sash[convert_key(key)] = val
@@ -128,12 +126,12 @@ protected
   # @param key<Object> The key to convert.
   #
   # @param [Object]
-  #   The converted key. If the key was a symbol, it will be converted to a
-  #   string.
+  #   The converted key. If the key was a string, it will be converted to a
+  #   symbol.
   #
   # @api private
   def convert_key(key)
-    key.respond_to?(:to_sym) ? key.to_sym : key
+    key.is_a?(String) ? key.to_sym : key
   end
 
   # @param value<Object> The value to convert.
@@ -152,4 +150,20 @@ protected
       value
     end
   end
+end
+
+
+class ::Hash
+
+  # Convert to Sash. This class has semantics of ActiveSupport's
+  # HashWithIndifferentAccess and we only have it so that people can write
+  # params[:key] instead of params['key'].
+  #
+  # @return [Mash] This hash as a Mash for string or symbol key access.
+  def to_sash
+    hash = Sash.new(self)
+    hash.default = default
+    hash
+  end
+  
 end

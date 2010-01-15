@@ -94,17 +94,6 @@ class Hash
     last_hsh.delete(last_key)
   end
 
-  # Convert to Sash. This class has semantics of ActiveSupport's
-  # HashWithIndifferentAccess and we only have it so that people can write
-  # params[:key] instead of params['key'].
-  #
-  # @return [Mash] This hash as a Mash for string or symbol key access.
-  def to_sash
-    hash = Sash.new(self)
-    hash.default = default
-    hash
-  end
-
   #
   # remove all key-value pairs where the value is nil
   #
