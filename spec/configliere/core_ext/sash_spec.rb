@@ -157,6 +157,9 @@ describe Sash do
     end
   end # describe "#key?"
 
+  def arrays_should_be_equal arr1, arr2
+    arr1.sort_by{|s| s.to_s }.should == arr2.sort_by{|s| s.to_s }
+  end
 
   describe "#dup" do
     it 'returns instance of Sash' do
@@ -167,14 +170,14 @@ describe Sash do
       sash = Sash.new(@hash)
       dup  = sash.dup
 
-      sash.keys.sort_by(&:to_s).should == dup.keys.sort_by(&:to_s)
+      arrays_should_be_equal sash.keys, dup.keys
     end
 
     it 'preserves value' do
       sash = Sash.new(@hash)
       dup  = sash.dup
 
-      sash.values.sort_by(&:to_s).should == dup.values.sort_by(&:to_s)
+      arrays_should_be_equal sash.values, dup.values
     end
   end
 
@@ -188,13 +191,13 @@ describe Sash do
     it 'preserves keys' do
       sash = Sash.new(@hash)
       converted  = sash.to_hash
-      sash.keys.sort_by(&:to_s).should == converted.keys.sort_by(&:to_s)
+      arrays_should_be_equal sash.keys, converted.keys
     end
 
     it 'preserves value' do
       sash = Sash.new(@hash)
       converted = sash.to_hash
-      sash.values.sort_by(&:to_s).should == converted.values.sort_by(&:to_s)
+      arrays_should_be_equal sash.values, converted.values
     end
   end
 
@@ -219,7 +222,7 @@ describe Sash do
       sash = Sash.new(@hash)
       converted = sash.stringify_keys
 
-      sash.values.sort_by(&:to_s).should == converted.values.sort_by(&:to_s)
+      arrays_should_be_equal sash.values, converted.values
     end
   end
 
