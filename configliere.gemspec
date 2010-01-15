@@ -26,6 +26,7 @@ Configliere manage settings from many sources: static constants, simple config f
   s.files = [
     ".document",
      ".gitignore",
+     "CHANGELOG.textile",
      "LICENSE",
      "README.textile",
      "Rakefile",
