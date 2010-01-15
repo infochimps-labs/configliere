@@ -1,0 +1,19 @@
+Note that while the version # is still in the 0.0.x range, the interface may change arbitrarily while we figure out the best simplest convenientest powerfullest way to arrange things
+
+h2. Version 0.0.3 2010-01-15
+
+* @Settings.param@ now only works for params that have been @#define@'d :
+<pre>
+    Settings :no_yuo => 'oops'
+    Settings.no_yuo
+    #=> NoMethodError: undefined method `no_yuo' for {:no_yuo=>"oops"}:Configliere::Param
+    Settings.define :happy_param, :default => 'yay'
+    Settings.happy_param
+    #=> "yay" 
+</pre>
+
+* Note that you *must* use symbols as keys (except for dotted notation for deep keys). See the README.
+* You must now call @#use_environment@ as @Settings.use_environment :param => 'ENV_VAR'@. (The param is used as the key everywhere else, made this consistent).
+* die takes an error code as option
+* Added example scripts for encrypted and config_block scripts
+* The directory path to a config_file will now be created automatically
