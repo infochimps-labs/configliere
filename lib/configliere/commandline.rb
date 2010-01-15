@@ -92,6 +92,11 @@ module Configliere
       help_str.join("\n")
     end
 
+    def dump_help extra_msg=nil
+      $stderr.puts help
+      $stderr.puts "\n\n"+extra_msg unless extra_msg.blank?
+    end
+
     # Usage line
     def usage
       %Q{usage: #{File.basename($0)} [...--param=val...]}
@@ -102,7 +107,7 @@ module Configliere
     # Ouput the help string if requested
     def dump_help_if_requested
       return unless self[:help]
-      $stderr.puts help
+      dump_help
       exit
     end
   end
