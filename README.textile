@@ -18,7 +18,7 @@ Here's a simple example, using params from a config file and the command line. A
     :sprats:
       :jack:  lean</pre>
 
-A simple script:
+(Note that all simple keys should be symbols, with an exception described below.) A simple script:
 
 <pre>
     #/usr/bin/env ruby
@@ -26,7 +26,7 @@ A simple script:
     
     Settings.use(:commandline, :config_file, 
       :dish => 'spoon', :cow => 'moon')
-    Settings.read 'my_script.yaml'
+    Settings.read 'my_script.yaml'  # reads ~/.configliere/my_script.yaml
     Settings.resolve!
 
     p Settings</pre>
@@ -79,18 +79,48 @@ Retrieve them as:
 
 <pre>
     # hash keys       
-    Config[:dest_time]                 #=> '1955-11-05'
+    Settings[:dest_time]                 #=> '1955-11-05'
     # deep keys
-    Config[:delorean][:power_source]   #=> 'plutonium'
-    Config[:delorean][:missing]        #=> nil
-    Config[:delorean][:missing][:fail] #=> raises an error
+    Settings[:delorean][:power_source]   #=> 'plutonium'
+    Settings[:delorean][:missing]        #=> nil
+    Settings[:delorean][:missing][:fail] #=> raises an error
     # dotted keys resolve to deep keys
-    Config['delorean.power_source']    #=> 'plutonium'
-    Config['delorean.missing']         #=> nil
-    Config['delorean.missing.fail']    #=> nil
+    Settings['delorean.power_source']    #=> 'plutonium'
+    Settings['delorean.missing']         #=> nil
+    Settings['delorean.missing.fail']    #=> nil
     # method-like (no deep keys tho)
     Settings.dest_time                 #=> '1955-11-05'
 </pre>
+
+h3. Shortcut syntax for deep keys
+
+You can use a 'dotted key' like 'delorean.power_source' as simple notation for a deep key: Settings['delorean.power_source'] is equivalent to Settings[:delorean][:power_source].  You can use a dotted key in any simple reference:
+<pre>
+  Settings['delorean.power_source'] = "Mr. Fusion"
+  Settings[:delorean][:power_source]
+  #=> "Mr. Fusion"
+  Settings.delete('delorean.power_source')
+  #=> "Mr. Fusion"
+  Settings
+  #=> { :delorean => {} }  
+</pre>
+
+Intermediate keys "auto-vivify" (automatically create any intervening hashes):
+<pre>
+  Settings['one.two.three'] = "To tha Fo'"
+  # Settings is { :one => { :two => { :three => "To tha Fo'" } }, :delorean => { :power_source => "Mr. Fusion" }
+</pre>
+
+Do *not* use a dotted key except as a simple reference. You'll ruin Christmas:
+
+<pre>
+  Settings.defaults :this => "that", "made.of.fail" => "oops"
+  #=> { :this => "that", :"made.of.fail" => "oops" } # !!! BROKEN !!!
+</pre>
+
+This may change once we figure out how to handle it all more cleanly, and how to balance "Keep it Simple, Stupid" with "Keep it Convenient, Kilroy".
+
+h3. Only basic functionality loaded by default
 
 Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
 
@@ -141,10 +171,12 @@ Save defaults by inserting a line like:
 h2. Environment Variables
 
 <pre>
-    Settings.use_environment 'DEST_TIME', 'TM_PASS' => 'password', 'POWER_SOURCE' => 'delorean.power_source'
+    Settings.use_environment 'DEST_TIME', :password => 'TM_PASS', 'delorean.power_source' => 'POWER_SOURCE'
 </pre>
 
-As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Config[:delorean][:power_source]@). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
+As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
+
+**NOTE**: The interface to #use_environment has changed since v0.2. You must now call it as @Settings.use_environment :param => 'ENV_VAR'@, (since everywhere else the param is used as the key).
 
 h2. Command-line parameters
 

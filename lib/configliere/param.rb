@@ -107,8 +107,13 @@ module Configliere
       super
     end
   protected
-    # turns a dotted param ('moon.cheese.type') into
-    # an array of sequential keys for deep_set and deep_get
+    # @param key<Object> The key to convert.
+    #
+    # @param [Object]
+    #   The converted key. A dotted param ('moon.cheese.type') becomes
+    #   an array of sequential keys for deep_set and deep_get
+    #
+    # @api private
     def convert_key dotted
       dotted.to_s.split(".").map{|key| key.to_sym }
     end
