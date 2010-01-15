@@ -21,7 +21,7 @@ module Configliere
 
     def param_definitions
       # initialize the param_definitions as an auto-vivifying hash if it's never been set
-      @param_definitions ||= Sash.new{|hsh, key| hsh[key.to_sym] = {} ; hsh }
+      @param_definitions ||= Sash.new{|hsh, key| hsh[key] = Sash.new  }
     end
 
     # performs type coercion
@@ -156,17 +156,19 @@ module Configliere
       hsh
     end
 
-    # simple (no-arg) method_missing callse
+    # Pretend that any #define'd parameter is a method
+    #
+    # @example
+    #   Settings.define :foo
+    #   Settings.foo = 4
+    #   Settings.foo      #=> 4
     def method_missing meth, *args
-      p ['method_missing', meth, args, param_definitions]
       meth.to_s =~ /^(\w+)(=)?$/
       name, setter = [$1, $2]
       super unless name && param_definitions.include?(name)
       if setter && (args.size == 1)
-        p ['method_missing: write', meth, args]
         self[$1] = args.first
       elsif (!setter) && args.empty?
-        p ['method_missing: read', meth, args]
         self[meth]
       else super ; end
     end

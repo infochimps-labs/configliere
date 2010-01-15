@@ -15,9 +15,10 @@ describe "Configliere::Environment" do
     it 'loads a hash into the individual params' do
       ENV.should_receive(:[]).with('HOME').and_return('/fake/path')
       ENV.should_receive(:[]).with('POWER_SUPPLY').and_return('1.21 jigawatts')
-      @config.environment_variables 'HOME' => :home, 'POWER_SUPPLY' => 'delorean.power_supply'
+      @config.environment_variables :home => 'HOME', 'delorean.power_supply' => 'POWER_SUPPLY'
       @config[:home].should == '/fake/path'
       @config[:delorean][:power_supply].should == '1.21 jigawatts'
     end
   end
 end
+
