@@ -4,6 +4,7 @@ Configliere.use :config_file
 describe "Configliere::ConfigFile" do
   before do
     @config = Configliere.new :my_param => 'val'
+    FileUtils.stub! :mkdir_p
   end
 
   describe 'loads a config file' do
@@ -48,6 +49,11 @@ describe "Configliere::ConfigFile" do
         fake_file = StringIO.new('', 'w')
         File.should_receive(:open).with('/fake/path.yaml', 'w').and_yield(fake_file)
         fake_file.should_receive(:<<).with("--- \n:my_param: val\n")
+        @config.save! '/fake/path.yaml'
+      end
+      it 'ensures the directory exists' do
+        fake_file = StringIO.new('', 'w')
+        FileUtils.should_receive(:mkdir_p).with('/fake')
         @config.save! '/fake/path.yaml'
       end
     end
