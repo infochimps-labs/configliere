@@ -33,18 +33,8 @@ class Hash
   end
 
   def deep_merge! hsh2
-    merge! hsh2, &Hash::DEEP_MERGER
-  end
-
-  # Convert to Sash. This class has semantics of ActiveSupport's
-  # HashWithIndifferentAccess and we only have it so that people can write
-  # params[:key] instead of params['key'].
-  #
-  # @return [Mash] This hash as a Mash for string or symbol key access.
-  def to_sash
-    hash = Sash.new(self)
-    hash.default = default
-    hash
+    update hsh2, &Hash::DEEP_MERGER
+    self
   end
 
   #
@@ -58,12 +48,11 @@ class Hash
   #
   #
   def deep_set *args
-    p [self, args]
     val      = args.pop
     last_key = args.pop
     # dig down to last subtree (building out if necessary)
-    hsh = args.empty? ? self : args.inject(self){|hsh, key| hsh[key] ||= {} }
-    p ['deep_set', self, args, hsh, last_key ]
+    hsh = self
+    args.each{|key| hsh = (hsh[key] ||= self.class.new) }
     # set leaf value
     hsh[last_key] = val
   end
@@ -103,6 +92,17 @@ class Hash
     last_key  = args.pop
     last_hsh  = args.empty? ? self : (deep_get(*args)||{})
     last_hsh.delete(last_key)
+  end
+
+  # Convert to Sash. This class has semantics of ActiveSupport's
+  # HashWithIndifferentAccess and we only have it so that people can write
+  # params[:key] instead of params['key'].
+  #
+  # @return [Mash] This hash as a Mash for string or symbol key access.
+  def to_sash
+    hash = Sash.new(self)
+    hash.default = default
+    hash
   end
 
   #
