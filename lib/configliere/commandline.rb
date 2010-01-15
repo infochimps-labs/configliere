@@ -42,9 +42,10 @@ module Configliere
           break
         when arg =~ /\A--([\w\-\.]+)(?:=(.*))?\z/
           param, val = [$1, $2]
-          param.gsub!(/\-/, '.')
-          if    val == nil then val = true     # --flag    option on its own means 'set that option'
-          elsif val == ''  then val = nil  end # --flag='' the explicit empty string means nil
+          param.gsub!(/\-/, '.')                        # translate --scoped-flag to --scoped.flag
+          param = param.to_sym unless (param =~ /\./)   # symbolize non-scoped keys
+          if    val == nil then val = true              # --flag    option on its own means 'set that option'
+          elsif val == ''  then val = nil end           # --flag='' the explicit empty string means nil
           self[param] = val
         else
           self.rest << arg
