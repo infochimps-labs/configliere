@@ -11,6 +11,10 @@ module Configliere
     # terminate resolution chain
     def resolve!
     end
+
+    def validate!
+      true
+    end
   end
 
   #
@@ -61,7 +65,7 @@ module Configliere
 
     def []= param, val
       if param =~ /\./
-        return deep_set( *( dotted_to_deep_keys(param) | [val] ))
+        return deep_set( *(dotted_to_deep_keys(param) | [val]) )
       else
         super param, val
       end

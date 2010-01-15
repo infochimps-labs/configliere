@@ -21,7 +21,7 @@ module Configliere
 
     def param_definitions
       # initialize the param_definitions as an auto-vivifying hash if it's never been set
-      @param_definitions ||= Sash.new{|hsh, key| hsh[key.to_sym] = {} }
+      @param_definitions ||= Sash.new{|hsh, key| hsh[key.to_sym] = {} ; hsh }
     end
 
     # performs type coercion
