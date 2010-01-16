@@ -2,20 +2,26 @@
 $: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
 
-# Intro text
-puts %Q{
-This is a demo of the Configliere interface. It takse settings
-Try running it as
-  ./examples/simple_script.rb --sprats.wife=fat --spider=drainspout
-with those args, we
-  expect: {:spider=>"drainspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}
-}
+puts "This is a demo of Configliere in a simple script."
+Settings.use :commandline, :config_file
 
-Settings.use(:commandline, :config_file,
-      :cat => 'bag', :cow => 'moon')
-Settings.read File.dirname(__FILE__)+'/simple_script.yaml'
+puts "You can set default values:"
+Settings.defaults :cat => 'bag', :cow => 'moon'
+puts "  #{Settings.inspect}"
+
+config_filename = File.dirname(__FILE__)+'/simple_script.yaml'
+puts "\nYou can load values from a file -- in this case, #{config_filename} -- which overrides the defaults:"
+Settings.read config_filename
+puts "  #{Settings.inspect}"
+
+puts %Q{\nTry running the script with commandline parameters, for example
+  #{$0} --sprats.wife=fat --spider=waterspout
+In this case, you used
+  #{$0} #{ARGV.join(" ")}
+and so the final parameter values are}
 Settings.resolve!
+puts "  #{Settings.inspect}"
 
-# Print results
-print '  actual: '
-p Settings
+saved_filename = '/tmp/simple_script_saved.yaml'
+puts %Q{\nYou can save the defaults out to a config file.  These settings have been written to #{saved_filename}}
+Settings.save!(saved_filename)

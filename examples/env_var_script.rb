@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
-require 'rubygems'
+$: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
 
 Settings.use :define, :env_var, :commandline
 Settings.define :underpants, :env_var => 'UNDERPANTS', :default => "boxers"
 Settings.resolve!
+
 puts %Q{
 Configliere can take parameter values from its defaults, from the commandline, or from the environment.
 Compare:
