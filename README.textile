@@ -24,7 +24,7 @@ Here's a simple example, using params from a config file and the command line. A
     #/usr/bin/env ruby
     require 'configliere'
     Settings.use :commandline, :config_file
-    
+
     Settings :dish => 'spoon', :cow => 'moon'
     Settings.read 'my_script.yaml'  # reads ~/.configliere/my_script.yaml
     Settings.resolve!
@@ -48,7 +48,7 @@ h3. Design goals:
 ** Simple config files
 ** Environment variables
 ** Commandline options
-** Ruby block called when all other options are in place 
+** Ruby block called when all other options are in place
 * *Code of Silence*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
 * *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
 
@@ -56,7 +56,7 @@ fuhgeddaboudit.
 
 h2. Settings structure
 
-Configliere settings are just a plain old normal hash. 
+Configliere settings are just a plain old normal hash.
 
 You can define static defaults in your module
 
@@ -74,11 +74,11 @@ You can define static defaults in your module
       :password => '',
     })
 </pre>
-    
+
 Retrieve them as:
 
 <pre>
-    # hash keys       
+    # hash keys
     Settings[:dest_time]                 #=> '1955-11-05'
     # deep keys
     Settings[:delorean][:power_source]   #=> 'plutonium'
@@ -89,7 +89,7 @@ Retrieve them as:
     Settings['delorean.missing']         #=> nil
     Settings['delorean.missing.fail']    #=> nil
     # method-like (no deep keys tho)
-    Settings.dest_time                 #=> '1955-11-05'
+    Settings.dest_time                   #=> '1955-11-05'
 </pre>
 
 h3. Shortcut syntax for deep keys
@@ -103,7 +103,7 @@ You can use a 'dotted key' like 'delorean.power_source' as simple notation for a
   Settings.delete('delorean.power_source')
   #=> "Mr. Fusion"
   Settings
-  #=> { :delorean => {} }  
+  #=> { :delorean => {} }
 </pre>
 
 Intermediate keys "auto-vivify" (automatically create any intervening hashes):
@@ -127,7 +127,7 @@ h3. Only basic functionality loaded by default
 Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
 
 <pre>
-    Configliere.use :config_file, :define # Load config files and pre-define 
+    Configliere.use :config_file, :define # Load config files and pre-define
     Configliere.use :all                  # all of them
 </pre>
 
@@ -153,7 +153,7 @@ You can instead supply a path to a config file.  If a bare filename (no '/') is 
 </pre>
 
 When you read directly from a file you should leave off the top-level settings group:
-    
+
 <pre>
     # Settings for version II.
     :dest_time:         2015-11-05
@@ -169,7 +169,14 @@ Save defaults by inserting a line like:
     Settings.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
     Settings.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
 </pre>
-    
+
+You're free to use as many config files as you like. Loading a config file sets values immediately, so later-loaded files win out over earlier-loaded ones:
+
+<pre>
+    Settings.read('time_machine_global.yaml')
+    Settings.read('time_machine_site.yaml')
+</pre>
+
 h2. Environment Variables
 
 <pre>
@@ -186,17 +193,17 @@ h2. Command-line parameters
 
 <pre>
     # Head back
-    time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05 
+    time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05
     # (in the time_machine script:)
     Settings.use :commandline
 </pre>
 
 Interpretation of command-line parameters:
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val.
-* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil. 
+* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil.
 * *scoped params*: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
 ** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
-** Only @[\w\.\-]+@ are accepted in parameter names. 
+** Only @[\w\.\-]+@ are accepted in parameter names.
 * *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
 * *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Settings.rest.
 
@@ -222,9 +229,9 @@ You don't have to pre-define parameters, but you can:
     Settings.define :password, :required => true, :encrypted => true
 </pre>
 
-* *:type*: converts params to a desired form. 
+* *:type*: converts params to a desired form.
 * *:description*: documents a param.
-* *:required*: marks params required. 
+* *:required*: marks params required.
 * *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
 * *:env_var*: take param from given environment variable if set.
 
@@ -311,7 +318,7 @@ Values in here don't overlap with the Settings object or any other settings univ
 h2. Project info
 
 h3. Note on Patches/Pull Requests
- 
+
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a
