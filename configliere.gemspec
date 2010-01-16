@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2010-01-15}
+  s.date = %q{2010-01-16}
   s.default_executable = %q{configliere}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
@@ -33,11 +33,9 @@ Configliere manage settings from many sources: static constants, simple config f
      "VERSION",
      "bin/configliere",
      "configliere.gemspec",
-     "examples/commandline_script.rb",
-     "examples/commandline_script.yaml",
-     "examples/config_block.rb",
+     "examples/config_block_script.rb",
      "examples/encrypted_script.rb",
-     "examples/foo.yaml",
+     "examples/env_var_script.rb",
      "examples/simple_script.rb",
      "examples/simple_script.yaml",
      "lib/configliere.rb",
@@ -51,7 +49,7 @@ Configliere manage settings from many sources: static constants, simple config f
      "lib/configliere/crypter.rb",
      "lib/configliere/define.rb",
      "lib/configliere/encrypted.rb",
-     "lib/configliere/environment.rb",
+     "lib/configliere/env_var.rb",
      "lib/configliere/param.rb",
      "spec/configliere/commandline_spec.rb",
      "spec/configliere/config_block_spec.rb",
@@ -61,7 +59,7 @@ Configliere manage settings from many sources: static constants, simple config f
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
-     "spec/configliere/environment_spec.rb",
+     "spec/configliere/env_var_spec.rb",
      "spec/configliere/param_spec.rb",
      "spec/configliere_spec.rb",
      "spec/spec.opts",
@@ -81,13 +79,13 @@ Configliere manage settings from many sources: static constants, simple config f
      "spec/configliere/crypter_spec.rb",
      "spec/configliere/define_spec.rb",
      "spec/configliere/encrypted_spec.rb",
-     "spec/configliere/environment_spec.rb",
+     "spec/configliere/env_var_spec.rb",
      "spec/configliere/param_spec.rb",
      "spec/configliere_spec.rb",
      "spec/spec_helper.rb",
-     "examples/commandline_script.rb",
-     "examples/config_block.rb",
+     "examples/config_block_script.rb",
      "examples/encrypted_script.rb",
+     "examples/env_var_script.rb",
      "examples/simple_script.rb"
   ]
 

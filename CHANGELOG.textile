@@ -1,5 +1,9 @@
 Note that while the version # is still in the 0.0.x range, the interface may change arbitrarily while we figure out the best simplest convenientest powerfullest way to arrange things
 
+h2. Version 0.0.4 2010-01-16
+
+* Cured a variety of issues noted by "@monad":http://github.com/monad -- thanks for the feedback!
+
 h2. Version 0.0.3 2010-01-15
 
 * @Settings.param@ now only works for params that have been @#define@'d :
