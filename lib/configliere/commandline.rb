@@ -18,7 +18,7 @@ module Configliere
     def resolve!
       process_argv!
       dump_help_if_requested
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
     end
 
     #

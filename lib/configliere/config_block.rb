@@ -32,7 +32,7 @@ module Configliere
     # The resolve! for config_block is made to run last of all in the +resolve!+
     # chain, and runs each +finally+ block in the order it was defined.
     def resolve!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super
       resolve_finally_blocks!
       self
     end

@@ -1,9 +1,6 @@
 require 'configliere/core_ext/sash.rb'
 module Configliere
   class ParamParent < ::Hash
-    def finally *args, &block
-      nil #no-op
-    end
     # default export method: self
     def export
       to_hash
@@ -11,9 +8,8 @@ module Configliere
     # terminate resolution chain
     def resolve!
     end
-
+    # terminate validation chain
     def validate!
-      true
     end
   end
 
@@ -63,12 +59,12 @@ module Configliere
 
     # Finalize and validate params
     def resolve!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
       validate!
     end
     # Check that all defined params are valid
     def validate!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
     end
 
     def []= param, val
@@ -101,11 +97,6 @@ module Configliere
       self.deep_merge!(hsh) unless hsh.nil?
     end
 
-    # see Configliere::ConfigBlock#finally
-    def finally *args, &block
-      use :config_block
-      super
-    end
   protected
     # @param key<Object> The key to convert.
     #

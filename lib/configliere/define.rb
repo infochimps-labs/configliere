@@ -27,13 +27,13 @@ module Configliere
     # performs type coercion
     def resolve!
       resolve_types!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
       self
     end
 
     def validate!
       validate_requireds!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
       true
     end
 
@@ -165,11 +165,11 @@ module Configliere
     def method_missing meth, *args
       meth.to_s =~ /^(\w+)(=)?$/
       name, setter = [$1, $2]
-      super unless name && param_definitions.include?(name)
+      super unless name && param_definitions.include?(name.to_sym)
       if setter && (args.size == 1)
-        self[$1] = args.first
+        self[name.to_sym] = args.first
       elsif (!setter) && args.empty?
-        self[meth]
+        self[name.to_sym]
       else super ; end
     end
   end

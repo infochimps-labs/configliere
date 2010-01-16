@@ -9,7 +9,7 @@ module Configliere
     # then calls the next step in the resolve! chain.
     def resolve!
       resolve_encrypted!
-      begin ; super() ; rescue NoMethodError ; nil ; end
+      super()
       self
     end
 
