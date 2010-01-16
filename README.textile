@@ -23,19 +23,19 @@ Here's a simple example, using params from a config file and the command line. A
 <pre>
     #/usr/bin/env ruby
     require 'configliere'
+    Settings.use :commandline, :config_file
     
-    Settings.use(:commandline, :config_file, 
-      :dish => 'spoon', :cow => 'moon')
+    Settings :dish => 'spoon', :cow => 'moon'
     Settings.read 'my_script.yaml'  # reads ~/.configliere/my_script.yaml
     Settings.resolve!
 
     p Settings</pre>
 
-Output:
+Output, when run with commandline parameters as shown:
 
 <pre>
-    ./simple_script.rb --sprats.wife=fat --spider=drainspout
-    {:spider=>"drainspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}  </pre>
+    ./simple_script.rb --sprats.wife=fat --spider=waterspout
+    {:spider=>"waterspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}  </pre>
 
 For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
 
