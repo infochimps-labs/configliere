@@ -94,7 +94,8 @@ Retrieve them as:
 
 h3. Shortcut syntax for deep keys
 
-You can use a 'dotted key' like 'delorean.power_source' as simple notation for a deep key: Settings['delorean.power_source'] is equivalent to Settings[:delorean][:power_source].  You can use a dotted key in any simple reference:
+You can use a 'dotted key' like 'delorean.power_source' as simple notation for a deep key: @Settings['delorean.power_source']@ is equivalent to @Settings[:delorean][:power_source]@.  You can use a dotted key in any simple reference:
+
 <pre>
   Settings['delorean.power_source'] = "Mr. Fusion"
   Settings[:delorean][:power_source]
