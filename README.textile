@@ -171,12 +171,12 @@ Save defaults by inserting a line like:
 h2. Environment Variables
 
 <pre>
-    Settings.use_environment 'DEST_TIME', :password => 'TM_PASS', 'delorean.power_source' => 'POWER_SOURCE'
+    Settings.env_vars 'DEST_TIME', :password => 'TM_PASS', 'delorean.power_source' => 'POWER_SOURCE'
 </pre>
 
 As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
 
-**NOTE**: The interface to #use_environment has changed since v0.2. You must now call it as @Settings.use_environment :param => 'ENV_VAR'@, (since everywhere else the param is used as the key).
+**NOTE**: The interface to #env_vars has changed since v0.2, see "CHANGELOG.textile":CHANGELOG.textile
 
 h2. Command-line parameters
 
@@ -211,7 +211,7 @@ You don't have to pre-define parameters, but you can:
 <pre>
     Settings.use :define
     Settings.define :dest_time, :type => Date, :description => 'Arrival time'
-    Settings.define 'delorean.power_source', :environment => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Settings.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Settings.define :password, :required => true, :encrypted => true
 </pre>
 
@@ -219,7 +219,7 @@ You don't have to pre-define parameters, but you can:
 * *:description*: documents a param.
 * *:required*: marks params required. 
 * *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
-* *:environment*: take param from given environment variable if set.
+* *:env_var*: take param from given environment variable if set.
 
 h3. Type Conversion
 

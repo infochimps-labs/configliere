@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'rubygems'
 require 'configliere'
 
 DUMP_FILENAME = '/tmp/encrypted_script.yml'
@@ -7,11 +8,14 @@ Settings.define :password, :encrypted => true
 
 Settings :password => 'plaintext'
 Settings.resolve!
-p ["saved version will have encrypted password (see #{DUMP_FILENAME}).", Settings.send(:export)]
-p ['live version still has password in plaintext', Settings]
+puts 'Live version still has password in plaintext...'
+p Settings
+puts "But the saved version will have encrypted password (see #{DUMP_FILENAME}):"
+p Settings.send(:export)
 Settings.save!(DUMP_FILENAME)
 
 Settings[:password] = 'before read'
 Settings.read('/tmp/encrypted_script.yml')
 Settings.resolve!
-p ["value is decrypted on resolve.", Settings]
+puts "When the saved file is loaded, value is decrypted on resolve:"
+p Settings

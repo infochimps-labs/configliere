@@ -13,10 +13,10 @@ module Configliere
     #
     def define param, definitions={}
       self.param_definitions[param].merge! definitions
-      self.use(:environment) if definitions.include?(:encrypted)
+      self.use(:env_var) if definitions.include?(:env_var)
       self.use(:encrypted)   if definitions.include?(:encrypted)
       self[param] = definitions[:default] if definitions.include?(:default)
-      self.environment_variables definitions[:environment], param if definitions.include?(:environment)
+      self.env_vars definitions[:env_var], param if definitions.include?(:env_var)
     end
 
     def param_definitions

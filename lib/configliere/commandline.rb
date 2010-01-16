@@ -88,7 +88,7 @@ module Configliere
       help_str  = [ usage ]
       help_str += [ "\nParams:", descriptions.sort_by{|p,d| p.to_s }.map{|param, desc| "  --%-25s %s"%[param.to_s+':', desc]}.join("\n"), ] if respond_to?(:descriptions)
       # help_str += ["\nCommands", commands.map{|cmd, desc| "  %-20s %s"%[cmd.to_s+':', desc]}.join("\n")] if respond_to?(:commands)
-      help_str += [ "\nEnvironment Variables can be used to set:", params_from_environment.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_environment)
+      help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
       help_str.join("\n")
     end
 

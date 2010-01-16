@@ -2,31 +2,31 @@ require 'yaml'
 Configliere.use :define
 module Configliere
   #
-  # Environment -- load configuration from environment variables
+  # EnvVar -- load configuration from environment variables
   #
-  module Environment
-    def environment_variables *envs
+  module EnvVar
+    def env_vars *envs
       envs.each do |env|
         case env
         when Hash
           env.each do |param, env|
-            adopt_environment_variable! param, env
+            adopt_env_var! param, env
           end
         else
           param = env.to_s.downcase.to_sym
-          adopt_environment_variable! param, env
+          adopt_env_var! param, env
         end
       end
     end
 
-    def params_from_environment
-      definitions_for(:environment)
+    def params_from_env_vars
+      definitions_for(:env_var)
     end
 
   protected
-    def adopt_environment_variable! param, env
+    def adopt_env_var! param, env
       env   = env.to_s
-      param_definitions[param][:environment] ||= env
+      param_definitions[param][:env_var] ||= env
       val = ENV[env]
       self[param] = val if val
     end
@@ -34,7 +34,7 @@ module Configliere
 
   Param.class_eval do
     # include read / save operations
-    include Environment
+    include EnvVar
   end
 end
 

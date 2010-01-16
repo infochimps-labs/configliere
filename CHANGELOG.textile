@@ -13,7 +13,7 @@ h2. Version 0.0.3 2010-01-15
 </pre>
 
 * Note that you *must* use symbols as keys (except for dotted notation for deep keys). See the README.
-* You must now call @#use_environment@ as @Settings.use_environment :param => 'ENV_VAR'@. (The param is used as the key everywhere else, made this consistent).
+* You must now define environment variables using @Settings.env_vars :param => 'ENV_VAR'@. The order was switched to consistently use param as the key. Also, @environment@ was renamed to @env_var@ to avoid confusion with the "development/test/production" convention from rails and friends.
 * die takes an error code as option
 * Added example scripts for encrypted and config_block scripts
 * The directory path to a config_file will now be created automatically
