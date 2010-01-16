@@ -174,7 +174,9 @@ h2. Environment Variables
     Settings.env_vars 'DEST_TIME', :password => 'TM_PASS', 'delorean.power_source' => 'POWER_SOURCE'
 </pre>
 
-As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). You can alternatively set up environment variables with @define 'delorean.power_source', :environment => 'POWER_SOURCE'@ - see below.
+As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). As shown below, you may also use #define to set up environment variables: @define 'delorean.power_source', :environment => 'POWER_SOURCE'@.
+
+Environment variables are demonstrated in "examples/simple_script.rb":examples/simple_script.rb
 
 **NOTE**: The interface to #env_vars has changed since v0.2, see "CHANGELOG.textile":CHANGELOG.textile
 
@@ -203,6 +205,8 @@ Here are some things you don't get:
 * No ordering or multiplicity is preserved (you can't say @--file=this --file=that@).
 
 If you want more, you might like the Trollop gem.  If you enjoy wordy nightmares, use "getoptlog":http://linuxdevcenter.com/pub/a/linux/2003/09/18/ruby_csv.html?page=2 from the ruby standard library.
+
+Commandline parameters are demonstrated in "examples/simple_script.rb":examples/simple_script.rb
 
 h2. Fancy Parameters
 
