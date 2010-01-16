@@ -107,6 +107,7 @@ You can use a 'dotted key' like 'delorean.power_source' as simple notation for a
 </pre>
 
 Intermediate keys "auto-vivify" (automatically create any intervening hashes):
+
 <pre>
   Settings['one.two.three'] = "To tha Fo'"
   # Settings is { :one => { :two => { :three => "To tha Fo'" } }, :delorean => { :power_source => "Mr. Fusion" }
