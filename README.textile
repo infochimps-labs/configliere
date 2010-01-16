@@ -178,7 +178,7 @@ h2. Environment Variables
 
 As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). As shown below, you may also use #define to set up environment variables: @define 'delorean.power_source', :environment => 'POWER_SOURCE'@.
 
-Environment variables are demonstrated in "examples/simple_script.rb":examples/simple_script.rb
+Environment variables are demonstrated in"examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb
 
 **NOTE**: The interface to #env_vars has changed since v0.2, see "CHANGELOG.textile":CHANGELOG.textile
 
@@ -208,7 +208,7 @@ Here are some things you don't get:
 
 If you want more, you might like the Trollop gem.  If you enjoy wordy nightmares, use "getoptlog":http://linuxdevcenter.com/pub/a/linux/2003/09/18/ruby_csv.html?page=2 from the ruby standard library.
 
-Commandline parameters are demonstrated in "examples/simple_script.rb":examples/simple_script.rb
+Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb
 
 h2. Fancy Parameters
 
@@ -226,6 +226,8 @@ You don't have to pre-define parameters, but you can:
 * *:required*: marks params required. 
 * *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
 * *:env_var*: take param from given environment variable if set.
+
+Defined parameters are demonstrated in most of the  "example scripts":http://github.com/mrflip/configliere/tree/master/examples
 
 h3. Type Conversion
 
@@ -267,6 +269,8 @@ bq.  There are two kinds of cryptography in this world: cryptography that will s
 
 Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between immediate access and having to find a paperclip and jimmy open your annoying older brother's stupid journal.
 
+Encrypted parameters are demonstrated in "examples/encrypted_script.rb":http://github.com/mrflip/configliere/tree/master/examples/encrypted_script.rb
+
 h2. Ruby Block
 
 <pre>
@@ -282,6 +286,8 @@ h2. Ruby Block
 </pre>
 
 Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
+
+Config blocks are demonstrated in "examples/config_block.rb":http://github.com/mrflip/configliere/tree/master/examples/config_block.rb
 
 h2. Independent Settings
 
