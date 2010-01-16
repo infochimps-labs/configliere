@@ -163,17 +163,17 @@ module Configliere
     #   Settings.foo = 4
     #   Settings.foo      #=> 4
     def method_missing meth, *args
-      meth.to_s =~ /^(\w+)(=)?$/
-      name, setter = [$1, $2]
-      super unless name && param_definitions.include?(name.to_sym)
+      meth.to_s =~ /^(\w+)(=)?$/ or return super
+      name, setter = [$1.to_sym, $2]
+      return(super) unless param_definitions.include?(name)
       if setter && (args.size == 1)
-        self[name.to_sym] = args.first
+        self[name] = args.first
       elsif (!setter) && args.empty?
-        self[name.to_sym]
+        self[name]
       else super ; end
     end
-  end
 
+  end
   Param.class_eval do
     include Configliere::Define
   end
