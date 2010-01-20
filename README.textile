@@ -10,32 +10,40 @@ Configliere manages settings from many sources: static constants, simple config 
 
 h3. Example
 
-Here's a simple example, using params from a config file and the command line. A config file, in ~/.configliere/simple_script.yaml
-
-<pre>
-    :cat:     hat
-    :spider:  tuffet
-    :sprats:
-      :jack:  lean</pre>
-
-(Note that all simple keys should be symbols, with an exception described below.) A simple script:
+Here's a simple example, using params from a config file and the command line. In the script:
 
 <pre>
     #/usr/bin/env ruby
     require 'configliere'
     Settings.use :commandline, :config_file
 
-    Settings :dish => 'spoon', :cow => 'moon'
+    Settings({
+      :dest_time => '1955-11-05',
+      :delorean => {
+        :power_source => 'plutonium',
+        :roads_needed => true,
+        },
+      :username => 'marty',
+    })
     Settings.read 'my_script.yaml'  # reads ~/.configliere/my_script.yaml
     Settings.resolve!
-
     p Settings</pre>
+
+We'll override some of the defaults with a config file, in this case ~/.configliere/simple_script.yaml
+
+<pre>
+    # Settings for return
+    :dest_time:       1985-11-05
+    :delorean:    
+      :power_source:  1.21 jiggawatts
+</pre>
 
 Output, when run with commandline parameters as shown:
 
 <pre>
-    ./simple_script.rb --sprats.wife=fat --spider=waterspout
-    {:spider=>"waterspout", :cat=>"hat", :sprats=>{:wife=>"fat", :jack=>"lean"}, :cow=>"moon"}  </pre>
+    ./time_machine.rb --username=doc_brown --delorean.roads_needed="" --delorean.power_source="Mr. Fusion"
+    {:dest_time=>"1985-11-05", :username=>"doc_brown", :delorean=>{:power_source=>"Mr. Fusion", :roads_needed=>nil}}
+</pre>
 
 For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
 
@@ -61,7 +69,7 @@ Configliere settings are just a plain old normal hash.
 You can define static defaults in your module
 
 <pre>
-    Settings.defaults({
+    Settings({
       :dest_time => '1955-11-05',
       :fluxcapacitor => {
         :speed => 88,
@@ -75,7 +83,7 @@ You can define static defaults in your module
     })
 </pre>
 
-Retrieve them as:
+(Note that all simple keys should be symbols, with an exception you're about to see.) Retrieve the settings as:
 
 <pre>
     # hash keys
@@ -88,7 +96,7 @@ Retrieve them as:
     Settings['delorean.power_source']    #=> 'plutonium'
     Settings['delorean.missing']         #=> nil
     Settings['delorean.missing.fail']    #=> nil
-    # method-like (no deep keys tho)
+    # method-like (no deep keys tho, and you have to @#define@ the param; see below)
     Settings.dest_time                   #=> '1955-11-05'
 </pre>
 
@@ -193,9 +201,10 @@ h2. Command-line parameters
 
 <pre>
     # Head back
-    time_machine --delorean-power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05
+    time_machine --delorean.power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05
     # (in the time_machine script:)
     Settings.use :commandline
+    Settings.resolve!
 </pre>
 
 Interpretation of command-line parameters:
@@ -224,7 +233,7 @@ You don't have to pre-define parameters, but you can:
 
 <pre>
     Settings.use :define
-    Settings.define :dest_time, :type => Date, :description => 'Arrival time'
+    Settings.define :dest_time, :type => DateTime, :description => 'Arrival time'
     Settings.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Settings.define :password, :required => true, :encrypted => true
 </pre>
@@ -235,7 +244,7 @@ You don't have to pre-define parameters, but you can:
 * *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
 * *:env_var*: take param from given environment variable if set.
 
-Defined parameters are demonstrated in most of the  "example scripts":http://github.com/mrflip/configliere/tree/master/examples
+Defined parameters are demonstrated in most of the "example scripts":http://github.com/mrflip/configliere/tree/master/examples
 
 h3. Type Conversion
 
@@ -302,15 +311,17 @@ h2. Independent Settings
 All of the above examples use the global variable @Settings@, defined in configliere.rb.  You're free to define your own settings universe though:
 
 <pre>
-    module MyProject
+    class Wolfman
       cattr_accessor :config
       self.config = Configliere.new({
-        :helicity => 'homotopic',
-        :froebenius_matrix => 'unitary',
+        :moon    => 'full',
+        :nards   => true,
         })
     end
-    pr = proj.new
-    pr.config   #=> {:helicity => 'homotopic', :froebenius_matrix => 'unitary' }
+    teen_wolf = proj.new
+    teen_wolf.config.defaults(:give_me => 'keg of beer')
+    teen_wolf.config #=> {:moon=>"full", :nards=>true, :give_me=>"keg of beer" }
+    Settings         #=> {}
 </pre>
 
 Values in here don't overlap with the Settings object or any other settings universe. However, every one that pulls in commandline params gets a full copy of the commandline params.

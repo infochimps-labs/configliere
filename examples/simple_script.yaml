@@ -1,5 +1,5 @@
 --- 
-:cat:     hat
-:spider:  tuffet
-:sprats:
-  :jack:  lean
+# Settings for return
+:dest_time:       1985-11-05
+:delorean:    
+  :power_source:  1.21 jiggawatts
