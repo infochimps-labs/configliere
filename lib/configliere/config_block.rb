@@ -24,7 +24,7 @@ module Configliere
     #   Settings.resolve!
     #
     def finally &block
-      self.final_blocks << block
+      self.final_blocks << block if block
     end
 
     # Processing to reconcile all options

@@ -16,7 +16,7 @@ module Configliere
 
   ALL_MIXINS = [:define, :encrypted, :env_var, :config_file, :commandline, :config_block]
   def self.use *mixins
-    mixins = ALL_MIXINS if mixins.include?(:all)
+    mixins = ALL_MIXINS if mixins.include?(:all) || mixins.empty?
     mixins.each do |mixin|
       require "configliere/#{mixin}"
     end

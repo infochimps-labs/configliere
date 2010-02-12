@@ -1,5 +1,9 @@
 Note that while the version # is still in the 0.0.x range, the interface may change arbitrarily while we figure out the best simplest convenientest powerfullest way to arrange things
 
+h2. Version 0.0.5working 2010-01-27
+
+Configliere.use will load all gems by default
+
 h2. Version 0.0.4 2010-01-16
 
 * Cured a variety of issues noted by "@monad":http://github.com/monad -- thanks for the feedback!
