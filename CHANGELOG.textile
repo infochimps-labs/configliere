@@ -5,6 +5,10 @@ h2. Version 0.0.6 2010-04-05
 * configliere/define and configliere/config_file are included by default.
 * fixed a bug when ENV['HOME'] is missing (running as root)
 
+h2. Version 0.0.5 2010-01-27
+
+Configliere.use will load all gems by default
+
 h2. Version 0.0.4 2010-01-16
 
 * Cured a variety of issues noted by "@monad":http://github.com/monad -- thanks for the feedback!

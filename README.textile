@@ -96,7 +96,7 @@ You can define static defaults in your module
     Settings['delorean.power_source']    #=> 'plutonium'
     Settings['delorean.missing']         #=> nil
     Settings['delorean.missing.fail']    #=> nil
-    # method-like (no deep keys tho, and you have to @#define@ the param; see below)
+    # method-like (no deep keys tho, and you have to #define the param; see below)
     Settings.dest_time                   #=> '1955-11-05'
 </pre>
 
@@ -224,8 +224,7 @@ Here are some things you don't get:
 
 If you want more, you might like the Trollop gem.  If you enjoy wordy nightmares, use "getoptlog":http://linuxdevcenter.com/pub/a/linux/2003/09/18/ruby_csv.html?page=2 from the ruby standard library.
 
-Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and
-"examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
+Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
 
 h2. Fancy Parameters
 
@@ -332,10 +331,8 @@ h3. Note on Patches/Pull Requests
 
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+* Add tests for it. This is important so I don't break it in a future version unintentionally.
+* Commit, do not mess with rakefile, version, or history. (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send a pull request to github.com/mrflip
 * Drop a line to the mailing list for infochimps open-source projects, infochimps-code@googlegroups.com
 

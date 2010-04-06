@@ -25,6 +25,10 @@ describe "Configliere::ConfigFile" do
         File.should_receive(:open).with(Configliere::DEFAULT_CONFIG_DIR + '/file.yaml').and_return(@fake_file)
         @config.read 'file.yaml'
       end
+      it 'loads an absolute pathname from the given file' do
+        File.should_receive(:open).with('/fake/path.yaml').and_return(@fake_file)
+        @config.read '/fake/path.yaml'
+      end
       after do
         @config[:my_param].should == 'val'
       end
