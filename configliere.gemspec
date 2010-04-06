@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.0.5"
+  s.version = "0.0.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2010-01-20}
+  s.date = %q{2010-04-06}
   s.default_executable = %q{configliere}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
@@ -68,7 +68,7 @@ Configliere manage settings from many sources: static constants, simple config f
   s.homepage = %q{http://github.com/mrflip/configliere}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Wise, discreet configuration management}
   s.test_files = [
     "spec/configliere/commandline_spec.rb",
