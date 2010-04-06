@@ -1,6 +1,11 @@
 require 'yaml'
 require 'fileutils'
 module Configliere
+  # Where to load params given only a symbol
+  DEFAULT_CONFIG_FILE = ENV['HOME'].to_s+'/.configliere.yaml' unless defined?(DEFAULT_CONFIG_FILE)
+  # Where to load params given a bare filename
+  DEFAULT_CONFIG_DIR  = ENV['HOME'].to_s+'/.configliere'      unless defined?(DEFAULT_CONFIG_DIR)
+
   #
   # ConfigFile -- load configuration from a simple YAML file
   #
