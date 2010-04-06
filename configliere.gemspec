@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["mrflip"]
   s.date = %q{2010-04-06}
   s.default_executable = %q{configliere}
-  s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
+  s.description = %q{You've got a script.  It's got some settings.  Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
 
