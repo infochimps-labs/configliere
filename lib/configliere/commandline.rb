@@ -53,10 +53,6 @@ module Configliere
       end
     end
 
-    # If your script uses the 'script_name verb [...params...]'
-    # pattern, list the commands here:
-    COMMANDS= {}
-
     # Configliere internal params
     def define_special_params
       Settings.define :encrypt_pass, :description => "Passphrase to extract encrypted config params.", :internal => true
@@ -72,8 +68,7 @@ module Configliere
     # @param str [String] the string to dump out before exiting
     # @param exit_code [Integer] UNIX exit code to set, default -1
     def die str, exit_code=-1
-      puts help
-      warn "\n****\n#{str}\n****"
+      dump_help "****\n#{str}\n****"
       exit exit_code
     end
 
@@ -84,22 +79,29 @@ module Configliere
       self[attr] = ask("#{attr}"+(hint ? " for #{hint}?" : '?'))
     end
 
+    # The contents of the help message.
+    # Lists the usage as well as any defined parameters and environment variables
     def help
       help_str  = [ usage ]
       help_str += [ "\nParams:", descriptions.sort_by{|p,d| p.to_s }.map{|param, desc| "  --%-25s %s"%[param.to_s+':', desc]}.join("\n"), ] if respond_to?(:descriptions)
-      # help_str += ["\nCommands", commands.map{|cmd, desc| "  %-20s %s"%[cmd.to_s+':', desc]}.join("\n")] if respond_to?(:commands)
       help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
       help_str.join("\n")
     end
 
+    # Output the help message to $stderr, along with an optional extra message appended.
     def dump_help extra_msg=nil
       $stderr.puts help
       $stderr.puts "\n\n"+extra_msg unless extra_msg.blank?
+      $stderr.puts ''
+    end
+
+    def raw_script_name
+      File.basename($0)
     end
 
     # Usage line
     def usage
-      %Q{usage: #{File.basename($0)} [...--param=val...]}
+      %Q{usage: #{raw_script_name} [...--param=val...]}
     end
 
   protected
