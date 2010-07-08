@@ -54,6 +54,57 @@ describe "Configliere::Commandline" do
     @config.rest.should == ['--param_1=B']
     @config.should == { :param_1 => 'A', :cat => :hat}
   end
+  
+  it 'should display help' do
+    ::ARGV.replace ['--help']
+    begin
+      $stderr = StringIO.new
+      begin
+        @config.resolve!
+        fail('should exit via system exit')
+      rescue SystemExit
+      end
+      $stderr.string.should_not be_nil
+      $stderr.string.should_not be_empty
+    
+      @config.help.should_not be_nil
+      @config.help.should_not be_empty
+    ensure
+      $stderr = STDERR
+    end
+  end
+  
+  it "should display command line options" do
+    ::ARGV.replace ['--help']
+    @config.define :logfile, :type => String, :description => "Log filename, default is: myapp.log", :required => false
+    @config.define :debug, :type => :boolean, :description => 'Log debug messages to console', :required => false
+    @config.define :dest_time, :type => DateTime, :description => 'Arrival time', :required => true
+    @config.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    @config.define :password, :required => true, :encrypted => true
+    
+    begin
+      $stderr = StringIO.new
+      begin
+        @config.resolve!
+        fail('should exit via system exit')
+      rescue SystemExit
+      end
+      str = $stderr.string
+      should_not be_nil
+      str.should_not be_empty
+      # puts str
+      
+      str.match(%r(--debug\s)).should_not be_nil                                  # type :boolean
+      str.match(%r(--logfile=String\s)).should_not be_nil                         # type String
+      str.match(%r(--dest_time=DateTime\s[^\n]+\[Required\])).should_not be_nil   # type DateTime, required
+      str.match(%r(--delorean.power_source=String\s)).should_not be_nil           # undefined type
+      str.match(%r(--password\s)).should be_nil                                   # undefined description
+
+      str.match(%r(\sPOWER_SOURCE\s+delorean\.power_source)).should_not be_nil    # environment variable
+    ensure
+      $stderr = STDERR
+    end
+  end
 
   after do
     ::ARGV.replace []

@@ -124,6 +124,10 @@ module Configliere
     def required_params
       params_with(:required)
     end
+    
+    def required_for(param)
+      required_params.include?(param)
+    end
 
     # Check that all required params are present.
     def validate_requireds!
@@ -139,6 +143,10 @@ module Configliere
     # @param definable the aspect to list (:description, :type, :encrypted, etc.)
     def params_with defineable
       param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
+    end
+    
+    def defined_params
+      param_definitions.keys
     end
 
     # all params without a value for the definable aspect

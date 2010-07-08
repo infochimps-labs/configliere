@@ -83,9 +83,45 @@ module Configliere
     # Lists the usage as well as any defined parameters and environment variables
     def help
       help_str  = [ usage ]
-      help_str += [ "\nParams:", descriptions.sort_by{|p,d| p.to_s }.map{|param, desc| "  --%-25s %s"%[param.to_s+':', desc]}.join("\n"), ] if respond_to?(:descriptions)
-      help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
+      help_str += [ "\nParams:",  param_lines(defined_params)] if respond_to?(:defined_params)
+      help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s, param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
       help_str.join("\n")
+    end
+    
+    def param_lines(params)
+      width = find_width(params)
+      lines = params.sort_by{|p| p.to_s }.map{|param| param_line(param, width)}
+      lines.join("\n")
+    end
+    
+    def find_width(params)
+      width = 20
+      params.each do |param|
+        str = param_with_type(param)
+        width = str.length if str.length > width
+      end
+      width + 2
+    end
+    
+    def param_line(param, width)
+      desc = description_for(param)
+      buf = []
+      buf << sprintf("  --%-#{width}s", param_with_type(param))
+      buf << desc if desc && !desc.strip.empty?
+      buf << '[Required]' if required_for(param)
+      buf.join(' ')
+    end
+    
+    def param_with_type(param)
+      type_str = case type_for(param)
+      when :boolean
+        ''
+      when nil
+        '=String'
+      else
+        '=' + type_for(param).to_s
+      end
+      param.to_s + type_str
     end
 
     # Output the help message to $stderr, along with an optional extra message appended.
