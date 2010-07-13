@@ -5,7 +5,7 @@ module Configliere
   # Command line tool to manage param info
   #
   module Commandline
-    attr_accessor :rest
+    attr_accessor :rest, :description
 
     # Processing to reconcile all options
     #
@@ -145,7 +145,7 @@ module Configliere
     # Ouput the help string if requested
     def dump_help_if_requested
       return unless self[:help]
-      dump_help
+      dump_help @description
       exit
     end
   end

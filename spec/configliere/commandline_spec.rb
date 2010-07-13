@@ -81,6 +81,7 @@ describe "Configliere::Commandline" do
     @config.define :dest_time, :type => DateTime, :description => 'Arrival time', :required => true
     @config.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     @config.define :password, :required => true, :encrypted => true
+    @config.description = 'fee fie foe fum'
     
     begin
       $stderr = StringIO.new
@@ -92,7 +93,7 @@ describe "Configliere::Commandline" do
       str = $stderr.string
       should_not be_nil
       str.should_not be_empty
-      # puts str
+      puts str
       
       str.match(%r(--debug\s)).should_not be_nil                                  # type :boolean
       str.match(%r(--logfile=String\s)).should_not be_nil                         # type String
@@ -101,6 +102,7 @@ describe "Configliere::Commandline" do
       str.match(%r(--password\s)).should be_nil                                   # undefined description
 
       str.match(%r(\sPOWER_SOURCE\s+delorean\.power_source)).should_not be_nil    # environment variable
+      str.match(%r(fee\sfie\sfoe\sfum)).should_not be_nil                         # extra description
     ensure
       $stderr = STDERR
     end
