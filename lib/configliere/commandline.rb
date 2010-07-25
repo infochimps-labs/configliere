@@ -107,7 +107,18 @@ module Configliere
     # Lists the usage as well as any defined parameters and environment variables
     def help
       help_str  = [ usage ]
-      help_str += [ "\nParams:", descriptions.sort_by{|p,d| p.to_s }.map{|param, desc| "  --%-25s %s"%[param.to_s+':', desc]}.join("\n"), ] if respond_to?(:descriptions)
+      if respond_to?(:descriptions)
+        help_str += ["\nParams"]
+        ordered_params_and_descs = descriptions.sort_by{|p,d| p.to_s }
+        param_help_strings       = ordered_params_and_descs.map do |param, desc|
+          if flag = param_definitions[param][:flag]
+            "  -%s, --%-21s %s" % [flag.to_s.first, param.to_s + ':', desc]
+          else
+            "  --%-25s %s" % [param.to_s + ':', desc]
+          end
+        end
+        help_str += param_help_strings
+      end
       help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
       help_str.join("\n")
     end
