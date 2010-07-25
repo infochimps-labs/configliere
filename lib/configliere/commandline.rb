@@ -47,6 +47,11 @@ module Configliere
           if    val == nil then val = true              # --flag    option on its own means 'set that option'
           elsif val == ''  then val = nil end           # --flag='' the explicit empty string means nil
           self[param] = val
+        when arg =~ /\A-(\w+)\z/
+          $1.each_char do |flag|
+            param = param_with_flag(flag)
+            self[param] = true if param
+          end
         else
           self.rest << arg
         end
@@ -77,6 +82,25 @@ module Configliere
       return self[attr] if include?(attr)
       require 'highline/import'
       self[attr] = ask("#{attr}"+(hint ? " for #{hint}?" : '?'))
+    end
+
+    # Retreive the first param defined with the given flag.
+    def param_with_flag flag
+      params_with(:flag).each do |param|
+        return param if param_definitions[param][:flag].to_s == flag.to_s
+      end
+      raise Configliere::Error.new("Unknown option: -#{flag}") if complain_about_bad_flags?
+    end
+
+    # Complain about bad flags?
+    def complain_about_bad_flags?
+      @complain_about_bad_flags
+    end
+
+    # Force this params object to complain about bad (single-letter)
+    # flags on the command-line.
+    def complain_about_bad_flags!
+      @complain_about_bad_flags = true
     end
 
     # The contents of the help message.

@@ -17,6 +17,10 @@ module Configliere
       require "configliere/#{mixin}"
     end
   end
+
+  # Base class for Configliere errors.
+  Error = Class.new(StandardError)
+  
 end
 
 # Defines a global config object
