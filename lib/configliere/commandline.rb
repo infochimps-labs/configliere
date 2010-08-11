@@ -92,6 +92,21 @@ module Configliere
       raise Configliere::Error.new("Unknown option: -#{flag}") if complain_about_bad_flags?
     end
 
+    # Returns a flag in dashed form, suitable for recycling into the commandline
+    # of an external program.
+    # Can specify a specific flag name, otherwise the given setting key is used
+    #
+    # @example
+    #   Settings.dashed_flag_for(:flux_capacitance)
+    #   #=> --flux-capacitance=0.7
+    #   Settings.dashed_flag_for(:screw_you, :hello_friend)
+    #   #=> --hello-friend=true
+    #
+    def dashed_flag_for setting_name, flag_name=nil
+      flag_name ||= setting_name
+      "--#{flag_name.to_s.gsub(/_/,"-")}=#{Settings[setting_name]}"
+    end
+
     # Complain about bad flags?
     def complain_about_bad_flags?
       @complain_about_bad_flags

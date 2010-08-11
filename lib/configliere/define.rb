@@ -11,12 +11,15 @@ module Configliere
     #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     #   Settings.define :password, :required => true, :obscure => true
     #
-    def define param, definitions={}
+    def define param, definitions={}, &block
       self.param_definitions[param].merge! definitions
-      self.use(:env_var)   if definitions.include?(:env_var)
-      self.use(:encrypted) if definitions.include?(:encrypted)
+      self.use(:env_var)      if definitions.include?(:env_var)
+      self.use(:encrypted)    if definitions.include?(:encrypted)
+      self.use(:config_block) if definitions.include?(:finally)
       self[param] = definitions[:default] if definitions.include?(:default)
       self.env_vars param => definitions[:env_var] if definitions.include?(:env_var)
+      self.finally(&definitions[:finally]) if definitions.include?(:finally)
+      self.finally(&block) if block
     end
 
     def param_definitions
