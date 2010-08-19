@@ -1,4 +1,22 @@
-Note that while the version # is still in the 0.0.x range, the interface may change arbitrarily while we figure out the best simplest convenientest powerfullest way to arrange things
+h2. Version 0.1.1 2010-08-17
+
+* Settings.read now does expand_path on the file path
+
+h2. Version 0.1.0 2010-07-24
+
+* Version 0.1 !!!
+* Single-letter option flags
+* Can give a ':finally' proc (or hand a block to) Settings.define. Example:
+
+<pre><code>  
+    Settings.define :key_pair_file,        :description => 'AWS Key pair file', :finally => lambda{ Settings.key_pair_file = File.expand_path(Settings.key_pair_file.to_s) if Settings.key_pair_file }
+    Settings.define :key_pair,             :description => "AWS Key pair name. If not specified, it's taken from key_pair_file's basename", :finally => lambda{ Settings.key_pair ||= File.basename(Settings.key_pair_file.to_s, '.pem') if Settings.key_pair_file }
+</code></pre>  
+
+h2. Version 0.0.8 2010-05-02
+
+* Provisional implementation of git-style binaries (foo-ls and foo-chmod and so on)
+* Minor fixes
 
 h2. Version 0.0.6 2010-04-05
 
