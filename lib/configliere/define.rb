@@ -100,6 +100,7 @@ module Configliere
           val = val.split(",")  rescue nil
           # following types map blank to nil
         when (val.blank?)       then val = nil
+        when (type == :filename) then val = File.expand_path(val)
         when (type == Float)    then val = val.to_f
         when (type == Integer)  then val = val.to_i
         when (type == Symbol)   then val = val.to_s.to_sym     rescue nil
