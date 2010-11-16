@@ -1,3 +1,6 @@
+
+* finally{} blocks don't supply a parameter any more -- use self instead.
+
 h2. Version 0.1.1 2010-08-17
 
 * Settings.read now does expand_path on the file path

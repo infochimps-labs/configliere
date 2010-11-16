@@ -46,7 +46,7 @@ module Configliere
     # call each +finally+ config block in the order it was defined
     def resolve_finally_blocks!
       final_blocks.each do |block|
-        block.call(self)
+        block.call()
       end
     end
   end
