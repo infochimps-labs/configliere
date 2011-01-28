@@ -1,4 +1,6 @@
+h2. Version 0.2.1 2011-01-28
 
+* Missing required params include their definition in error message
 * finally{} blocks don't supply a parameter any more -- use self instead.
 
 h2. Version 0.1.1 2010-08-17
