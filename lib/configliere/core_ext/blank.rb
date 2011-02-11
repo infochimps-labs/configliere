@@ -1,3 +1,7 @@
+#
+# This is taken in whole from the extlib gem. Thanks y'all.
+#
+
 class Object
   ##
   # Returns true if the object is nil or empty (if applicable)
@@ -11,7 +15,7 @@ class Object
   # @api public
   def blank?
     nil? || (respond_to?(:empty?) && empty?)
-  end
+  end unless method_defined?(:blank?)
 end # class Object
 
 class Numeric
@@ -27,7 +31,7 @@ class Numeric
   # @api public
   def blank?
     false
-  end
+  end unless method_defined?(:blank?)
 end # class Numeric
 
 class NilClass
@@ -41,7 +45,7 @@ class NilClass
   # @api public
   def blank?
     true
-  end
+  end unless method_defined?(:blank?)
 end # class NilClass
 
 class TrueClass
@@ -55,7 +59,7 @@ class TrueClass
   # @api public
   def blank?
     false
-  end
+  end unless method_defined?(:blank?)
 end # class TrueClass
 
 class FalseClass
@@ -69,7 +73,7 @@ class FalseClass
   # @api public
   def blank?
     true
-  end
+  end unless method_defined?(:blank?)
 end # class FalseClass
 
 class String
@@ -85,5 +89,5 @@ class String
   # @api public
   def blank?
     strip.empty?
-  end
+  end unless method_defined?(:blank?)
 end # class String
