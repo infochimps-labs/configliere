@@ -93,7 +93,7 @@ module Configliere
 
     def use *args
       hsh = args.pop if args.last.is_a?(Hash)
-      Configliere.use *args
+      Configliere.use(*args)
       self.deep_merge!(hsh) unless hsh.nil?
     end
 

@@ -73,7 +73,7 @@ class Hash
   def deep_get *args
     last_key = args.pop
     # dig down to last subtree (building out if necessary)
-    hsh = args.inject(self){|hsh, key| hsh[key] || {} }
+    hsh = args.inject(self){|h, k| h[k] || {} }
     # get leaf value
     hsh[last_key]
   end

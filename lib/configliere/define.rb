@@ -1,7 +1,7 @@
 module Configliere
   module Define
     # Definitions for params: :description, :type, :encrypted, etc.
-    attr_accessor :param_definitions
+    attr_writer :param_definitions
 
     # @param param the setting to describe. Either a simple symbol or a dotted param string.
     # @param definitions the defineables to set (:description, :type, :encrypted, etc.)

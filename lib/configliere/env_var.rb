@@ -9,8 +9,8 @@ module Configliere
       envs.each do |env|
         case env
         when Hash
-          env.each do |param, env|
-            adopt_env_var! param, env
+          env.each do |env_param, env_var|
+            adopt_env_var! env_param, env_var
           end
         else
           param = env.to_s.downcase.to_sym

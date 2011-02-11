@@ -7,7 +7,7 @@ module Configliere
 
   # delegates to Configliere::Param
   def self.new *args, &block
-    Configliere::Param.new *args, &block
+    Configliere::Param.new(*args, &block)
   end
 
   ALL_MIXINS = [:define, :config_file, :commandline, :encrypted, :env_var, :config_block, :git_style_binaries]
@@ -20,7 +20,7 @@ module Configliere
 
   # Base class for Configliere errors.
   Error = Class.new(StandardError)
-  
+
 end
 
 # Defines a global config object
@@ -32,5 +32,5 @@ Settings = Configliere.new unless defined?(Settings)
 # pattern.
 #
 def Settings *args
-  Settings.defaults *args
+  Settings.defaults(*args)
 end
