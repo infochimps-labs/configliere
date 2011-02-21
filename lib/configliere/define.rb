@@ -52,7 +52,7 @@ module Configliere
 
     # All described params with their descriptions
     def descriptions
-      definitions_for(:description) # .reject{|param, desc| param_definitions[param][:hide_help] }
+      definitions_for(:description).reject{ |param, desc| param_definitions[param][:no_help] }
     end
 
     # List of params that have descriptions
@@ -104,6 +104,7 @@ module Configliere
         when ((val.to_s == 'now') && (type == DateTime)) then val = DateTime.now
         when (type == Date)     then val = Date.parse(val)     rescue nil
         when (type == DateTime) then val = DateTime.parse(val) rescue nil
+        when (type == Regexp)   then val = Regexp.new(val)     rescue nil
         else # nothing
         end
         self[param] = val

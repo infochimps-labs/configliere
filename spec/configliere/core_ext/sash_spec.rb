@@ -5,10 +5,9 @@ end
 
 describe Sash do
   before(:each) do
-    @hash = { "str_key" => "strk_val", :sym_key => "symk_val" }
+    @hash = { "str_key" => "strk_val", :sym_key => "symk_val"}
     @sub  = AwesomeHash.new("str_key" => "strk_val", :sym_key => "symk_val")
   end
-
 
   describe "#deep_merge!" do
     before do
@@ -59,7 +58,7 @@ describe Sash do
       sash[:sym_key][:sym_key].should == "symk_val"
     end
 
-    it 'doesn not convert Hash subclass values into Sashes' do
+    it 'does not convert Hash subclass values into Sashes' do
       sash = Sash.new :sub => @sub
       sash[:sub].should be_an_instance_of(AwesomeHash)
     end

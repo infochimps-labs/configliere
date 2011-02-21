@@ -1,5 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'configliere/commandline'
+require 'configliere/commands'
 
 describe "Configliere::Commandline" do
 
@@ -82,6 +83,13 @@ describe "Configliere::Commandline" do
       @config.rest.should == []
       @config.should == { :param_1 => true, :cat => true, :foo => nil}
     end
+
+    # it 'should parse a single-letter flag with a value' do
+    #   ::ARGV.replace ['-p=new_val', '-c']
+    #   @config.resolve!
+    #   @config.rest.should == []
+    #   @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
+    # end
 
     it 'should not complain about bad single-letter flags by default' do
       ::ARGV.replace ['-pcz']

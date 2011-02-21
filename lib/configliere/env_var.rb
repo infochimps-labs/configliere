@@ -18,11 +18,7 @@ module Configliere
         end
       end
     end
-
-    def params_from_env_vars
-      definitions_for(:env_var)
-    end
-
+    
   protected
     def adopt_env_var! param, env
       env   = env.to_s
