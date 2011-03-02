@@ -1,6 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'configliere/commandline'
-require 'configliere/commands'
+Configliere.use :commandline
 
 describe "Configliere::Commandline" do
 

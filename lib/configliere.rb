@@ -15,7 +15,7 @@ module Configliere
     mixins = ALL_MIXINS if mixins.include?(:all) || mixins.empty?
     mixins.each do |mixin|
       # backwards compatibility
-      if mixin == :git_style_binaries
+      if mixin.to_sym == :git_style_binaries
         require "configliere/commands"
       else
         require "configliere/#{mixin}"

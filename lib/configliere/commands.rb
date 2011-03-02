@@ -1,4 +1,4 @@
-require 'configliere/commandline'
+Configliere.use :commandline
 module Configliere
 
   #
@@ -25,6 +25,11 @@ module Configliere
       define_command :help, :description => "Print detailed help on each command"
     end
 
+    # Are there any commands that have been defined?
+    def commands?
+      (! commands.empty?)
+    end
+    
     # Is +cmd+ the name of a known command?
     def command? cmd
       return false if cmd.blank?
@@ -43,7 +48,6 @@ module Configliere
     def command_settings
       command && command[:config]
     end
-
 
     def resolve!
       super()
@@ -67,7 +71,7 @@ module Configliere
       if raw_script_name =~ /(\w+)-([\w\-]+)/
         self.command_name = $2
       else
-        self.command_name = rest.shift
+        self.command_name = rest.shift if command?(rest.first)
       end
     end
 
@@ -102,3 +106,6 @@ module Configliere
     include Commands
   end
 end
+
+
+puts "Loaded #{__FILE__}"
