@@ -135,7 +135,7 @@ module Configliere
       required_params.each do |param|
         missing << param if self[param].nil?
       end
-      raise "Missing values for:\n #{missing.map{|s| "  --" + s.to_s + " (" + description_for(s) + ") " }.sort.join("\n")}" if (! missing.empty?)
+      raise "Missing values for:\n #{missing.map{|s| "  --" + s.to_s + (description_for(s) ? (" (" + description_for(s).to_s + ") ") : '') }.sort.join("\n")}" if (! missing.empty?)
     end
 
     # all params with a value for the definable aspect
