@@ -1,7 +1,7 @@
 module Configliere
   module Define
     # Definitions for params: :description, :type, :encrypted, etc.
-    attr_accessor :param_definitions
+    attr_writer :param_definitions
 
     # @param param the setting to describe. Either a simple symbol or a dotted param string.
     # @param definitions the defineables to set (:description, :type, :encrypted, etc.)
@@ -11,12 +11,15 @@ module Configliere
     #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     #   Settings.define :password, :required => true, :obscure => true
     #
-    def define param, definitions={}
+    def define param, definitions={}, &block
       self.param_definitions[param].merge! definitions
-      self.use(:env_var)   if definitions.include?(:env_var)
-      self.use(:encrypted) if definitions.include?(:encrypted)
+      self.use(:env_var)      if definitions.include?(:env_var)
+      self.use(:encrypted)    if definitions.include?(:encrypted)
+      self.use(:config_block) if definitions.include?(:finally)
       self[param] = definitions[:default] if definitions.include?(:default)
       self.env_vars param => definitions[:env_var] if definitions.include?(:env_var)
+      self.finally(&definitions[:finally]) if definitions.include?(:finally)
+      self.finally(&block) if block
     end
 
     def param_definitions
@@ -90,16 +93,17 @@ module Configliere
       typed_params.each do |param, type|
         val = self[param]
         case
-        when val.nil?           then val = nil
-        when (type == :boolean) then
+        when val.nil?            then val = nil
+        when (type == :boolean)  then
           if ['false', false, 0, '0', ''].include?(val) then val = false else val = true end
         when ((type == Array) && val.is_a?(String))
-          val = val.split(",")  rescue nil
+          val = val.split(",")   rescue nil
           # following types map blank to nil
-        when (val.blank?)       then val = nil
-        when (type == Float)    then val = val.to_f
-        when (type == Integer)  then val = val.to_i
-        when (type == Symbol)   then val = val.to_s.to_sym     rescue nil
+        when (val.blank?)        then val = nil
+        when (type == :filename) then val = File.expand_path(val)
+        when (type == Float)     then val = val.to_f
+        when (type == Integer)   then val = val.to_i
+        when (type == Symbol)    then val = val.to_s.to_sym     rescue nil
         when ((val.to_s == 'now') && (type == Date))     then val = Date.today
         when ((val.to_s == 'now') && (type == DateTime)) then val = DateTime.now
         when (type == Date)     then val = Date.parse(val)     rescue nil
@@ -132,7 +136,7 @@ module Configliere
       required_params.each do |param|
         missing << param if self[param].nil?
       end
-      raise "Missing values for #{missing.map{|s| s.to_s }.sort.join(", ")}" if (! missing.empty?)
+      raise "Missing values for:\n #{missing.map{|s| "  --" + s.to_s + (description_for(s) ? (" (" + description_for(s).to_s + ") ") : '') }.sort.join("\n")}" if (! missing.empty?)
     end
 
     # all params with a value for the definable aspect

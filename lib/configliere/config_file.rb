@@ -63,8 +63,8 @@ module Configliere
     def filename_for_handle handle
       case
       when handle.is_a?(Symbol)      then Configliere::DEFAULT_CONFIG_FILE
-      when handle.to_s.include?('/') then handle
-      else                           File.join(Configliere::DEFAULT_CONFIG_DIR, handle)
+      when handle.to_s.include?('/') then File.expand_path(handle)
+      else                                File.join(Configliere::DEFAULT_CONFIG_DIR, handle)
       end
     end
 

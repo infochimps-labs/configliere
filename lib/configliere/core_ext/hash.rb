@@ -30,12 +30,12 @@ class Hash
   #
   def deep_merge hsh2
     merge hsh2, &Hash::DEEP_MERGER
-  end
+  end unless method_defined?(:deep_merge)
 
   def deep_merge! hsh2
     update hsh2, &Hash::DEEP_MERGER
     self
-  end
+  end unless method_defined?(:deep_merge!)
 
   #
   # Treat hash as tree of hashes:
@@ -55,7 +55,7 @@ class Hash
     args.each{|key| hsh = (hsh[key] ||= self.class.new) }
     # set leaf value
     hsh[last_key] = val
-  end
+  end unless method_defined?(:deep_set)
 
   #
   # Treat hash as tree of hashes:
@@ -73,11 +73,10 @@ class Hash
   def deep_get *args
     last_key = args.pop
     # dig down to last subtree (building out if necessary)
-    hsh = args.inject(self){|hsh, key| hsh[key] || {} }
+    hsh = args.inject(self){|h, k| h[k] || {} }
     # get leaf value
     hsh[last_key]
-  end
-
+  end unless method_defined?(:deep_get)
 
   #
   # Treat hash as tree of hashes:
@@ -92,19 +91,18 @@ class Hash
     last_key  = args.pop
     last_hsh  = args.empty? ? self : (deep_get(*args)||{})
     last_hsh.delete(last_key)
-  end
+  end unless method_defined?(:deep_delete)
 
   #
   # remove all key-value pairs where the value is nil
   #
   def compact
     reject{|key,val| val.nil? }
-  end
+  end unless method_defined?(:compact)
   #
   # Replace the hash with its compacted self
   #
   def compact!
     replace(compact)
-  end
-
+  end unless method_defined?(:compact!)
 end
