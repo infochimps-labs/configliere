@@ -106,6 +106,3 @@ module Configliere
     include Commands
   end
 end
-
-
-puts "Loaded #{__FILE__}"

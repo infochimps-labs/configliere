@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.2.2"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2011-01-28}
+  s.date = %q{2011-03-01}
   s.default_executable = %q{configliere}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
@@ -39,6 +39,7 @@ Configliere manage settings from many sources: static constants, simple config f
     "examples/simple_script.yaml",
     "lib/configliere.rb",
     "lib/configliere/commandline.rb",
+    "lib/configliere/commands.rb",
     "lib/configliere/config_block.rb",
     "lib/configliere/config_file.rb",
     "lib/configliere/core_ext.rb",
@@ -49,9 +50,9 @@ Configliere manage settings from many sources: static constants, simple config f
     "lib/configliere/define.rb",
     "lib/configliere/encrypted.rb",
     "lib/configliere/env_var.rb",
-    "lib/configliere/git_style_binaries.rb",
     "lib/configliere/param.rb",
     "spec/configliere/commandline_spec.rb",
+    "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
     "spec/configliere/config_file_spec.rb",
     "spec/configliere/core_ext/hash_spec.rb",
@@ -67,7 +68,7 @@ Configliere manage settings from many sources: static constants, simple config f
   ]
   s.homepage = %q{http://github.com/mrflip/configliere}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.4.2}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Wise, discreet configuration management}
   s.test_files = [
     "examples/config_block_script.rb",
@@ -75,6 +76,7 @@ Configliere manage settings from many sources: static constants, simple config f
     "examples/env_var_script.rb",
     "examples/simple_script.rb",
     "spec/configliere/commandline_spec.rb",
+    "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
     "spec/configliere/config_file_spec.rb",
     "spec/configliere/core_ext/hash_spec.rb",
@@ -89,6 +91,7 @@ Configliere manage settings from many sources: static constants, simple config f
   ]
 
   if s.respond_to? :specification_version then
+    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
