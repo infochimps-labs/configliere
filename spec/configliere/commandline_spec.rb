@@ -104,6 +104,13 @@ describe "Configliere::Commandline" do
     end
     
   end
+
+  describe "constructing help messages" do
+    it "should not display a help message about environment variables if no environment variables exist with documentation" do
+      @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
+      @config.env_var_help.should be_nil
+    end
+  end
   
 end
 

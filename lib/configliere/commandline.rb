@@ -163,6 +163,7 @@ module Configliere
 
     # Help on environment variables.
     def env_var_help
+      return if params_with_env_help.empty?
       [ "\nEnvironment Variables can be used to set:"] + params_with_env_help.map{ |param, env| "  %-27s %s"%[env.to_s, param]}
     end
 
