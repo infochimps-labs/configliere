@@ -1,5 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'configliere/commandline'
+Configliere.use :commandline
 
 describe "Configliere::Commandline" do
 
@@ -83,6 +83,13 @@ describe "Configliere::Commandline" do
       @config.should == { :param_1 => true, :cat => true, :foo => nil}
     end
 
+    # it 'should parse a single-letter flag with a value' do
+    #   ::ARGV.replace ['-p=new_val', '-c']
+    #   @config.resolve!
+    #   @config.rest.should == []
+    #   @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
+    # end
+
     it 'should not complain about bad single-letter flags by default' do
       ::ARGV.replace ['-pcz']
       @config.resolve!
@@ -96,6 +103,13 @@ describe "Configliere::Commandline" do
       lambda { @config.resolve! }.should raise_error(Configliere::Error)
     end
     
+  end
+
+  describe "constructing help messages" do
+    it "should not display a help message about environment variables if no environment variables exist with documentation" do
+      @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
+      @config.env_var_help.should be_nil
+    end
   end
   
 end

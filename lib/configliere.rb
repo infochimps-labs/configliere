@@ -10,11 +10,16 @@ module Configliere
     Configliere::Param.new(*args, &block)
   end
 
-  ALL_MIXINS = [:define, :config_file, :commandline, :encrypted, :env_var, :config_block, :git_style_binaries]
+  ALL_MIXINS = [:define, :config_file, :commandline, :encrypted, :env_var, :config_block, :commands]
   def self.use *mixins
     mixins = ALL_MIXINS if mixins.include?(:all) || mixins.empty?
     mixins.each do |mixin|
-      require "configliere/#{mixin}"
+      # backwards compatibility
+      if mixin.to_sym == :git_style_binaries
+        require "configliere/commands"
+      else
+        require "configliere/#{mixin}"
+      end
     end
   end
 

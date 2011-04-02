@@ -9,7 +9,8 @@ describe "Configliere::ConfigBlock" do
   describe 'resolving' do
     it 'runs blocks' do
       @block_watcher = 'watcher'
-      @block_watcher.should_receive(:fnord).with(@config)
+      # @block_watcher.should_receive(:fnord).with(@config)
+      @block_watcher.should_receive(:fnord)
       @config.finally{|arg| @block_watcher.fnord(arg) }
       @config.resolve!
     end

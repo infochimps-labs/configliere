@@ -6,6 +6,7 @@ module Configliere
   #
   module Commandline
     attr_accessor :rest
+    alias_method :argv, :rest
 
     # Processing to reconcile all options
     #
@@ -37,24 +38,37 @@ module Configliere
       until args.empty? do
         arg = args.shift
         case
+        # end of options parsing
         when arg == '--'
           self.rest += args
           break
+        # --param=val
         when arg =~ /\A--([\w\-\.]+)(?:=(.*))?\z/
           param, val = [$1, $2]
           param.gsub!(/\-/, '.')                        # translate --scoped-flag to --scoped.flag
           param = param.to_sym unless (param =~ /\./)   # symbolize non-scoped keys
-          if    val == nil then val = true              # --flag    option on its own means 'set that option'
-          elsif val == ''  then val = nil end           # --flag='' the explicit empty string means nil
-          self[param] = val
+          self[param] = parse_value(val)
+        # -abc
         when arg =~ /\A-(\w+)\z/
           $1.each_char do |flag|
             param = param_with_flag(flag)
             self[param] = true if param
           end
+        # -a=val
+        # when arg =~ /\A-(\w)=(.*)\z/
+        #   param, val = param_with_flag($1), $2
+        #   self[param] = parse_value(val) if param
         else
           self.rest << arg
         end
+      end
+    end
+
+    def parse_value val
+      case
+      when val == nil then true            # --flag    option on its own means 'set that option'
+      when val == '' then nil             # --flag='' the explicit empty string means nil      
+      else val                             # else just return the value
       end
     end
 
@@ -123,33 +137,49 @@ module Configliere
       @complain_about_bad_flags = true
     end
 
-    # The contents of the help message.
-    # Lists the usage as well as any defined parameters and environment variables
-    def help
-      help_str  = [ usage ]
-      if respond_to?(:descriptions)
-        help_str += ["\nParams"]
-        ordered_params_and_descs = descriptions.sort_by{|p,d| p.to_s }
-        param_help_strings       = ordered_params_and_descs.map do |param, desc|
-          if flag = param_definitions[param][:flag]
-            "  -%s, --%-21s %s" % [flag.to_s.first, param.to_s + ':', desc]
-          else
-            "  --%-25s %s" % [param.to_s + ':', desc]
-          end
+    # Return the params for which a line should be printed giving
+    # their usage.
+    def params_with_command_line_help
+      descriptions.reject{ |param, desc| param_definitions[param][:no_command_line_help] }.sort_by{ |param, desc| param.to_s }
+    end
+
+    # Help on the flags used.
+    def flags_help
+      help = ["\nParams"]
+      help += params_with_command_line_help.map do |param, desc|
+        if flag = param_definitions[param][:flag]
+          "  -%s, --%-21s %s" % [flag.to_s.first, param.to_s, desc]
+        else
+          "  --%-25s %s" % [param.to_s + ':', desc]
         end
-        help_str += param_help_strings
       end
-      help_str += [ "\nEnvironment Variables can be used to set:", params_from_env_vars.map{|param, env| "  %-27s %s"%[env.to_s+':', param]}.join("\n"), ] if respond_to?(:params_from_env_vars)
-      help_str.join("\n")
+    end
+
+    # Return the params for which a line should be printing giving
+    # their dependence on environment variables.
+    def params_with_env_help
+      definitions_for(:env_var).reject { |param, desc| param_definitions[param][:no_help] || param_definitions[param][:no_env_help] }
+    end
+
+    # Help on environment variables.
+    def env_var_help
+      return if params_with_env_help.empty?
+      [ "\nEnvironment Variables can be used to set:"] + params_with_env_help.map{ |param, env| "  %-27s %s"%[env.to_s, param]}
     end
 
     # Output the help message to $stderr, along with an optional extra message appended.
-    def dump_help extra_msg=nil
-      $stderr.puts help
+    def dump_basic_help extra_msg=nil
+      $stderr.puts [:flags_help, :env_var_help].map { |help| send(help) }.flatten.compact.join("\n") if respond_to?(:descriptions)
       $stderr.puts "\n\n"+extra_msg unless extra_msg.blank?
       $stderr.puts ''
     end
 
+    def dump_help str=nil
+      dump_basic_help
+      dump_command_help if respond_to?(:dump_command_help)
+      puts str if str
+    end
+      
     def raw_script_name
       File.basename($0)
     end
@@ -164,6 +194,7 @@ module Configliere
     # Ouput the help string if requested
     def dump_help_if_requested
       return unless self[:help]
+      $stderr.puts usage
       dump_help
       exit
     end
