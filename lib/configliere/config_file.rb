@@ -18,6 +18,8 @@ module Configliere
     #   If an :env option is given, only the indicated subhash is merged. This
     #   lets you for example specify production / environment / test settings
     #
+    # @returns [Configliere::Params] the Settings object
+    #
     # @example
     #     # Read from config/apey_eye.yaml and use settings appropriate for development/staging/production
     #     Settings.read(root_path('config/apey_eye.yaml'), :env => (ENV['RACK_ENV'] || 'production'))
@@ -36,6 +38,7 @@ module Configliere
         params = params[options[:env]]
       end
       deep_merge! params
+      self
     end
 
     # save to disk.
