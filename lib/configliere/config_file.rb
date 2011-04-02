@@ -13,7 +13,16 @@ module Configliere
     # Load params from disk.
     # * file is in YAML format, as a hash of handle => param_hash pairs
     # * filename defaults to Configliere::DEFAULT_CONFIG_FILE (~/.configliere, probably)
-    def read handle
+    #
+    # @option [String] :env
+    #   If an :env option is given, only the indicated subhash is merged. This
+    #   lets you for example specify production / environment / test settings
+    #
+    # @example
+    #     # Read from config/apey_eye.yaml and use settings appropriate for development/staging/production
+    #     Settings.read(root_path('config/apey_eye.yaml'), :env => (ENV['RACK_ENV'] || 'production'))
+    #
+    def read handle, options={}
       filename = filename_for_handle(handle)
       begin
         params = YAML.load(File.open(filename)) || {}
@@ -22,6 +31,10 @@ module Configliere
         params = {}
       end
       params = params[handle] if handle.is_a?(Symbol)
+      # Extract the :env (production/development/etc)
+      if options[:env]
+        params = params[options[:env]]
+      end
       deep_merge! params
     end
 
