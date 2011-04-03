@@ -35,7 +35,7 @@ module Configliere
       params = params[handle] if handle.is_a?(Symbol)
       # Extract the :env (production/development/etc)
       if options[:env]
-        params = params[options[:env]]
+        params = params[options[:env]] || {}
       end
       deep_merge! params
       self
