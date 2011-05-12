@@ -102,7 +102,26 @@ describe "Configliere::Commandline" do
       @config.complain_about_bad_flags!
       lambda { @config.resolve! }.should raise_error(Configliere::Error)
     end
-    
+  end
+
+  describe "help messages with single-letter flags" do
+
+    before do
+      @config = Configliere::Param.new
+      @config.use :commandline, :define
+      @config.define :cat, :flag => :c, :description => "I like single-letter commands."
+    end
+
+    it "display the single-letter flags" do
+      ::ARGV.replace ['--help']
+      actual = ""
+      $stderr.stub(:puts) do |line|
+        actual += line
+      end
+      @config.stub(:exit)
+      @config.resolve!
+      actual.should match(/-c,/m)
+    end
   end
 
   describe "constructing help messages" do
@@ -111,6 +130,6 @@ describe "Configliere::Commandline" do
       @config.env_var_help.should be_nil
     end
   end
-  
+
 end
 
