@@ -18,7 +18,7 @@ describe "Configliere::ConfigFile" do
         @config.read :my_settings
       end
       it 'loads an absolute pathname from the given file' do
-        File.should_receive(:open).with('/fake/path.yaml').and_return(@fake_file)
+        File.should_receive(:open).with(%r{/fake/path.yaml}).and_return(@fake_file)
         @config.read '/fake/path.yaml'
       end
       it 'loads a simple filename from the default config dir' do
@@ -26,7 +26,7 @@ describe "Configliere::ConfigFile" do
         @config.read 'file.yaml'
       end
       it 'loads an absolute pathname from the given file' do
-        File.should_receive(:open).with('/fake/path.yaml').and_return(@fake_file)
+        File.should_receive(:open).with(%r{/fake/path.yaml}).and_return(@fake_file)
         @config.read '/fake/path.yaml'
       end
       after do
@@ -51,14 +51,14 @@ describe "Configliere::ConfigFile" do
       end
       it 'saves a pathname to the given file' do
         fake_file = StringIO.new('', 'w')
-        File.should_receive(:open).with('/fake/path.yaml', 'w').and_yield(fake_file)
+        File.should_receive(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
         fake_file.should_receive(:<<).with("--- \n:my_param: val\n")
         @config.save! '/fake/path.yaml'
       end
       it 'ensures the directory exists' do
         fake_file = StringIO.new('', 'w')
-        File.stub!(:open).with('/fake/path.yaml', 'w').and_yield(fake_file)
-        FileUtils.should_receive(:mkdir_p).with('/fake')
+        File.stub!(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
+        FileUtils.should_receive(:mkdir_p).with(%r{/fake})
         @config.save! '/fake/path.yaml'
       end
     end
@@ -81,7 +81,7 @@ describe "Configliere::ConfigFile" do
       @config.send(:filename_for_handle, :my_settings).should == Configliere::DEFAULT_CONFIG_FILE
     end
     it 'loads an absolute pathname from the given file' do
-      @config.send(:filename_for_handle, '/fake/path.yaml').should == '/fake/path.yaml'
+      @config.send(:filename_for_handle, '/fake/path.yaml').should match '/fake/path.yaml'
     end
     it 'loads a simple filename from the default config dir' do
       @config.send(:filename_for_handle, 'file.yaml').should == Configliere::DEFAULT_CONFIG_DIR + '/file.yaml'
