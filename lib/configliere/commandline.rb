@@ -148,7 +148,7 @@ module Configliere
       help = ["\nParams"]
       help += params_with_command_line_help.map do |param, desc|
         if flag = param_definitions[param][:flag]
-          "  -%s, --%-21s %s" % [flag.to_s.first, param.to_s, desc]
+          "  -%s, --%-21s %s" % [flag.to_s, param.to_s, desc]
         else
           "  --%-25s %s" % [param.to_s + ':', desc]
         end
