@@ -22,7 +22,7 @@ module Configliere
     #
     # @example
     #     # Read from config/apey_eye.yaml and use settings appropriate for development/staging/production
-    #     Settings.read(root_path('config/apey_eye.yaml'), :env => (ENV['RACK_ENV'] || 'production'))
+    #     Settings.read(root_path('config/foo.yaml'), :env => ENV['RACK_ENV'])
     #
     def read handle, options={}
       filename = filename_for_handle(handle)

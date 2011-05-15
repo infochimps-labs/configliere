@@ -5,12 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.3.4"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
-  s.date = %q{2011-04-03}
-  s.default_executable = %q{configliere}
+  s.date = %q{2011-05-15}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
@@ -18,7 +17,7 @@ Gem::Specification.new do |s|
 Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 }
   s.email = %q{flip@infochimps.org}
-  s.executables = ["configliere"]
+  s.executables = ["configliere", "configliere-decrypt", "configliere-delete", "configliere-dump", "configliere-encrypt", "configliere-list", "configliere-set"]
   s.extra_rdoc_files = [
     "LICENSE",
     "README.textile"
@@ -31,10 +30,17 @@ Configliere manage settings from many sources: static constants, simple config f
     "Rakefile",
     "VERSION",
     "bin/configliere",
+    "bin/configliere-decrypt",
+    "bin/configliere-delete",
+    "bin/configliere-dump",
+    "bin/configliere-encrypt",
+    "bin/configliere-list",
+    "bin/configliere-set",
     "configliere.gemspec",
     "examples/config_block_script.rb",
     "examples/encrypted_script.rb",
     "examples/env_var_script.rb",
+    "examples/help_message_demo.rb",
     "examples/simple_script.rb",
     "examples/simple_script.yaml",
     "lib/configliere.rb",
@@ -42,11 +48,8 @@ Configliere manage settings from many sources: static constants, simple config f
     "lib/configliere/commands.rb",
     "lib/configliere/config_block.rb",
     "lib/configliere/config_file.rb",
-    "lib/configliere/core_ext.rb",
-    "lib/configliere/core_ext/blank.rb",
-    "lib/configliere/core_ext/hash.rb",
-    "lib/configliere/core_ext/sash.rb",
     "lib/configliere/crypter.rb",
+    "lib/configliere/deep_hash.rb",
     "lib/configliere/define.rb",
     "lib/configliere/encrypted.rb",
     "lib/configliere/env_var.rb",
@@ -55,9 +58,8 @@ Configliere manage settings from many sources: static constants, simple config f
     "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
     "spec/configliere/config_file_spec.rb",
-    "spec/configliere/core_ext/hash_spec.rb",
-    "spec/configliere/core_ext/sash_spec.rb",
     "spec/configliere/crypter_spec.rb",
+    "spec/configliere/deep_hash_spec.rb",
     "spec/configliere/define_spec.rb",
     "spec/configliere/encrypted_spec.rb",
     "spec/configliere/env_var_spec.rb",
@@ -68,20 +70,20 @@ Configliere manage settings from many sources: static constants, simple config f
   ]
   s.homepage = %q{http://github.com/mrflip/configliere}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.5.0}
   s.summary = %q{Wise, discreet configuration management}
   s.test_files = [
     "examples/config_block_script.rb",
     "examples/encrypted_script.rb",
     "examples/env_var_script.rb",
+    "examples/help_message_demo.rb",
     "examples/simple_script.rb",
     "spec/configliere/commandline_spec.rb",
     "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
     "spec/configliere/config_file_spec.rb",
-    "spec/configliere/core_ext/hash_spec.rb",
-    "spec/configliere/core_ext/sash_spec.rb",
     "spec/configliere/crypter_spec.rb",
+    "spec/configliere/deep_hash_spec.rb",
     "spec/configliere/define_spec.rb",
     "spec/configliere/encrypted_spec.rb",
     "spec/configliere/env_var_spec.rb",
@@ -91,7 +93,6 @@ Configliere manage settings from many sources: static constants, simple config f
   ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
