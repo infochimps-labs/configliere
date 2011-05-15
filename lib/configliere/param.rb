@@ -1,6 +1,10 @@
 require 'configliere/core_ext/sash.rb'
 module Configliere
-  class ParamParent < ::Hash
+  #
+  # We want to be able to call super() on these methods in all included models,
+  # so we define them in this parent shim class.
+  #
+  class ParamParent < DeepHash
     # default export method: self
     def export
       to_hash
@@ -25,8 +29,7 @@ module Configliere
     #   The default value for the mash. Defaults to an empty hash.
     #
     # @details [Alternatives]
-    #   If constructor is a Hash, a new mash will be created based on the keys of
-    #   the hash and no default value will be set.
+    #   If constructor is a Hash, adopt its values.
     def initialize(constructor = {})
       if constructor.is_a?(Hash)
         super()
@@ -36,7 +39,7 @@ module Configliere
       end
     end
 
-    # @return [Hash] The mash as a Hash with string keys.
+    # @return [Hash] converts to a plain hash.
     def to_hash
       Hash.new(default).merge(self)
     end

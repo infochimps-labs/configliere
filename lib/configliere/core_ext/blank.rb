@@ -12,10 +12,22 @@ class Object
   #
   # @return [TrueClass, FalseClass]
   #
-  # @api public
   def blank?
     nil? || (respond_to?(:empty?) && empty?)
   end unless method_defined?(:blank?)
+
+  ##
+  # Returns true if the object is NOT nil or empty
+  #
+  #   [].present?         #=>  false
+  #   [1].present?        #=>  true
+  #   [nil].present?      #=>  true
+  #
+  # @return [TrueClass, FalseClass]
+  #
+  def present?
+    not blank?
+  end
 end # class Object
 
 class Numeric
@@ -28,7 +40,6 @@ class Numeric
   #
   # @return [FalseClass]
   #
-  # @api public
   def blank?
     false
   end unless method_defined?(:blank?)
@@ -42,7 +53,6 @@ class NilClass
   #
   # @return [TrueClass]
   #
-  # @api public
   def blank?
     true
   end unless method_defined?(:blank?)
@@ -56,7 +66,6 @@ class TrueClass
   #
   # @return [FalseClass]
   #
-  # @api public
   def blank?
     false
   end unless method_defined?(:blank?)
@@ -70,7 +79,6 @@ class FalseClass
   #
   # @return [TrueClass]
   #
-  # @api public
   def blank?
     true
   end unless method_defined?(:blank?)
@@ -86,7 +94,6 @@ class String
   #
   # @return [TrueClass, FalseClass]
   #
-  # @api public
   def blank?
     strip.empty?
   end unless method_defined?(:blank?)

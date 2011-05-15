@@ -1,12 +1,12 @@
 #
 # core_ext/hash.rb -- hash extensions
 #
-class Hash
+class DeepHash < Hash
 
   # lambda for recursive merges
-  ::Hash::DEEP_MERGER = proc do |key,v1,v2|
-    (v1.respond_to?(:merge) && v2.respond_to?(:merge)) ? v1.merge(v2.compact, &Hash::DEEP_MERGER) : (v2.nil? ? v1 : v2)
-  end unless defined?(::Hash::DEEP_MERGER)
+  ::DeepHash::DEEP_MERGER = proc do |key,v1,v2|
+    (v1.respond_to?(:merge) && v2.respond_to?(:merge)) ? v1.merge(v2.compact, &DeepHash::DEEP_MERGER) : (v2.nil? ? v1 : v2)
+  end unless defined?(::DeepHash::DEEP_MERGER)
 
   #
   # Merge hashes recursively.
@@ -29,11 +29,11 @@ class Hash
   #     => {:subhash=>{1=>:val1, :nil_in_x=>5}, :nil_in_x=>5}
   #
   def deep_merge hsh2
-    merge hsh2, &Hash::DEEP_MERGER
+    merge hsh2, &DeepHash::DEEP_MERGER
   end unless method_defined?(:deep_merge)
 
   def deep_merge! hsh2
-    update hsh2, &Hash::DEEP_MERGER
+    update hsh2, &DeepHash::DEEP_MERGER
     self
   end unless method_defined?(:deep_merge!)
 

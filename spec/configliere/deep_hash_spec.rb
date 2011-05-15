@@ -1,8 +1,8 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../../spec_helper'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 
-describe Hash do
+describe DeepHash do
   before(:each) do
-    @hash = { :hsh1a => { :hsh2 => { :key3 => "val3" }, :key2 => "val2" }, :key1b => 'val1b' }
+    @hash = DeepHash.new.merge!({ :hsh1a => { :hsh2 => { :key3 => "val3" }, :key2 => "val2" }, :key1b => 'val1b' })
   end
 
   describe "#deep_merge!" do
@@ -15,7 +15,7 @@ describe Hash do
       @hash[:hsh1a][:key2].should == "val2"
       @hash[:other_key].should == "other_val"
     end
-    it "replaces values from the given Hash" do
+    it "replaces values from the given DeepHash" do
       @hash.deep_merge!(:hsh1a => { :hsh2 => { :key3 => "new_val3" }, :key2 => { "other2" => "other_val2" }})
       @hash[:hsh1a][:hsh2][:key3].should == 'new_val3'
       @hash[:hsh1a][:key2].should == { "other2" => "other_val2" }
