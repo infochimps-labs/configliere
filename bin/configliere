@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 $: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
-require 'logger'
-Log = Logger.new(STDERR) unless defined?(Log)
 
 Settings.use :commands
 
