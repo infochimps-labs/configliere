@@ -1,6 +1,7 @@
 h2.
 
 
+* Configliere now unambiguously wants symbols to define params.
 * Configliere no longer modifies any core classes:
   - deep_merge, deep_set and deep_delete have been moved to a DeepHash class.
   - the Sash class is gone. More on this below.
@@ -8,8 +9,6 @@ h2.
   
 * Stripped out some magic: :no_help and :no_env_help (the convention is @:internal@); Settings.argv; Settings.commands?
 * Removed the long-deprecated :git_style_binaries synonym for :commands
-
-Configliere now unambiguously wants symbols to define params.
 
 
 h2. Version 0.2.1 2011-01-28

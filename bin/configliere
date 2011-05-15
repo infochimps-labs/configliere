@@ -69,10 +69,7 @@ when :encrypt
     Store.define attr, :encrypted => true
   end
   Store.encrypt_pass = Settings.encrypt_pass || Settings[:encrypt_pass]
-  p ['hi', Store, Store.encrypt_pass]
-  p ['bef', Store.send(:encrypted_params), Store.send(:export), Store.encrypt_pass]
   Store.resolve!
-  p [Store.send(:encrypted_params), Store.send(:export)]
 
   #store.fix!(handle, option_or_ask(:key))
 
