@@ -34,7 +34,7 @@ describe "Configliere::Encrypted" do
     it 'fails if no pass is set' do
       # create the config but don't set an encrypt_pass
       @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
-      lambda{ @config.send(:encrypted, @config[:secret]) }.should raise_error('Blank encryption password!')
+      lambda{ @config.send(:encrypted, @config[:secret]) }.should raise_error('Missing encryption password!')
     end
   end
 

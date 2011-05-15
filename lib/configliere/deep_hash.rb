@@ -5,7 +5,13 @@ class DeepHash < Hash
 
   # lambda for recursive merges
   ::DeepHash::DEEP_MERGER = proc do |key,v1,v2|
-    (v1.respond_to?(:merge) && v2.respond_to?(:merge)) ? v1.merge(v2.compact, &DeepHash::DEEP_MERGER) : (v2.nil? ? v1 : v2)
+    if (v1.respond_to?(:merge) && v2.respond_to?(:merge))
+      v1.merge(v2.reject{|key,val| val.nil? }, &DeepHash::DEEP_MERGER)
+    elsif v2.nil?
+      v1
+    else
+      v2
+    end
   end unless defined?(::DeepHash::DEEP_MERGER)
 
   #
@@ -30,12 +36,12 @@ class DeepHash < Hash
   #
   def deep_merge hsh2
     merge hsh2, &DeepHash::DEEP_MERGER
-  end unless method_defined?(:deep_merge)
+  end
 
   def deep_merge! hsh2
     update hsh2, &DeepHash::DEEP_MERGER
     self
-  end unless method_defined?(:deep_merge!)
+  end
 
   #
   # Treat hash as tree of hashes:
@@ -55,7 +61,7 @@ class DeepHash < Hash
     args.each{|key| hsh = (hsh[key] ||= self.class.new) }
     # set leaf value
     hsh[last_key] = val
-  end unless method_defined?(:deep_set)
+  end
 
   #
   # Treat hash as tree of hashes:
@@ -73,10 +79,10 @@ class DeepHash < Hash
   def deep_get *args
     last_key = args.pop
     # dig down to last subtree (building out if necessary)
-    hsh = args.inject(self){|h, k| h[k] || {} }
+    hsh = args.inject(self){|h, k| h[k] || self.class.new }
     # get leaf value
     hsh[last_key]
-  end unless method_defined?(:deep_get)
+  end
 
   #
   # Treat hash as tree of hashes:
@@ -91,18 +97,18 @@ class DeepHash < Hash
     last_key  = args.pop
     last_hsh  = args.empty? ? self : (deep_get(*args)||{})
     last_hsh.delete(last_key)
-  end unless method_defined?(:deep_delete)
+  end
 
   #
   # remove all key-value pairs where the value is nil
   #
   def compact
     reject{|key,val| val.nil? }
-  end unless method_defined?(:compact)
+  end
   #
   # Replace the hash with its compacted self
   #
   def compact!
     replace(compact)
-  end unless method_defined?(:compact!)
+  end
 end

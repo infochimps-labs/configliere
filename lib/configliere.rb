@@ -1,4 +1,3 @@
-require 'configliere/core_ext/blank'
 require 'configliere/deep_hash'
 require 'configliere/param'
 require 'configliere/define'
@@ -15,7 +14,6 @@ module Configliere
   def self.use *mixins
     mixins = ALL_MIXINS if mixins.include?(:all) || mixins.empty?
     mixins.each do |mixin|
-      mixin = :commands if mixin.to_sym == :git_style_binaries # backwards compatibility
       require "configliere/#{mixin}"
     end
   end

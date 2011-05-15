@@ -12,6 +12,7 @@ module Configliere
     #   Settings.define :password, :required => true, :obscure => true
     #
     def define param, definitions={}, &block
+      param = param.to_sym
       self.param_definitions[param].merge! definitions
       self.use(:env_var)      if definitions.include?(:env_var)
       self.use(:encrypted)    if definitions.include?(:encrypted)
@@ -114,7 +115,7 @@ module Configliere
         when ((type == Array) && val.is_a?(String))
           val = val.split(",")   rescue nil
           # following types map blank to nil
-        when (val.blank?)        then val = nil
+        when (val.respond_to?(:empty?) && val.empty?) then val = nil
         when (type == :filename) then val = File.expand_path(val)
         when (type == Float)     then val = val.to_f
         when (type == Integer)   then val = val.to_i
