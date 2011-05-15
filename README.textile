@@ -310,12 +310,16 @@ All of the above examples use the global variable @Settings@, defined in configl
 
 <pre>
     class Wolfman
-      cattr_accessor :config
-      self.config = Configliere.new({
-        :moon    => 'full',
-        :nards   => true,
-        })
+      attr_accessor :config
+
+      def config
+        @config ||= Configliere.new({
+          :moon    => full',
+          :nards   => true,
+          })
+      end
     end
+
     teen_wolf = proj.new
     teen_wolf.config.defaults(:give_me => 'keg of beer')
     teen_wolf.config #=> {:moon=>"full", :nards=>true, :give_me=>"keg of beer" }
