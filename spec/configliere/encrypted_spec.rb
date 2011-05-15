@@ -44,7 +44,7 @@ describe "Configliere::Encrypted" do
       @config.defaults :encrypted_secret => 'decrypt_me'
       Configliere::Crypter.should_receive(:decrypt).with('decrypt_me', 'pass').and_return('ok_decrypted')
       @config.send(:resolve_encrypted!)
-      @config.should == { :normal_param => 'normal', :secret => 'ok_decrypted', :encrypted_secret=>"decrypt_me" }
+      @config.should == { :normal_param => 'normal', :secret => 'ok_decrypted' }
     end
   end
 
@@ -63,8 +63,7 @@ describe "Configliere::Encrypted" do
       YAML.should_receive(:load).and_return(@hsh)
       @config.read 'file.yaml'
       @config.resolve!
-      @config.should include(:encrypted_secret)
-      @config.delete :encrypted_secret
+      @config.should_not include(:encrypted_secret)
       @config.should == { :loaded_param => "loaded", :secret => 'decrypt_me', :normal_param => 'normal' }
     end
   end
