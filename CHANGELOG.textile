@@ -6,6 +6,7 @@ h2.
   - deep_merge, deep_set and deep_delete have been moved to a DeepHash class.
   - the Sash class is gone. More on this below.
   - blank? is not defined by default
+* :encrypted keys are now stored as base64-encoded
   
 * Stripped out some magic: :no_help and :no_env_help (the convention is @:internal@); Settings.argv; Settings.commands?
 * Removed the long-deprecated :git_style_binaries synonym for :commands

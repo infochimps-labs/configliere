@@ -17,7 +17,7 @@ module Configliere
     def resolve_encrypted!
       remove_and_adopt_encrypt_pass_param_if_any!
       encrypted_params.each do |param|
-        encrypted_val = deep_get(*encrypted_key_path(param)) or next
+        encrypted_val = deep_delete(*encrypted_key_path(param)) or next
         self[param] = self.decrypted(encrypted_val)
       end
     end

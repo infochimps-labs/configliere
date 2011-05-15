@@ -25,7 +25,6 @@ ARGV.replace []
 Store = Configliere.new
 Store.read(Settings.from) if Settings.from
 
-
 #
 # Execute
 #
@@ -53,6 +52,7 @@ when :set
     attr = attr.to_sym
     if val.nil? then warn "Please specify a value for #{attr}" ; next ; end
     Store[attr] = val
+
     puts "%-23s\t%s" % ["#{attr}:", val.inspect]
   end
 
@@ -65,27 +65,22 @@ when :delete
 when :encrypt
   Store.use :encrypted
   $stderr.puts "Encrypting #{Settings.rest.join(", ")} from #{Settings.from}. Fnord"
-  Settings.rest.each do |attr|
-    Store.define attr, :encrypted => true
-  end
+  Settings.rest.each{|attr| Store.define attr, :encrypted => true }
   Store.encrypt_pass = Settings.encrypt_pass || Settings[:encrypt_pass]
   Store.resolve!
 
-  #store.fix!(handle, option_or_ask(:key))
-
 when :decrypt
   Store.use :encrypted
-  # $stderr.puts "Storing info for #{handle} in **DECRYPTED** form."
-  # param = get(handle)
-  # store.put_decrypted!(handle, param)
+  $stderr.puts "Decrypting #{Settings.rest.join(", ")} from #{Settings.from}. Fnord"
+  Settings.rest.each{|attr| Store.define attr, :encrypted => true }
+  Store.encrypt_pass = Settings.encrypt_pass || Settings[:encrypt_pass]
+  Store.resolve!
 
+  puts Store.to_hash.to_yaml
 
 else
   Settings.die "Please use one of the given commands"
 end
-
-puts '---------------'
-puts Store.to_hash.to_yaml
 
 if Settings.into
   Store.save!(Settings.into)
