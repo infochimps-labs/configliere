@@ -11,14 +11,17 @@ module Configliere
     # Processing to reconcile all options
     #
     # Configliere::Commandline's resolve!:
+    #
     # * processes all commandline params
-    # * if the --help param was given, prints out a usage statement (using
-    #   any +:description+ set with #define) and then exits
-    # * lastly, calls the next method in the resolve! chain.
+    # * if the --help param was given, prints out a usage statement describing all #define'd params and exits
+    # * calls up the resolve! chain.
     #
     def resolve!
       process_argv!
-      if self[:help] then dump_help ; exit ; end
+      if self[:help]
+        dump_help
+        exit(2)
+      end
       super()
     end
 
@@ -55,9 +58,9 @@ module Configliere
             self[param] = true if param
           end
         # -a=val
-        # when arg =~ /\A-(\w)=(.*)\z/
-        #   param, val = param_with_flag($1), $2
-        #   self[param] = parse_value(val) if param
+        when arg =~ /\A-(\w)=(.*)\z/
+          param, val = param_with_flag($1), $2
+          self[param] = parse_value(val) if param
         else
           self.rest << arg
         end
@@ -140,8 +143,7 @@ module Configliere
     #
 
     def dump_help str=nil
-      $stderr.puts help(str)
-      $stderr.puts ""
+      warn help(str)+"\n"
     end
 
     # The contents of the help message.
@@ -153,7 +155,7 @@ module Configliere
       h << param_lines
       h << commands_help if respond_to?(:commands_help)
       h << "\n\n"+str if str
-      h.flatten.compact.join("\n")
+      h.flatten.compact.join("\n")+"\n"
     end
 
     # Usage line

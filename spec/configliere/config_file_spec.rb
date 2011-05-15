@@ -37,6 +37,7 @@ describe "Configliere::ConfigFile" do
       it 'handles a file not found' do
         @config = Configliere::Param.new
         File.stub(:open).and_raise(Errno::ENOENT)
+        @config.should_receive(:warn).with("Loading empty configliere settings file #{DEFAULT_CONFIG_DIR}/nonexistent_file.yaml")
         @config.read('nonexistent_file.yaml').should == {}
       end
     end

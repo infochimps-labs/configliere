@@ -2,7 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 Configliere.use :commandline
 
 describe "Configliere::Commandline" do
-
   after do
     ::ARGV.replace []
   end
@@ -63,7 +62,6 @@ describe "Configliere::Commandline" do
   end
 
   describe "processing single-letter flags" do
-
     before do
       @config = Configliere::Param.new :param_1 => 'val 1', :cat => nil, :foo => nil
       @config.param_definitions = { :param_1 => { :flag => :p }, :cat =>  { :flag => 'c' } }
@@ -83,12 +81,12 @@ describe "Configliere::Commandline" do
       @config.should == { :param_1 => true, :cat => true, :foo => nil}
     end
 
-    # it 'should parse a single-letter flag with a value' do
-    #   ::ARGV.replace ['-p=new_val', '-c']
-    #   @config.resolve!
-    #   @config.rest.should == []
-    #   @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
-    # end
+    it 'should parse a single-letter flag with a value' do
+      ::ARGV.replace ['-p=new_val', '-c']
+      @config.resolve!
+      @config.rest.should == []
+      @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
+    end
 
     it 'should complain about bad single-letter flags by default' do
       ::ARGV.replace ['-pcz']
@@ -96,52 +94,40 @@ describe "Configliere::Commandline" do
     end
   end
 
-  describe "help messages with single-letter flags" do
-
-    before do
-      @config = Configliere::Param.new
-      @config.use :commandline, :define
-      @config.define :cat, :flag => :c, :description => "I like single-letter commands."
+  def capture_help_message
+    stderr_output = ''
+    @config.should_receive(:warn){|str| stderr_output << str }
+    begin
+      yield
+      fail('should exit via system exit')
+    rescue SystemExit
     end
-
-    it "display the single-letter flags" do
-      ::ARGV.replace ['--help']
-      actual = ""
-      $stderr.stub(:puts) do |line|
-        actual += line
-      end
-      @config.stub(:exit)
-      @config.resolve!
-      actual.should match(/-c,/m)
-    end
+    stderr_output
   end
 
-  describe "constructing help messages" do
-
+  describe "the help message" do
     before do
       @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
     end
 
-    it 'should display help' do
+    it 'displays help' do
       ::ARGV.replace ['--help']
-      begin
-        $stderr = StringIO.new
-        begin
-          @config.resolve!
-          fail('should exit via system exit')
-        rescue SystemExit
-        end
-        $stderr.string.should_not be_nil
-        $stderr.string.should_not be_empty
+      stderr_output = capture_help_message{ @config.resolve! }
+      stderr_output.should_not be_nil
+      stderr_output.should_not be_empty
 
-        @config.help.should_not be_nil
-        @config.help.should_not be_empty
-      ensure
-        $stderr = STDERR
-      end
+      @config.help.should_not be_nil
+      @config.help.should_not be_empty
     end
 
-    it "should display command line options" do
+    it "displays the single-letter flags" do
+      @config.define :cat, :flag => :c, :description => "I like single-letter commands."
+      ::ARGV.replace ['--help']
+      stderr_output = capture_help_message{ @config.resolve! }
+      stderr_output.should match(/-c,/m)
+    end
+
+    it "displays command line options" do
       ::ARGV.replace ['--help']
 
       @config.define :logfile, :type => String,     :description => "Log file name", :default => 'myapp.log', :required => false
@@ -153,31 +139,20 @@ describe "Configliere::Commandline" do
       @config.define :password, :required => true, :encrypted => true
       @config.description = 'This is a sample script to demonstrate the help message. Notice how pretty everything lines up YAY'
 
-      begin
-        $stderr = StringIO.new
-        begin
-          @config.resolve!
-          fail('should exit via system exit')
-        rescue SystemExit
-        end
-        str = $stderr.string
-        should_not be_nil
-        str.should_not be_empty
-        puts str
+      stderr_output = capture_help_message{ @config.resolve! }
+      stderr_output.should_not be_nil
+      stderr_output.should_not be_empty
 
-        str.should =~ %r{--debug\s}s                                 # type :boolean
-        str.should =~ %r{--logfile=String\s}s                        # type String
-        str.should =~ %r{--dest_time=DateTime[^\n]+\[Required\]}s    # shows required params
-        str.should =~ %r{--password=String[^\n]+\[Encrypted\]}s      # shows encrypted params
-        str.should =~ %r{--delorean.power_source=String\s}s          # undefined type
-        str.should =~ %r{--password=String\s*password}s              # uses name as dummy description
-        str.should =~ %r{-t, --takes_opt}s                           # single-letter flags
+      stderr_output.should =~ %r{--debug\s}s                                 # type :boolean
+      stderr_output.should =~ %r{--logfile=String\s}s                        # type String
+      stderr_output.should =~ %r{--dest_time=DateTime[^\n]+\[Required\]}s    # shows required params
+      stderr_output.should =~ %r{--password=String[^\n]+\[Encrypted\]}s      # shows encrypted params
+      stderr_output.should =~ %r{--delorean.power_source=String\s}s          # undefined type
+      stderr_output.should =~ %r{--password=String\s*password}s              # uses name as dummy description
+      stderr_output.should =~ %r{-t, --takes_opt}s                           # single-letter flags
 
-        str.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
-        str.should =~ %r{This is a sample script}s                         # extra description
-      ensure
-        $stderr = STDERR
-      end
+      stderr_output.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
+      stderr_output.should =~ %r{This is a sample script}s                         # extra description
     end
   end
 
