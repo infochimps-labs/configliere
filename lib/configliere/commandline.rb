@@ -142,7 +142,6 @@ module Configliere
     def dump_help str=nil
       $stderr.puts help(str)
       $stderr.puts ""
-      dump_command_help if respond_to?(:dump_command_help)
     end
 
     # The contents of the help message.
@@ -150,8 +149,9 @@ module Configliere
     def help str=nil
       h = []
       h << usage
-      h << param_lines
       h << "\n"+@description if @description
+      h << param_lines
+      h << commands_help if respond_to?(:commands_help)
       h << "\n\n"+str if str
       h.flatten.compact.join("\n")
     end
@@ -169,10 +169,10 @@ module Configliere
 
     def param_lines
       pdefs = param_definitions.reject{|name, definition| definition[:internal] }
-      return if pdefs.blank?
+      return if pdefs.empty?
       h = ["\nParams:"]
       width     = find_width(pdefs.keys)
-      has_flags = (not params_with(:flag).blank?)
+      has_flags = (not params_with(:flag).empty?)
       pdefs.sort_by{|pn, pd| pn.to_s }.each do |name, definition|
         h << param_line(name, definition, width, has_flags)
       end
@@ -185,7 +185,7 @@ module Configliere
       buf = ['  ']
       buf << (definition[:flag] ? "-#{definition[:flag]}," : "   ") if has_flags
       buf << sprintf("--%-#{width}s", param_with_type(name))
-      buf << (desc.blank? ? name : desc)
+      buf << (desc.empty? ? name : desc)
       buf << "[Default: #{definition[:default]}]"  if definition[:default]
       buf << '[Required]'                          if definition[:required]
       buf << '[Encrypted]'                         if definition[:encrypted]

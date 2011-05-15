@@ -1,13 +1,12 @@
-require 'configliere/core_ext/sash.rb'
 module Configliere
   #
   # We want to be able to call super() on these methods in all included models,
   # so we define them in this parent shim class.
   #
   class ParamParent < DeepHash
-    # default export method: self
+    # default export method: dup of self
     def export
-      to_hash
+      dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v.dup  } }
     end
     # terminate resolution chain
     def resolve!
@@ -71,7 +70,7 @@ module Configliere
     end
 
     def []= param, val
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_set( *(convert_key(param) | [val]) )
       else
         super param, val
@@ -79,7 +78,7 @@ module Configliere
     end
 
     def [] param
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_get( *convert_key(param) )
       else
         super param
@@ -87,7 +86,7 @@ module Configliere
     end
 
     def delete param
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_delete( *convert_key(param) )
       else
         super param
@@ -100,7 +99,6 @@ module Configliere
       self.deep_merge!(hsh) unless hsh.nil?
     end
 
-  protected
     # @param key<Object> The key to convert.
     #
     # @param [Object]

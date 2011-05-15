@@ -15,24 +15,14 @@ module Configliere
 
     # Add a command, along with a description of its predicates and the command itself.
     def define_command cmd, options={}, &block
+      cmd = cmd.to_sym
       command_configuration = Configliere.new
       yield command_configuration if block_given?
       commands[cmd] = options.merge(:config => command_configuration)
     end
 
-    # Define a help command.
-    def define_help_command!
-      define_command :help, :description => "Print detailed help on each command"
-    end
-
-    # Is +cmd+ the name of a known command?
-    def command? cmd
-      return false if cmd.blank?
-      commands.include?(cmd) || commands.include?(cmd.to_s)
-    end
-
     def commands
-      @commands ||= Sash.new
+      @commands ||= DeepHash.new
     end
 
     def command
@@ -63,33 +53,34 @@ module Configliere
     #
     def process_argv!
       super()
-      if raw_script_name =~ /(\w+)-([\w\-]+)/
-        self.command_name = $2
-      else
-        self.command_name = rest.shift if command?(rest.first)
+      base, cmd = script_base_and_command
+      if cmd
+        self.command_name = cmd.to_sym
+      elsif rest.first
+        self.command_name = rest.shift.to_sym if commands.include?(rest.first.to_sym)
       end
     end
 
     # The script name without command appendix if any: For $0 equal to any of
     # 'git', 'git-reset', or 'git-cherry-pick', base_script_name is 'git'
     #
-    def base_script_name
-      raw_script_name.gsub(/-.*/, '')
+    def script_base_and_command
+      raw_script_name.split('-', 2)
     end
 
     # Usage line
     def usage
-      %Q{usage: #{base_script_name} command [...--param=val...]}
+      %Q{usage: #{script_base_and_command.first} [command] [...--param=val...]}
     end
 
     # Return help on commands.
-    def dump_command_help
-      help = ["Available commands"]
-      help += commands.keys.map(&:to_s).sort.map do |key|
-        "  %-27s %s" % [key.to_s, commands[key][:description]] unless commands[key][:internal]
+    def commands_help
+      help = ["\nAvailable commands:"]
+      commands.sort.each do |cmd, info|
+        help << ("  %-27s %s" % [cmd, info[:description]]) unless info[:internal]
       end
-      help += ["\nRun `#{base_script_name} help COMMAND' for more help on COMMAND"] if command?(:help)
-      $stderr.puts help.join("\n")
+      help << "\nRun `#{script_base_and_command.first} help COMMAND' for more help on COMMAND" if commands.include?(:help)
+      help.flatten.join("\n")
     end
 
   end
