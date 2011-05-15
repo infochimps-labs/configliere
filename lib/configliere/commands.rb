@@ -29,7 +29,7 @@ module Configliere
     def commands?
       (! commands.empty?)
     end
-    
+
     # Is +cmd+ the name of a known command?
     def command? cmd
       return false if cmd.blank?
@@ -91,12 +91,12 @@ module Configliere
     def dump_command_help
       help = ["Available commands"]
       help += commands.keys.map(&:to_s).sort.map do |key|
-        "  %-27s %s" % [key.to_s, commands[key][:description]] unless commands[key][:no_help]
+        "  %-27s %s" % [key.to_s, commands[key][:description]] unless commands[key][:internal]
       end
       help += ["\nRun `#{base_script_name} help COMMAND' for more help on COMMAND"] if command?(:help)
       $stderr.puts help.join("\n")
     end
-    
+
   end
 
   Param.class_eval do

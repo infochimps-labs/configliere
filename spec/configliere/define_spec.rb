@@ -67,11 +67,11 @@ describe "Configliere::Define" do
     end
     it 'converts :now to the current moment' do
       @config.define :param, :type => DateTime
-      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_close(DateTime.now, 4)
-      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_close(DateTime.now, 4)
+      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_within(4).of(DateTime.now, 4)
+      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_within(4).of(DateTime.now, 4)
       @config.define :param, :type => Date
-      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_close(Date.today, 4)
-      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_close(Date.today, 4)
+      @config[:param] = :now  ; @config.resolve! ; @config[:param].should be_within(4).of(Date.today, 4)
+      @config[:param] = 'now' ; @config.resolve! ; @config[:param].should be_within(4).of(Date.today, 4)
     end
   end
 

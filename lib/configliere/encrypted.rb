@@ -75,4 +75,3 @@ module Configliere
     include EncryptedParam
   end
 end
-

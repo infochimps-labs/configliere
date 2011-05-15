@@ -7,6 +7,7 @@ module Configliere
   module Commandline
     attr_accessor :rest
     alias_method :argv, :rest
+    attr_accessor :description
 
     # Processing to reconcile all options
     #
@@ -18,7 +19,7 @@ module Configliere
     #
     def resolve!
       process_argv!
-      dump_help_if_requested
+      if self[:help] then dump_help ; exit ; end
       super()
     end
 
@@ -66,10 +67,18 @@ module Configliere
 
     def parse_value val
       case
-      when val == nil then true            # --flag    option on its own means 'set that option'
-      when val == '' then nil             # --flag='' the explicit empty string means nil      
-      else val                             # else just return the value
+      when val == nil then true  # --flag    option on its own means 'set that option'
+      when val == '' then nil    # --flag='' the explicit empty string means nil
+      else val                   # else just return the value
       end
+    end
+
+    # Retrieve the first param defined with the given flag.
+    def param_with_flag flag
+      params_with(:flag).each do |param|
+        return param if param_definitions[param][:flag].to_s == flag.to_s
+      end
+      raise Configliere::Error.new("Unknown option: -#{flag}")
     end
 
     # Configliere internal params
@@ -83,6 +92,9 @@ module Configliere
     end
 
     # die with a warning
+    #
+    # @example
+    #    Settings.define :foo, :finally => lambda{ Settings.foo.to_i < 5 or die("too much foo!") }
     #
     # @param str [String] the string to dump out before exiting
     # @param exit_code [Integer] UNIX exit code to set, default -1
@@ -98,13 +110,10 @@ module Configliere
       self[attr] = ask("#{attr}"+(hint ? " for #{hint}?" : '?'))
     end
 
-    # Retreive the first param defined with the given flag.
-    def param_with_flag flag
-      params_with(:flag).each do |param|
-        return param if param_definitions[param][:flag].to_s == flag.to_s
-      end
-      raise Configliere::Error.new("Unknown option: -#{flag}") if complain_about_bad_flags?
-    end
+    # ===========================================================================
+    #
+    # Recyle out our settings as a commandline
+    #
 
     # Returns a flag in dashed form, suitable for recycling into the commandline
     # of an external program.
@@ -126,62 +135,26 @@ module Configliere
       settings_and_names.map{|args| dashed_flag_for(*args) }
     end
 
-    # Complain about bad flags?
-    def complain_about_bad_flags?
-      @complain_about_bad_flags
-    end
-
-    # Force this params object to complain about bad (single-letter)
-    # flags on the command-line.
-    def complain_about_bad_flags!
-      @complain_about_bad_flags = true
-    end
-
-    # Return the params for which a line should be printed giving
-    # their usage.
-    def params_with_command_line_help
-      descriptions.reject{ |param, desc| param_definitions[param][:no_command_line_help] }.sort_by{ |param, desc| param.to_s }
-    end
-
-    # Help on the flags used.
-    def flags_help
-      help = ["\nParams"]
-      help += params_with_command_line_help.map do |param, desc|
-        if flag = param_definitions[param][:flag]
-          "  -%s, --%-21s %s" % [flag.to_s, param.to_s, desc]
-        else
-          "  --%-25s %s" % [param.to_s + ':', desc]
-        end
-      end
-    end
-
-    # Return the params for which a line should be printing giving
-    # their dependence on environment variables.
-    def params_with_env_help
-      definitions_for(:env_var).reject { |param, desc| param_definitions[param][:no_help] || param_definitions[param][:no_env_help] }
-    end
-
-    # Help on environment variables.
-    def env_var_help
-      return if params_with_env_help.empty?
-      [ "\nEnvironment Variables can be used to set:"] + params_with_env_help.map{ |param, env| "  %-27s %s"%[env.to_s, param]}
-    end
-
-    # Output the help message to $stderr, along with an optional extra message appended.
-    def dump_basic_help extra_msg=nil
-      $stderr.puts [:flags_help, :env_var_help].map { |help| send(help) }.flatten.compact.join("\n") if respond_to?(:descriptions)
-      $stderr.puts "\n\n"+extra_msg unless extra_msg.blank?
-      $stderr.puts ''
-    end
+    # ===========================================================================
+    #
+    # Commandline help
+    #
 
     def dump_help str=nil
-      dump_basic_help
+      $stderr.puts help(str)
+      $stderr.puts ""
       dump_command_help if respond_to?(:dump_command_help)
-      puts str if str
     end
-      
-    def raw_script_name
-      File.basename($0)
+
+    # The contents of the help message.
+    # Lists the usage as well as any defined parameters and environment variables
+    def help str=nil
+      h = []
+      h << usage
+      h << param_lines
+      h << "\n"+@description if @description
+      h << "\n\n"+str if str
+      h.flatten.compact.join("\n")
     end
 
     # Usage line
@@ -189,15 +162,55 @@ module Configliere
       %Q{usage: #{raw_script_name} [...--param=val...]}
     end
 
+    def raw_script_name
+      File.basename($0)
+    end
+
   protected
 
-    # Ouput the help string if requested
-    def dump_help_if_requested
-      return unless self[:help]
-      $stderr.puts usage
-      dump_help
-      exit
+    def param_lines
+      pdefs = param_definitions.reject{|name, definition| definition[:internal] }
+      return if pdefs.blank?
+      h = ["\nParams:"]
+      width     = find_width(pdefs.keys)
+      has_flags = (not params_with(:flag).blank?)
+      pdefs.sort_by{|pn, pd| pn.to_s }.each do |name, definition|
+        h << param_line(name, definition, width, has_flags)
+      end
+      h
     end
+
+    # pretty-print a param
+    def param_line(name, definition, width, has_flags)
+      desc = description_for(name).to_s.strip
+      buf = ['  ']
+      buf << (definition[:flag] ? "-#{definition[:flag]}," : "   ") if has_flags
+      buf << sprintf("--%-#{width}s", param_with_type(name))
+      buf << (desc.blank? ? name : desc)
+      buf << "[Default: #{definition[:default]}]"  if definition[:default]
+      buf << '[Required]'                          if definition[:required]
+      buf << '[Encrypted]'                         if definition[:encrypted]
+      buf << "[Env Var: #{definition[:env_var]}]"  if definition[:env_var]
+      buf.join(' ')
+    end
+
+    # run through the params and find the width needed to pretty-print them
+    def find_width(param_names)
+      [ 20,
+        param_names.map{|param_name| param_with_type(param_name).length }
+      ].flatten.max + 2
+    end
+
+    def param_with_type(param)
+      str = param.to_s
+      case type_for(param)
+      when :boolean then str << ''
+      when nil      then str << '=String'
+      else               str << '=' + type_for(param).to_s
+      end
+      str
+    end
+
   end
 
   Param.class_eval do

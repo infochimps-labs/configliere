@@ -55,12 +55,27 @@ module Configliere
 
     # All described params with their descriptions
     def descriptions
-      definitions_for(:description).reject{ |param, desc| param_definitions[param][:no_help] }
+      definitions_for(:description).reject{ |param, desc| param_definitions[param][:internal] }
     end
 
     # List of params that have descriptions
     def described_params
       params_with(:description)
+    end
+
+    # all params with a value for the definable aspect
+    #
+    # @param definable the aspect to list (:description, :type, :encrypted, etc.)
+    def params_with defineable
+      param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
+    end
+
+    def definitions_for defineable
+      hsh = {}
+      param_definitions.each do |param, defs|
+        hsh[param] = defs[defineable] if defs[defineable]
+      end
+      hsh
     end
 
     # ===========================================================================
@@ -137,28 +152,6 @@ module Configliere
         missing << param if self[param].nil?
       end
       raise "Missing values for:\n #{missing.map{|s| "  --" + s.to_s + (description_for(s) ? (" (" + description_for(s).to_s + ") ") : '') }.sort.join("\n")}" if (! missing.empty?)
-    end
-
-    # all params with a value for the definable aspect
-    #
-    # @param definable the aspect to list (:description, :type, :encrypted, etc.)
-    def params_with defineable
-      param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
-    end
-
-    # all params without a value for the definable aspect
-    #
-    # @param definable the aspect to reject (:description, :type, :encrypted, etc.)
-    def params_without defineable
-      param_definitions.keys.reject{|param| param_definitions[param].include?(defineable) } || []
-    end
-
-    def definitions_for defineable
-      hsh = {}
-      param_definitions.each do |param, defs|
-        hsh[param] = defs[defineable] if defs[defineable]
-      end
-      hsh
     end
 
     # Pretend that any #define'd parameter is a method
