@@ -6,7 +6,7 @@ module Configliere
   class ParamParent < DeepHash
     # default export method: dup of self
     def export
-      dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v.dup  } }
+      dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v } }
     end
     # terminate resolution chain
     def resolve!
