@@ -39,7 +39,7 @@ puts "If we now load the saved file, the parameter's value is decrypted on resol
 Settings.read('/tmp/encrypted_script.yml')
 begin
   Settings.resolve!
-rescue RuntimeError, OpenSSL::Cipher::CipherError => e
+rescue StandardError => e
   warn "  #{e.class}: #{e}"
   warn "\nTry rerunning with \n  ENCRYPT_PASS=password1 #{$0} #{$ARGV}"
 end
@@ -58,7 +58,7 @@ begin
   Settings.resolve!
   puts "You guessed the password!"
   dump_settings
-rescue RuntimeError, OpenSSL::Cipher::CipherError => e
+rescue StandardError => e
   warn "  #{e.class}: #{e}"
   warn "\nTry rerunning with \n  ENCRYPT_PASS=password1 #{$0} #{$ARGV}"
 end

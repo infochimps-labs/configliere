@@ -13,7 +13,7 @@ describe "Configliere::Commands" do
     end
 
     it "should know that no commands are defined" do
-      @config.commands?.should be_false
+      @config.commands.should be_empty
     end
 
     it "should not shift the ARGV when resolving" do
@@ -32,10 +32,10 @@ describe "Configliere::Commands" do
       @config.command.should be_nil
     end
   end
-  
+
   describe "a simple command" do
     before do
-      @config = Configliere::Param.new :param => 'val 1' 
+      @config = Configliere::Param.new :param => 'val 1'
       @config.define_command "the_command", :description => "foobar"
     end
 
@@ -50,7 +50,7 @@ describe "Configliere::Commands" do
       @config.resolve!
       @config.rest.should == ['an_arg']
     end
-    
+
     it "should recognize the command when given" do
       ::ARGV.replace ['the_command', '--param=wuzz', 'an_arg']
       @config.resolve!
@@ -67,7 +67,7 @@ describe "Configliere::Commands" do
 
   describe "a complex command" do
     before do
-      @config = Configliere::Param.new :outer_param => 'val 1' 
+      @config = Configliere::Param.new :outer_param => 'val 1'
       @config.define_command "the_command", :description => "the command" do |command|
         command.define :inner_param, :description => "inside"
       end
@@ -87,7 +87,7 @@ describe "Configliere::Commands" do
       @config[:inner_param].should == 'buzz'
       @config.command[:config][:inner_param].should == 'buzz'
     end
-    
+
   end
 end
 

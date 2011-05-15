@@ -25,11 +25,6 @@ module Configliere
       define_command :help, :description => "Print detailed help on each command"
     end
 
-    # Are there any commands that have been defined?
-    def commands?
-      (! commands.empty?)
-    end
-
     # Is +cmd+ the name of a known command?
     def command? cmd
       return false if cmd.blank?

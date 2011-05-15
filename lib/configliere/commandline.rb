@@ -6,7 +6,6 @@ module Configliere
   #
   module Commandline
     attr_accessor :rest
-    alias_method :argv, :rest
     attr_accessor :description
 
     # Processing to reconcile all options
@@ -204,9 +203,9 @@ module Configliere
     def param_with_type(param)
       str = param.to_s
       case type_for(param)
-      when :boolean then str << ''
-      when nil      then str << '=String'
-      else               str << '=' + type_for(param).to_s
+      when :boolean then str += ''
+      when nil      then str += '=String'
+      else               str += '=' + type_for(param).to_s
       end
       str
     end
