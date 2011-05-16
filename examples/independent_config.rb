@@ -1,22 +1,23 @@
 #!/usr/bin/env ruby
 $: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
-require 'gorillib/metaprogramming/class_attribute'
 
 class Wolfman
-  class_attribute :config
-  self.config = Configliere::Param.new.use(:commandline).defaults({
+  attr_accessor :config
+  def config
+    @config || = Configliere::Param.new.use(:commandline).defaults({
       :moon    => 'full',
       :nards   => true,
-    })
+      })
+  end
 end
 
-Wolfman.config.description = 'Run this with commandline args: Wolfman uses them, Settings does not'
-
 teen_wolf = Wolfman.new
+
+teen_wolf.config.description = 'Run this with commandline args: Wolfman uses them, Settings does not'
 teen_wolf.config.defaults(:give_me => 'keg of beer')
 
-Wolfman.config.resolve!
+teen_wolf.config.resolve!
 Settings.resolve!
 
 # run this with ./examples/independent_config.rb --hi=there :

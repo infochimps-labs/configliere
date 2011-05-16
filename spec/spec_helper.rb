@@ -12,6 +12,8 @@ Spork.prefork do
 
   require 'configliere'
 
+  RSpec.configure do |config|
+  end
 end
 
 Spork.each_run do

@@ -17,15 +17,15 @@ describe Configliere::ConfigFile do
 
     describe 'successfully' do
       it 'with an absolute pathname uses it directly' do
-        File.should_receive(:open).with('/fake/path.yaml').and_return(@fake_file)
+        File.should_receive(:open).with(%r{/fake/path.yaml}).and_return(@fake_file)
         @config.read '/fake/path.yaml'
       end
       it 'with a simple filename, references it to the default config dir' do
-        File.should_receive(:open).with(Configliere::DEFAULT_CONFIG_DIR + '/file.yaml').and_return(@fake_file)
+        File.should_receive(:open).with(File.join(Configliere::DEFAULT_CONFIG_DIR, 'file.yaml')).and_return(@fake_file)
         @config.read 'file.yaml'
       end
       it 'returns the config object for chaining' do
-        File.should_receive(:open).with(Configliere::DEFAULT_CONFIG_DIR + '/file.yaml').and_return(@fake_file)
+        File.should_receive(:open).with(File.join(Configliere::DEFAULT_CONFIG_DIR, 'file.yaml')).and_return(@fake_file)
         @config.defaults :also_a_param => true
         @config.read('file.yaml').should == { :my_param => 'val_from_file', :also_a_param => true }
       end
@@ -87,7 +87,7 @@ describe Configliere::ConfigFile do
   describe 'saves to a config file' do
     it 'with an absolute pathname, as given' do
       fake_file = StringIO.new('', 'w')
-      File.should_receive(:open).with('/fake/path.yaml', 'w').and_yield(fake_file)
+      File.should_receive(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
       fake_file.should_receive(:<<).with("--- \n:my_param: default_val\n:also_a_param: true\n")
       @config.save! '/fake/path.yaml'
     end
@@ -101,7 +101,7 @@ describe Configliere::ConfigFile do
 
     it 'and ensures the directory exists' do
       fake_file = StringIO.new('', 'w')
-      File.stub!(:open).with('/fake/path.yaml', 'w').and_yield(fake_file)
+      File.stub!(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
       FileUtils.should_receive(:mkdir_p).with('/fake')
       @config.save! '/fake/path.yaml'
     end

@@ -12,8 +12,7 @@ group :development do
 end
 
 group :development do
-  # purely optional, used in the sample scripts
-  gem 'gorillib',  ">= 0.0.4"
+  # Only necessary if you want to use Configliere::Prompt
   gem 'highline',  ">= 1.5.2"
 end
 
