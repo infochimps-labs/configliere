@@ -25,20 +25,21 @@ module Configliere
     #     # Read from config/foo.yaml and use settings appropriate for development/staging/production
     #     Settings.read(App.root.join('config', 'environment.yaml'), :env => ENV['RACK_ENV'])
     #
+    # The env option is *not* coerced to_sym, so make sure your key type matches the file's
     def read filename, options={}
       if filename.is_a?(Symbol) then raise Configliere::DeprecatedError, "Loading from a default config file is no longer provided" ; end
       filename = expand_filename(filename)
       begin
-        params = YAML.load(File.open(filename)) || {}
+        new_data = YAML.load(File.open(filename)) || {}
       rescue Errno::ENOENT => e
         warn "Loading empty configliere settings file #{filename}"
-        params = {}
+        new_data = {}
       end
       # Extract the :env (production/development/etc)
       if options[:env]
-        params = params[options[:env]] || {}
+        new_data = new_data[options[:env]] || {}
       end
-      deep_merge! params
+      deep_merge! new_data
       self
     end
 
