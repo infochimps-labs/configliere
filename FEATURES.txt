@@ -1,0 +1,296 @@
+
+Configliere::Commandline
+  with long-format argvs
+    accepts --param=val pairs
+    accepts --dotted.param.name=val pairs as deep keys
+    NO LONGER accepts --dashed-param-name=val pairs as deep keys
+    adopts only the last-seen of duplicate commandline flags
+    does NOT set a bare parameter (no "=") followed by a non-param to that value
+    sets a bare parameter (no "=") to true
+    sets an explicit blank to nil
+    captures non --param args into Settings.rest
+    stops processing args on "--"
+    places undefined argvs into #unknown_argvs
+  with single-letter flags
+    accepts them separately
+    accepts them as a group ("-abc")
+    accepts a value with -d=new_val
+    accepts a space-separated value (-d new_val)
+    accepts a space-separated value only if the next arg is not a flag
+    stores unknown single-letter flags in unknown_argvs
+  the help message
+    displays help
+    displays the single-letter flags
+    displays command line options
+    lets me die
+  recycling a commandline
+    exports dashed flags
+  #resolve!
+    calls super and returns self
+
+Configliere::Commands
+  when no commands are defined
+    should know that no commands are defined
+    should not shift the ARGV when resolving
+    should still recognize a git-style-binary command
+  a simple command
+    should continue to parse flags when the command is given
+    should continue to set args when the command is given
+    should recognize the command when given
+    should recognize when the command is not given
+  a complex command
+    should still recognize the outer param and the args
+    should recognize the inner param
+  the help message
+    displays a modified usage
+    displays the commands and their descriptions
+  #resolve!
+    calls super and returns self
+
+Configliere::ConfigBlock
+  resolving
+    runs blocks
+    resolves blocks last
+    #resolve!
+      calls super and returns self
+
+Configliere::ConfigFile
+  is used by default
+  loading a config file
+    no longer provides a default config file
+    warns but does not fail if the file is missing
+    successfully
+      with an absolute pathname uses it directly
+      with a simple filename, references it to the default config dir
+      returns the config object for chaining
+    with an environment scope
+      slices out a subhash given by :env
+      slices out a different subhash with a different :env
+      does no slicing without the :env option
+      has no effect if the key given by :env option is absent
+      does not type convert the :env option
+  saves to a config file
+    with an absolute pathname, as given
+    with a simple pathname, in the default config dir
+    and ensures the directory exists
+  #resolve!
+    calls super and returns self
+
+Crypter
+  encrypts
+  decrypts
+
+DeepHash
+  #initialize
+    adopts a Hash when given
+    converts all pure Hash values into DeepHashes if param is a Hash
+    does not convert Hash subclass values into DeepHashes
+    converts all value items if value is an Array
+    delegates to superclass constructor if param is not a Hash
+  #update
+    converts all keys into symbols when param is a Hash
+    converts all Hash values into DeepHashes if param is a Hash
+  #[]=
+    symbolizes keys
+    deep-sets dotted vals, replacing values
+    deep-sets dotted vals, creating new values
+    deep-sets dotted vals, auto-vivifying intermediate hashes
+    converts all Hash value into DeepHash
+  #[]
+    deep-gets dotted vals
+  #to_hash
+    returns instance of Hash
+    preserves keys
+    preserves value
+  #compact
+    removes nils but not empties or falsehoods
+    leaves original alone
+  #compact!
+    removes nils but not empties or falsehoods
+    modifies in-place
+  #slice
+    returns a new hash with only the given keys
+    with bang replaces the hash with only the given keys
+    ignores an array key
+    with bang ignores an array key
+    uses splatted keys individually
+    with bank uses splatted keys individually
+  #extract
+    replaces the hash with only the given keys
+    leaves the hash empty if all keys are gone
+    gets values for all given keys even if missing
+    is OK when empty
+    returns an instance of the same class
+  assert_valid_keys
+    is true and does not raise when valid
+    fails when invalid
+  #delete
+    converts Symbol key into String before deleting
+    works with String keys as well
+  #merge
+    returns instance of DeepHash
+    merges in give Hash
+  #fetch
+    converts key before fetching
+    returns alternative value if key lookup fails
+  #values_at
+    is indifferent to whether keys are strings or symbols
+  #symbolize_keys
+    with bang returns the deep_hash itself
+    returns a dup of itself
+  #reverse_merge
+    merges defaults into options, creating a new hash
+    with bang merges! defaults into options, replacing options
+  #deep_merge!
+    merges two subhashes when they share a key
+    merges two subhashes when they share a symbolized key
+    preserves values in the original
+    replaces values from the given DeepHash
+    replaces values from the given DeepHash
+  #deep_set
+    should set a new value (single arg)
+    should set a new value (multiple args)
+    should replace an existing value (single arg)
+    should replace an existing value (multiple args)
+    should auto-vivify intermediate hashes
+  #deep_delete
+    should remove the key from the array (multiple args)
+    should remove the key from the array (multiple args)
+    should return the value if present (single args)
+    should return the value if present (multiple args)
+    should return nil if the key is absent (single arg)
+    should return nil if the key is absent (multiple args)
+
+Configliere::Define
+  takes a description
+  defining any aspect of a param
+    adopts values
+    merges new definitions
+    lists params defined as the given aspect
+  definition_of
+    with a param, gives me the description hash
+    with a param and attr, gives me the description hash
+    symbolizes the param
+  has_definition?
+    is true if defined
+    is false if not defined
+  type coercion
+    for boolean converts "0" to false
+    for boolean converts 0 to false
+    for boolean converts "" to false
+    for boolean converts [] to true
+    for boolean converts nil to nil
+    for boolean converts "1" to true
+    for boolean converts 1 to true
+    for boolean converts "5" to true
+    for boolean converts "true" to true
+    for Integer converts "5" to 5
+    for Integer converts 5 to 5
+    for Integer converts nil to nil
+    for Integer converts "" to nil
+    for Integer converts "5" to 5
+    for Integer converts 5 to 5
+    for Integer converts nil to nil
+    for Integer converts "" to nil
+    for Float converts "5.2" to 5.2
+    for Float converts 5.2 to 5.2
+    for Float converts nil to nil
+    for Float converts "" to nil
+    for Symbol converts "foo" to :foo
+    for Symbol converts :foo to :foo
+    for Symbol converts nil to nil
+    for Symbol converts "" to nil
+    for Date converts "1985-11-05" to #<Date: 1985-11-05 (4892749/2,0,2299161)>
+    for Date converts nil to nil
+    for Date converts "" to nil
+    for Date converts "blah" to nil
+    for DateTime converts "1985-11-05 11:00:00" to #<DateTime: 1985-11-05T11:00:00+00:00 (58712999/24,0/1,2299161)>
+    for DateTime converts nil to nil
+    for DateTime converts "" to nil
+    for DateTime converts "blah" to nil
+    for Array converts ["this", "that", "thother"] to ["this", "that", "thother"]
+    for Array converts "this,that,thother" to ["this", "that", "thother"]
+    for Array converts "alone" to ["alone"]
+    for Array converts "" to []
+    for Array converts nil to nil
+    for other converts "5" to "5"
+    for other converts 5 to 5
+    for other converts nil to nil
+    for other converts "" to nil
+    converts :now to the current moment
+  creates magical methods
+    answers to a getter if the param is defined
+    answers to a setter if the param is defined
+    does not answer to a getter if the param is not defined
+    does not answer to a setter if the param is not defined
+  defining requireds
+    lists required params
+    counts false values as present
+    counts nil-but-set values as missing
+    counts never-set values as missing
+    lists all missing values when it raises
+  defining deep keys
+    allows required params
+    allows flags
+    type converts
+  #resolve!
+    calls super and returns self
+
+Configliere::Encrypted
+  defines encrypted params
+    with :encrypted => true
+    but not if :encrypted => false
+    only if :encrypted is given
+  the encrypt_pass
+    will take an environment variable if any exists
+    will take an internal value if given, and remove it
+  encrypts
+    all params with :encrypted
+    fails unless encrypt_pass is set
+  decrypts
+    all params marked encrypted
+  loading a file
+    encrypts
+    decrypts
+  #resolve!
+    calls super and returns self
+    removes the encrypt_pass from sight
+
+Configliere::EnvVar
+  environment variables can be defined
+    with #env_vars, a simple value like "HOME" uses the corresponding key :home
+    with #env_vars, a hash pairs environment variables into the individual params
+    with #define
+  #resolve!
+    calls super and returns self
+
+Configliere::Param
+  calling #defaults
+    deep_merges new params
+    returns self, to allow chaining
+  adding plugins with #use
+    requires the corresponding library
+    returns self, to allow chaining
+    invokes the on_use handler
+  #resolve!
+    calls super and returns self
+
+Configliere::Prompt
+  when the value is already set, #prompt_for
+    returns the value
+    returns the value even if nil
+    returns the value even if nil
+  when prompting, #prompt_for
+    prompts for a value if missing
+    uses an explicit hint
+    uses the description as hint if none given
+  #resolve!
+    calls super and returns self
+
+Configliere
+  creates a global variable Settings, for universality
+  creates a global method Settings, so you can say Settings(:foo => :bar)
+  requires corresponding plugins when you call use
+
+Finished in 0.26994 seconds
+211 examples, 0 failures
