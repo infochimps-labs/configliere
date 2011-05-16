@@ -90,6 +90,41 @@ describe "Configliere::Commands" do
     end
   end
 
+
+  def capture_help_message
+    stderr_output = ''
+    @config.should_receive(:warn){|str| stderr_output << str }
+    begin
+      yield
+      fail('should exit via system exit')
+    rescue SystemExit
+      true # pass
+    end
+    stderr_output
+  end
+
+  describe "the help message" do
+    before do
+      @config.define_command :run, :description => "forrest"
+      @config.define_command :stop, :description => "hammertime"
+      @config.define :reel, :type => Integer
+    end
+
+    it "displays a modified usage" do
+      ::ARGV.replace ['--help']
+      stderr_output = capture_help_message{ @config.resolve! }
+      stderr_output.should =~ %r{usage:.*\[command\]}m
+    end
+
+    it "displays the commands and their descriptions" do
+      ::ARGV.replace ['--help']
+      stderr_output = capture_help_message{ @config.resolve! }
+      stderr_output.should =~ %r{Available commands:\s+run\s*forrest\s+stop\s+hammertime}m
+      stderr_output.should =~ %r{Params:.*--reel=Integer\s+reel}m
+    end
+  end
+
+
   describe '#resolve!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end

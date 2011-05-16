@@ -6,11 +6,7 @@ bq. So, Consigliere of mine, I think you should tell your Don what everyone know
 
 You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
-Configliere manages settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
-
-h2. Notice
-
-Configliere 4.x is even more lightweight yet more powerful. The focus is on stripping out obscure features and magic code. However, this will breaking said obscure features and magic code: see the "CHANGELOG.":CHANGELOG.textile 
+Configliere manages settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Basically: *Settings go in, the right thing happens*.
 
 h2. Example
 
@@ -21,6 +17,7 @@ Here's a simple example, using params from a config file and the command line. I
     require 'configliere'
     Settings.use :commandline
 
+    # Supply defaults inline.
     Settings({
       :dest_time => '11-05-1955',
       :delorean => {
@@ -29,10 +26,19 @@ Here's a simple example, using params from a config file and the command line. I
         },
       :username => 'marty',
     })
+    
+    # Pre-defining params isn't required, but it's easy and expressive to do so:
     Settings.define :dest_time, :type => DateTime, :description => "Target date"
+    # This defines a 'deep key': it controls Settings[:delorean][:roads_needed]
+    Settings.define 'delorean.roads_needed', :type => :boolean
+
+    # The settings in this file will be merged with the above
     Settings.read './examples/simple_script.yaml'
+
+    # resolve! the settings: load the commandline, do type conversion, etc.
     Settings.resolve!
-    p Settings</pre>
+    p Settings
+</pre>
 
 We'll override some of the defaults with a config file, in this case ./examples/simple_script.yaml
 
@@ -47,18 +53,29 @@ Output, when run with commandline parameters as shown:
 
 <pre>
     ./time_machine.rb --username=doc_brown --delorean.roads_needed="" --delorean.power_source="Mr. Fusion"
-    {:dest_time=>"11-05-1985", :username=>"doc_brown", :delorean=>{:power_source=>"Mr. Fusion", :roads_needed=>nil}}
+
+    {:delorean => {:power_source=>"Mr. Fusion", :roads_needed=>nil}, :username=>"doc_brown", :dest_time=>#<DateTime: 1985-05-11T00:00:00+00:00>}
 </pre>
 
 For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
 
+h2. Notice
+
+Configliere 4.x now has 100% spec coverage, more powerful commandline handling, zero required dependencies. However, it also strips out several obscure features and much magical code, which breaks said obscure features and magic-dependent code. See the "CHANGELOG.":CHANGELOG.textile for details as you upgrade.
+
 h2. Design goals:
 
 * *Omerta (Code of Silence)*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you don't have to pre-define anything -- commandline parameters map directly to values in the Configliere hash. Here's all you need to have full-fledged commandline params:
-  <pre>
-  require 'configliere' ; Settings.use :commandline
-  # if run with --foo=bar go, Settings[:foo] == bar and Settings.rest == ["go"]
-  </pre>
+
+<pre>
+  $ cat ./shorty.rb
+  require 'configliere'
+  Settings.use(:commandline).resolve!
+  p [Settings, Settings.rest]
+  
+  $ ./shorty.rb --foo=bar go
+  [{:foo=>"bar"}, ["go"]]
+</pre>
 
 * *Be willing to sit down with the Five Families*. Takes settings from (at your option):
 ** Pre-defined defaults from constants
@@ -67,13 +84,31 @@ h2. Design goals:
 ** Commandline options and git-style command runners
 ** Ruby block (called when all other options are in place)
 
-* *Don't go outside the family*. Has no dependencies and requires almost no code in your script. Configliere offers many features, but only loads the code you request explicitly. (See below for details)
+* *Don't go outside the family*. Has no dependencies and requires almost no code in your script. Configliere makes no changes to standard ruby classes.
 
-* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up. Configliere makes no changes to standard ruby classes.
+* *Offer discreet counsel*. Configliere offers many features, but only loads the code you request explicitly by calling @use@.
+
+* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up. You centralize configuration _values_ while distributing configuration _definition_:
+
+<pre>
+    # In lib/handler/mysql.rb
+    Settings.define :mysql_host, :type => String, :description => "MySQL db hostname", :default => 'localhost'
+
+    # In app/routes/homepage.rb
+    Settings.define :background_color, :description => "Homepage background color"
+
+    # In config/app.yaml
+    ---
+    :background_color:  '#eee'
+    :mysql_host:        'brains.infochimps.com'
+</pre>
+
+You can decentralize even more by giving modules their own config files or separate Configliere::Param objects.
 
 * *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
 
 fuhgeddaboudit.
+
 
 h2. Settings structure
 
@@ -147,23 +182,26 @@ h2. Command-line parameters
     # Head back
     time_machine --delorean.power_source='1.21 gigawatt lightning strike' --dest_time=11-05-1985
     # (in the time_machine script:)
-    Settings.use :commandline
+    Settings.use(:commandline)
     Settings.resolve!
 </pre>
 
 Interpretation of command-line parameters:
+
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val. You _must_ use the '=' in there: <code>./my_cmd --filename=bar</code> good, <code>./my_cmd --filename bar</code> bad.
 * *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil.
 * *single-char flags*: Define a flag for a variable: <code>Settings.define :filename, :flag => "f"</code> allows you to say <code>./my_cmd -f=bar</code>.
-* *scoped params*: A dash or dot within a parameter name scopes that parameter: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters). @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. 
-** Only @[\w\.\-]+@ are accepted in parameter names.
+* *scoped params*: A dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters). 
+** Only @[\w\.]+@ are accepted in parameter names. '-' is currently accepted but causes a warning.
 * *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
 * *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Settings.rest.
 
 Here are some things you don't get:
+
+* Configliere doesn't complain about un-@define@'d commandline argvs. However, it does store each undefine'd argv (when resolve! is called) into @unknown_argvs@, so you can decide what to do about it.
 * Apart from converting @''@ (an explicit blank string) to @nil@, no type coercion is performed on parameters unless requested explicitly (see below).
-* No validation is performed on parameters.
-* No ordering or multiplicity is preserved (you can't say @--file=this --file=that@). Defining the param as an array <code>Settings.define :file, :type => Array</code> allows you to give a simple comma-separated list.
+* No validation is performed on parameters, but you can insert a middleware with a @validate!()@ method, or use a @:finally@ block.
+* No ordering or multiplicity is preserved: you can't say @--file=this --file=that@. Instead, define the param as an array <code>Settings.define :file, :type => Array</code> and give a simple comma-separated list.
 
 Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
 
@@ -196,7 +234,7 @@ If you define a param's description, besides nicely documenting it within your c
   Params:
     --delorean.roads_needed   delorean.roads_needed
     --dest_time=DateTime      Date to travel to [Default: 11-05-1955]
-<pre>
+</pre>
 
 h3. Type Conversion
 
@@ -287,23 +325,16 @@ Intermediate keys "auto-vivify" (automatically create any intervening hashes):
   # Settings is { :one => { :two => { :three => "To tha Fo'" } }, :delorean => { :power_source => "Mr. Fusion" }
 </pre>
 
-Do *not* use a dotted key except as a simple reference. You'll ruin Christmas:
-
-<pre>
-  Settings.defaults :this => "that", "made.of.fail" => "oops"
-  #=> { :this => "that", :"made.of.fail" => "oops" } # !!! BROKEN !!!
-</pre>
-
 h2. Independent Settings
 
-All of the above examples use the global variable @Settings@, defined in configliere.rb.  You're free to define your own settings universe though:
+All of the above examples use the global variable @Settings@, defined in configliere.rb.  It really works fine in practice, even where several systems intersect. You're free to define your own settings universe though:
 
 <pre>
     class Wolfman
       attr_reader :config
       def self.config() @@config ; end      
       self.config = Configliere::Param.new({
-          :moon    => full',
+          :moon    => 'full',
           :nards   => true,
           })
     end
@@ -314,8 +345,6 @@ All of the above examples use the global variable @Settings@, defined in configl
     
     teen_wolf.config #=> {:moon=>"full", :nards=>true, :give_me=>"keg of beer" }
     Settings         #=> {}
-
-    
 </pre>
 
 Values in here don't overlap with the Settings object or any other settings universe. However, every one that pulls in commandline params gets a full copy of the commandline params.

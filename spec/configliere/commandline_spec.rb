@@ -182,6 +182,24 @@ describe "Configliere::Commandline" do
       stderr_output.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
       stderr_output.should =~ %r{This is a sample script}s                         # extra description
     end
+
+    it 'lets me die' do
+      stderr_output = ''
+      @config.should_receive(:dump_help).with("****\nhi mom\n****")
+      @config.should_receive(:exit).with(3)
+      @config.die("hi mom", 3)
+    end
+  end
+
+  describe 'recycling a commandline' do
+    it 'exports dashed flags' do
+      @config.define :has_underbar, :type => Integer,  :default => 1
+      @config.define :not_here,     :type => Integer
+      @config.define :is_truthy,    :type => :boolean, :default => true
+      @config.define :is_falsehood, :type => :boolean, :default => false
+      @config.dashed_flags(:has_underbar, :not_here, :is_truthy, :is_falsehood, :date, :cat
+        ).should == ["--has-underbar=1", "--is-truthy", "--date=11-05-1955", "--cat=hat"]
+    end
   end
 
   describe '#resolve!' do

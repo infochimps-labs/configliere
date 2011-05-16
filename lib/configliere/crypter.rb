@@ -1,6 +1,6 @@
-require 'openssl'
-require 'digest/sha2'
-require "base64"
+require 'openssl'                   # for encryption
+require 'digest/sha2'               # for encryption
+require "base64"                    # base64-encode the binary encrypted string
 module Configliere
   #
   # Encrypt and decrypt values in configliere stores

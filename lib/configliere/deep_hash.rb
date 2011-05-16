@@ -1,12 +1,11 @@
 #
-# core_ext/hash.rb -- hash extensions
+# A magical hash: allows deep-nested access and proper merging of settings from
+# different sources
 #
 class DeepHash < Hash
 
   # @param constructor<Object>
   #   The default value for the DeepHash. Defaults to an empty hash.
-  #
-  # @details [Alternatives]
   #   If constructor is a Hash, adopt its values.
   def initialize(constructor = {})
     if constructor.is_a?(Hash)
@@ -17,8 +16,22 @@ class DeepHash < Hash
     end
   end
 
-  alias_method :regular_writer, :[]=    unless method_defined?(:regular_writer)
-  alias_method :regular_update, :update unless method_defined?(:regular_update)
+  unless method_defined?(:regular_writer) then alias_method :regular_writer, :[]=  ; end
+  unless method_defined?(:regular_update) then alias_method :regular_update, :update  ; end
+
+  # @param key<Object> The key to check for. This will be run through convert_key.
+  #
+  # @return [Boolean] True if the key exists in the mash.
+  def key?(key)
+    attr = convert_key(key)
+    if attr.is_a?(Array)
+      fk = attr.shift
+      attr = attr.first if attr.length == 1
+      super(fk) && (self[fk].key?(attr)) rescue nil
+    else
+      super(attr)
+    end
+  end
 
   # def include? def has_key? def member?
   alias_method :include?, :key?
@@ -43,8 +56,9 @@ class DeepHash < Hash
 
   # @param key<Object>
   #   The key to delete from the DeepHash.
-  def delete(key)
-    super(convert_key(key))
+  def delete attr
+    attr = convert_key(attr)
+    attr.is_a?(Array) ? deep_delete(*attr) : super(attr)
   end
 
   # @return [Hash] converts to a plain hash.
@@ -144,8 +158,8 @@ class DeepHash < Hash
   #   hsh
   #   # => {:c => 3, :d =>4}
   def extract!(*keys)
-    result = {}
-    keys.each {|key| result[key] = delete(key) }
+    result = self.class.new
+    keys.each{|key| result[key] = delete(key) }
     result
   end unless method_defined?(:extract!)
 
@@ -187,7 +201,11 @@ class DeepHash < Hash
     raise(ArgumentError, "Unknown key(s): #{unknown_keys.join(", ")}") unless unknown_keys.empty?
   end unless method_defined?(:assert_valid_keys)
 
-  # given a deep key (contains '.'), uses it as a chain of hash memberships:
+  # Sets a member value.
+  #
+  # Given a deep key (one that contains '.'), uses it as a chain of hash
+  # memberships. Otherwise calls the normal hash member setter
+  #
   # @example
   #   foo = DeepHash.new :hi => 'there'
   #   foo['howdy.doody'] = 3
@@ -199,21 +217,28 @@ class DeepHash < Hash
     attr.is_a?(Array) ? deep_set(*(attr | [val])) : super(attr, val)
   end
 
+
+  # Gets a member value.
+  #
+  # Given a deep key (one that contains '.'), uses it as a chain of hash
+  # memberships. Otherwise calls the normal hash member getter
+  #
+  # @example
+  #   foo = DeepHash.new({ :hi => 'there', :howdy => { :doody => 3 } })
+  #   foo['howdy.doody'] # => 3
+  #   foo['hi']          # => 'there'
+  #   foo[:hi]           # => 'there'
+  #
   def [] attr
     attr = convert_key(attr)
     raise if (attr == [:made])
     attr.is_a?(Array) ? deep_get(*attr) : super(attr)
   end
 
-  def delete attr
-    attr = convert_key(attr)
-    attr.is_a?(Array) ? deep_delete(*attr) : super(attr)
-  end
-
   # lambda for recursive merges
   ::DeepHash::DEEP_MERGER = proc do |key,v1,v2|
     if (v1.respond_to?(:update) && v2.respond_to?(:update))
-      v1.update(v2.reject{|key,val| val.nil? }, &DeepHash::DEEP_MERGER)
+      v1.update(v2.reject{|kk,vv| vv.nil? }, &DeepHash::DEEP_MERGER)
     elsif v2.nil?
       v1
     else
@@ -316,7 +341,7 @@ protected
   #   The converted key. A dotted attr ('moon.cheese.type') becomes
   #   an array of sequential keys for deep_set and deep_get
   #
-  # @api private
+  # @private
   def convert_key(attr)
     case
     when attr.to_s.include?('.') then attr.to_s.split(".").map{|sub_attr| sub_attr.to_sym }
@@ -332,7 +357,7 @@ protected
   #   The converted value. A Hash or an Array of hashes, will be converted to
   #   their DeepHash equivalents.
   #
-  # @api private
+  # @private
   def convert_value(value)
     if value.class == Hash   then self.class.new(value)
     elsif value.is_a?(Array) then value.collect{|e| convert_value(e) }

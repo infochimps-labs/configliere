@@ -1,6 +1,16 @@
 module Configliere
   module Define
 
+    # Define arbitrary attributes of a param, notably:
+    #
+    # [:description]  Documentation for the param, used in the --help message
+    # [:default]      Sets a default value (applied immediately)
+    # [:env_var]      Environment variable to adopt (applied immediately, and after +:default+)
+    # [:encrypted]    Obscures/Extracts the contents of this param when serialized
+    # [:type]         Converts param's value to the given type, just before the finally block is called
+    # [:finally]      Block of code to postprocess settings or handle complex configuration.
+    # [:required]     Raises an error if, at the end of calling resolve!, the param's value is nil.
+    #
     # @param param the setting to describe. Either a simple symbol or a dotted param string.
     # @param definitions the defineables to set (:description, :type, :encrypted, etc.)
     #
@@ -8,6 +18,7 @@ module Configliere
     #   Settings.define :dest_time, :type => Date, :description => 'Arrival time. If only a date is given, the current time of day on that date is assumed.'
     #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     #   Settings.define :password, :required => true, :obscure => true
+    #   Settings.define :danger, :finally => lambda{|c| if c[:delorean][:power_source] == 'plutonium' than c.danger = 'high' }
     #
     def define param, pdefs={}, &block
       param = param.to_sym
@@ -62,7 +73,7 @@ module Configliere
     #   # => 'desc 1'
     #
     # @param aspect [Symbol] the aspect to list (:description, :type, :encrypted, etc.)
-    # @returns [Hash, Object]
+    # @return [Hash, Object]
     def definition_of(param, attr=nil)
       attr ? definitions[param.to_sym][attr] : definitions[param.to_sym]
     end
@@ -78,7 +89,7 @@ module Configliere
     #   # => { :has_description => 'desc 1', :also_has_description => 'desc 2' }
     #
     # @param aspect [Symbol] the aspect to list (:description, :type, :encrypted, etc.)
-    # @returns [Hash]
+    # @return [Hash]
     def params_with(aspect)
       hsh = {}
       definitions.each do |param_name, param_def|
@@ -97,8 +108,6 @@ module Configliere
     #   Settings.define :param, :type => Date
     #
 
-    require 'date'
-
     # Coerce all params with types defined to their proper form
     def resolve_types!
       params_with(:type).each do |param, type|
@@ -107,19 +116,19 @@ module Configliere
         when val.nil?            then val = nil
         when (type == :boolean)  then
           if ['false', false, 0, '0', ''].include?(val) then val = false else val = true end
-        when ((type == Array) && val.is_a?(String))
-          val = val.split(",")   rescue nil
-          # following types map blank to nil
+        when (type == Array)
+          if val.is_a?(String) then val = val.split(",") rescue nil ; end
+        # for all following types, map blank/empty to nil
         when (val.respond_to?(:empty?) && val.empty?) then val = nil
         when (type == :filename) then val = File.expand_path(val)
         when (type == Float)     then val = val.to_f
         when (type == Integer)   then val = val.to_i
         when (type == Symbol)    then val = val.to_s.to_sym     rescue nil
+        when (type == Regexp)    then val = Regexp.new(val)     rescue nil
         when ((val.to_s == 'now') && (type == Date))     then val = Date.today
         when ((val.to_s == 'now') && (type == DateTime)) then val = DateTime.now
-        when (type == Date)     then val = Date.parse(val)     rescue nil
-        when (type == DateTime) then val = DateTime.parse(val) rescue nil
-        when (type == Regexp)   then val = Regexp.new(val)     rescue nil
+        when ((val.to_s == 'now') && (type == Time))     then val = Time.now
+        when [Date, Time, DateTime].include?(type)       then val = type.parse(val) rescue nil
         else true # nothing
         end
         self[param] = val

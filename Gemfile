@@ -8,6 +8,10 @@ group :development do
   gem 'jeweler',   "~> 1.5.2"
   gem 'rspec',     "~> 2.5.0"
   gem 'spork',     "~> 0.9.0.rc5"
+  gem 'RedCloth' # for yard
+end
+
+group :development do
   # purely optional, used in the sample scripts
   gem 'gorillib',  ">= 0.0.4"
   gem 'highline',  ">= 1.5.2"

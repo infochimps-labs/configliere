@@ -63,7 +63,6 @@ describe "Configliere::Define" do
     @config.definition_of(:has_description, :description).should == 'desc 1'
   end
 
-  require 'date'; require 'time'
   describe 'type coercion' do
     [
       [:boolean, '0', false],  [:boolean, 0, false], [:boolean, '',  false], [:boolean, [],     true], [:boolean, nil, nil],
@@ -72,27 +71,28 @@ describe "Configliere::Define" do
       [Integer, '5', 5],       [Integer, 5,   5],    [Integer, nil, nil],    [Integer, '', nil],
       [Float,   '5.2', 5.2],   [Float,   5.2, 5.2],  [Float, nil, nil],      [Float, '', nil],
       [Symbol,   'foo', :foo], [Symbol, :foo, :foo], [Symbol, nil, nil],     [Symbol, '', nil],
-      [Date,     '1985-11-05',           Date.parse('1985-11-05')],               [Date, nil, nil],     [Date, '', nil],     [Date, 'blah', nil],
+      [Date,     '1985-11-05',          Date.parse('1985-11-05')],               [Date, nil, nil],     [Date, '', nil],     [Date, 'blah', nil],
       [DateTime, '1985-11-05 11:00:00', DateTime.parse('1985-11-05 11:00:00')],  [DateTime, nil, nil], [DateTime, '', nil], [DateTime, 'blah', nil],
       [Array,  ['this', 'that', 'thother'], ['this', 'that', 'thother']],
       [Array,  'this,that,thother',         ['this', 'that', 'thother']],
       [Array,  'alone',                     ['alone'] ],
       [Array,  '',                          []        ],
       [Array,  nil,                         nil       ],
+      ['other', '5', '5'],     ['other', 5,   5],    ['other', nil, nil],    ['other', '', nil],
     ].each do |type, orig, desired|
       it "for #{type} converts #{orig.inspect} to #{desired.inspect}" do
         @config.define :has_type, :type => type
         @config[:has_type] = orig ; @config.resolve! ; @config[:has_type].should == desired
       end
     end
-    it 'converts :now to the current moment' do
-      @config.define :has_type, :type => DateTime
-      @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
-      @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
-      @config.define :has_type, :type => Date
-      @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
-      @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
-    end
+    # it 'converts :now to the current moment' do
+    #   @config.define :has_type, :type => DateTime
+    #   @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
+    #   @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
+    #   @config.define :has_type, :type => Date
+    #   @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
+    #   @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
+    # end
   end
 
   describe 'creates magical methods' do

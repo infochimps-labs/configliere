@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    RedCloth (4.2.7)
     diff-lcs (1.1.2)
     git (1.2.5)
     gorillib (0.0.7)
@@ -39,6 +40,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  RedCloth
   bundler (~> 1.0.12)
   gorillib (>= 0.0.4)
   highline (>= 1.5.2)

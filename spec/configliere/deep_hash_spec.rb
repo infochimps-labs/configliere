@@ -120,6 +120,114 @@ describe DeepHash do
     end
   end
 
+  describe '#compact' do
+    it 'removes nils but not empties or falsehoods' do
+      DeepHash.new({ 1 => nil }).compact.should == {}
+      DeepHash.new({ 1 => nil, 2 => false, 3 => {}, 4 => "", :remains => true }).compact!.should == { 2 => false, 3 => {}, 4 => "", :remains => true }
+    end
+
+    it 'leaves original alone' do
+      deep_hash = DeepHash.new({ 1 => nil, :remains => true })
+      deep_hash.compact.should == { :remains => true }
+      deep_hash.should == { 1 => nil, :remains => true }
+    end
+  end
+
+  describe '#compact!' do
+    it 'removes nils but not empties or falsehoods' do
+      DeepHash.new({ 1 => nil}).compact!.should == {}
+      DeepHash.new({ 1 => nil, 2 => false, 3 => {}, 4 => "", :remains => true }).compact!.should == { 2 => false, 3 => {}, 4 => "", :remains => true }
+    end
+
+    it 'modifies in-place' do
+      deep_hash = DeepHash.new({ 1 => nil, :remains => true })
+      deep_hash.compact!.should == { :remains => true }
+      deep_hash.should == { :remains => true }
+    end
+  end
+
+  describe '#slice' do
+    before do
+      @deep_hash = DeepHash.new({ :a => 'x', :b => 'y', :c => 10 })
+    end
+
+    it 'returns a new hash with only the given keys' do
+      @deep_hash.slice(:a, :b).should == { :a => 'x', :b => 'y' }
+      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+    end
+
+    it 'with bang replaces the hash with only the given keys' do
+      @deep_hash.slice!(:a, :b).should == { :c => 10 }
+      @deep_hash.should == { :a => 'x', :b => 'y' }
+    end
+
+    it 'ignores an array key' do
+      @deep_hash.slice([:a, :b], :c).should == { :c => 10 }
+      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+    end
+
+    it 'with bang ignores an array key' do
+      @deep_hash.slice!([:a, :b], :c).should == { :a => 'x', :b => 'y' }
+      @deep_hash.should == { :c => 10 }
+    end
+
+    it 'uses splatted keys individually' do
+      @deep_hash.slice(*[:a, :b]).should == { :a => 'x', :b => 'y' }
+      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+    end
+
+    it 'with bank uses splatted keys individually' do
+      @deep_hash.slice!(*[:a, :b]).should == { :c => 10 }
+      @deep_hash.should == { :a => 'x', :b => 'y' }
+    end
+  end
+
+  describe '#extract' do
+    before do
+      @deep_hash = DeepHash.new({ :a => 'x', :b => 'y', :c => 10 })
+    end
+
+    it 'replaces the hash with only the given keys' do
+      @deep_hash.extract!(:a, :b).should == { :a => 'x', :b => 'y' }
+      @deep_hash.should == { :c => 10 }
+    end
+
+    it 'leaves the hash empty if all keys are gone' do
+      @deep_hash.extract!(:a, :b, :c).should == { :a => 'x', :b => 'y', :c => 10 }
+      @deep_hash.should == {}
+    end
+
+    it 'gets values for all given keys even if missing' do
+      @deep_hash.extract!(:bob, :c).should == { :bob => nil, :c => 10 }
+      @deep_hash.should == { :a => 'x', :b => 'y' }
+    end
+
+    it 'is OK when empty' do
+      DeepHash.new.slice!(:a, :b, :c).should == {}
+    end
+
+    it 'returns an instance of the same class' do
+      @deep_hash.slice(:a).should be_a(DeepHash)
+    end
+  end
+
+  describe 'assert_valid_keys' do
+    before do
+      @deep_hash = DeepHash.new({ :failure => "stuff", :funny => "business" })
+    end
+
+    it 'is true and does not raise when valid' do
+      @deep_hash.assert_valid_keys([ :failure, :funny ]).should be_nil
+      @deep_hash.assert_valid_keys(:failure, :funny).should be_nil
+    end
+
+    it 'fails when invalid' do
+      @deep_hash[:failore] = @deep_hash.delete(:failure)
+      lambda{ @deep_hash.assert_valid_keys([ :failure, :funny ]) }.should raise_error(ArgumentError, "Unknown key(s): failore")
+      lambda{ @deep_hash.assert_valid_keys(:failure, :funny)     }.should raise_error(ArgumentError, "Unknown key(s): failore")
+    end
+  end
+
   describe "#delete" do
     it 'converts Symbol key into String before deleting' do
       deep_hash = DeepHash.new(@hash)
@@ -175,10 +283,32 @@ describe DeepHash do
     end
   end
 
-  describe "#symbolize_keys!" do
-    it 'returns the deep_hash itself' do
+  describe "#symbolize_keys" do
+    it 'with bang returns the deep_hash itself' do
       deep_hash = DeepHash.new(@hash)
       deep_hash.symbolize_keys!.object_id.should == deep_hash.object_id
+    end
+
+    it 'returns a dup of itself' do
+      deep_hash = DeepHash.new(@hash)
+      deep_hash.symbolize_keys.should == deep_hash
+    end
+  end
+
+  describe "#reverse_merge" do
+    before do
+      @defaults  = { :a => "x", :b => "y", :c => 10 }.freeze
+      @deep_hash = DeepHash.new({ :a => 1, :b => 2 })
+    end
+
+    it 'merges defaults into options, creating a new hash' do
+      @deep_hash.reverse_merge(@defaults).should == { :a => 1, :b => 2, :c => 10 }
+      @deep_hash.should == { :a => 1, :b => 2 }
+    end
+
+    it 'with bang merges! defaults into options, replacing options' do
+      @deep_hash.reverse_merge!(@defaults).should == { :a => 1, :b => 2, :c => 10 }
+      @deep_hash.should == { :a => 1, :b => 2, :c => 10 }
     end
   end
 
@@ -206,6 +336,13 @@ describe DeepHash do
       @deep_hash.deep_merge!(:nested_1 => { :nested_2 => { :leaf_3 => "new_val3" }, :leaf_2 => { "other2" => "other_val2" }})
       @deep_hash[:nested_1][:nested_2][:leaf_3].should == 'new_val3'
       @deep_hash[:nested_1][:leaf_2].should == { :other2 => "other_val2" }
+    end
+
+    it "replaces values from the given DeepHash" do
+      @deep_hash.deep_merge!(:nested_1 => { :nested_2 => { :leaf_3 => [] }, :leaf_2 => nil }, :leaf_at_top => '')
+      @deep_hash[:nested_1][:nested_2][:leaf_3].should == []
+      @deep_hash[:nested_1][:leaf_2].should == "val2"
+      @deep_hash[:leaf_at_top].should == ""
     end
   end
 

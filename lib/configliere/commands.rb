@@ -70,7 +70,7 @@ module Configliere
     # Return help on commands.
     def commands_help
       help = ["\nAvailable commands:"]
-      commands.sort.each do |cmd, info|
+      commands.sort_by(&:to_s).each do |cmd, info|
         help << ("  %-27s %s" % [cmd, info[:description]]) unless info[:internal]
       end
       help << "\nRun `#{script_base_and_command.first} help COMMAND' for more help on COMMAND" if commands.include?(:help)

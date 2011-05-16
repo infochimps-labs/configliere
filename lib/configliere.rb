@@ -1,9 +1,15 @@
-require 'yaml'
-require 'fileutils'
-require 'configliere/deep_hash'
-require 'configliere/param'
-require 'configliere/define'
-require 'configliere/config_file'
+require 'date'                      # type conversion
+require 'time'                      # type conversion
+require 'yaml'                      # read files
+require 'fileutils'                 # so save! can mkdir
+require 'configliere/deep_hash'     # magic hash for params
+require 'configliere/param'         # params container
+require 'configliere/define'        # define param behavior
+require 'configliere/config_file'   # read / save! files
+
+# use(:encrypted) will bring in 'digest/sha2' and 'openssl'
+# use(:prompt)    will bring in 'highline', which you must gem install
+# running the specs requires rspec and spork
 
 module Configliere
   ALL_MIXINS = [:define, :config_file, :commandline, :encrypted, :env_var, :config_block, :commands, :prompt]

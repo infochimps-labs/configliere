@@ -1,4 +1,7 @@
 README.textile
 lib/**/*.rb
 bin/*
+-
 LICENSE
+CHANGELOG.textile
+VERSION

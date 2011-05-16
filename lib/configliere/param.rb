@@ -8,13 +8,15 @@ module Configliere
     def export
       dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v } }
     end
+
     # terminate resolution chain
-    # @returns self
+    # @return self
     def resolve!
       self
     end
+
     # terminate validation chain.
-    # @returns self
+    # @return self
     def validate!
       self
     end
@@ -40,14 +42,14 @@ module Configliere
     #    Settings.defaults :basket => :tasket, :moon => { :cow => :smiling }
     #    Config  #=> { :hat => :cat, :basket => :tasket, :moon => { :man => :smiling, :cow => :jumping } }
     #
-    # @returns self
+    # @return self
     def defaults hsh
       deep_merge! hsh
       self
     end
 
     # Finalize and validate params. All include'd modules and subclasses *must* call super()
-    # @returns self
+    # @return self
     def resolve!
       super()
       validate!
@@ -55,7 +57,7 @@ module Configliere
     end
 
     # Check that all defined params are valid. All include'd modules and subclasses *must*call super()
-    # @returns self
+    # @return self
     def validate!
       super()
       self
@@ -73,7 +75,7 @@ module Configliere
       self
     end
 
-    # @internal
+    # @private
     USE_HANDLERS = {} unless defined?(USE_HANDLERS)
     # Block executed when use is invoked
     def self.on_use mw, &block

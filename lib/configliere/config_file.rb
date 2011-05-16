@@ -15,7 +15,7 @@ module Configliere
     #   If an :env option is given, only the indicated subhash is merged. This
     #   lets you for example specify production / environment / test settings
     #
-    # @returns [Configliere::Params] the Settings object
+    # @return [Configliere::Params] the Settings object
     #
     # @example
     #     # Read from ~/.configliere/foo.yaml

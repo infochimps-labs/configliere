@@ -82,6 +82,7 @@ module Configliere
           self.rest << arg
         end
       end
+      @unknown_argvs.uniq!
     end
 
     # ===========================================================================
@@ -100,13 +101,14 @@ module Configliere
     #   #=> --hello-friend=true
     #
     def dashed_flag_for setting_name, flag_name=nil
-      return unless Settings[setting_name]
+      return unless self[setting_name]
       flag_name ||= setting_name
-      (Settings[setting_name] == true ? "--#{flag_name.to_s.gsub(/_/,"-")}" : "--#{flag_name.to_s.gsub(/_/,"-")}=#{Settings[setting_name]}" )
+      (self[setting_name] == true ? "--#{flag_name.to_s.gsub(/_/,"-")}" : "--#{flag_name.to_s.gsub(/_/,"-")}=#{self[setting_name]}" )
     end
 
+    # dashed_flag_for each given setting that has a value
     def dashed_flags *settings_and_names
-      settings_and_names.map{|args| dashed_flag_for(*args) }
+      settings_and_names.map{|args| dashed_flag_for(*args) }.compact
     end
 
     # ===========================================================================
@@ -114,6 +116,7 @@ module Configliere
     # Commandline help
     #
 
+    # Write the help string to stderr
     def dump_help str=nil
       warn help(str)+"\n"
     end
@@ -135,6 +138,7 @@ module Configliere
       %Q{usage: #{raw_script_name} [...--param=val...]}
     end
 
+    # the script basename, for recycling into help messages
     def raw_script_name
       File.basename($0)
     end
@@ -153,6 +157,7 @@ module Configliere
 
   protected
 
+    # handle --param (true), --param='' (set as ++nil++), --param=hi ('hi')
     def parse_value val
       case
       when val == nil then true  # --flag    option on its own means 'set that option'

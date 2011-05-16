@@ -8,6 +8,8 @@ module Configliere
   #
   module ConfigBlock
     #
+    # Define a block of code to run after all other settings are in place.
+    #
     # @param &block each +finally+ block is called once, in the order it was
     #   defined, when the resolve! method is invoked. +config_block+ resolution
     #   is guaranteed to run last in the resolve chain, right before validation.
@@ -42,6 +44,7 @@ module Configliere
     def final_blocks
       @final_blocks ||= []
     end
+
     # call each +finally+ config block in the order it was defined
     def resolve_finally_blocks!
       final_blocks.each do |block|
