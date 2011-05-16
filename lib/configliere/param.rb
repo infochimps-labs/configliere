@@ -9,10 +9,14 @@ module Configliere
       dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v } }
     end
     # terminate resolution chain
+    # @returns self
     def resolve!
+      self
     end
-    # terminate validation chain
+    # terminate validation chain.
+    # @returns self
     def validate!
+      self
     end
   end
 
@@ -23,25 +27,6 @@ module Configliere
   # counterpart 'encrypted_' field using the encrypt_pass.
   #
   class Param < Configliere::ParamParent
-
-    # @param constructor<Object>
-    #   The default value for the mash. Defaults to an empty hash.
-    #
-    # @details [Alternatives]
-    #   If constructor is a Hash, adopt its values.
-    def initialize(constructor = {})
-      if constructor.is_a?(Hash)
-        super()
-        update(constructor) unless constructor.empty?
-      else
-        super(constructor)
-      end
-    end
-
-    # @return [Hash] converts to a plain hash.
-    def to_hash
-      Hash.new(default).merge(self)
-    end
 
     #
     # Incorporates the given settings.
@@ -55,59 +40,44 @@ module Configliere
     #    Settings.defaults :basket => :tasket, :moon => { :cow => :smiling }
     #    Config  #=> { :hat => :cat, :basket => :tasket, :moon => { :man => :smiling, :cow => :jumping } }
     #
+    # @returns self
     def defaults hsh
       deep_merge! hsh
+      self
     end
 
-    # Finalize and validate params
+    # Finalize and validate params. All include'd modules and subclasses *must* call super()
+    # @returns self
     def resolve!
       super()
       validate!
+      self
     end
-    # Check that all defined params are valid
+
+    # Check that all defined params are valid. All include'd modules and subclasses *must*call super()
+    # @returns self
     def validate!
       super()
+      self
     end
 
-    def []= param, val
-      if param.to_s =~ /\./
-        return deep_set( *(convert_key(param) | [val]) )
-      else
-        super param, val
+    def use *mws
+      hsh = mws.pop if mws.last.is_a?(Hash)
+      Configliere.use(*mws)
+      mws.each do |mw|
+        if blk = USE_HANDLERS[mw]
+          instance_eval(&blk)
+        end
       end
+      self.deep_merge!(hsh) if hsh
+      self
     end
 
-    def [] param
-      if param.to_s =~ /\./
-        return deep_get( *convert_key(param) )
-      else
-        super param
-      end
-    end
-
-    def delete param
-      if param.to_s =~ /\./
-        return deep_delete( *convert_key(param) )
-      else
-        super param
-      end
-    end
-
-    def use *args
-      hsh = args.pop if args.last.is_a?(Hash)
-      Configliere.use(*args)
-      self.deep_merge!(hsh) unless hsh.nil?
-    end
-
-    # @param key<Object> The key to convert.
-    #
-    # @param [Object]
-    #   The converted key. A dotted param ('moon.cheese.type') becomes
-    #   an array of sequential keys for deep_set and deep_get
-    #
-    # @api private
-    def convert_key dotted
-      dotted.to_s.split(".").map{|key| key.to_sym }
+    # @internal
+    USE_HANDLERS = {}
+    # Block executed when use is invoked
+    def self.on_use mw, &block
+      USE_HANDLERS[mw] = block
     end
 
   end
