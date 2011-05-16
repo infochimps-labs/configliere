@@ -1,5 +1,3 @@
-require 'yaml'
-Configliere.use :define
 module Configliere
   #
   # EnvVar -- load configuration from environment variables
@@ -18,19 +16,19 @@ module Configliere
         end
       end
     end
-    
+
   protected
     def adopt_env_var! param, env
       env   = env.to_s
-      param_definitions[param][:env_var] ||= env
+      definition_of(param)[:env_var] ||= env
       val = ENV[env]
       self[param] = val if val
     end
   end
 
-  Param.class_eval do
-    # include read / save operations
-    include EnvVar
+  Param.on_use(:env_var) do
+    use :commandline
+    extend Configliere::EnvVar
   end
 end
 

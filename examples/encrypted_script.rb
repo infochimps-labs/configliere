@@ -21,7 +21,7 @@ to unlock it.
 View source for this script to see commands you might use (from the irb console
 or in a standalone script) to store the obscured values for later decryption.}
 
-Settings.use :config_file, :define, :encrypted
+Settings.use :config_file
 Settings.encrypt_pass = 'password1'
 Settings.define :secret, :encrypted => true, :default => 'plaintext'
 Settings.resolve!

@@ -1,4 +1,3 @@
-Configliere.use :define
 module Configliere
   #
   # ConfigBlock lets you use pure ruby to change and define settings.  Call

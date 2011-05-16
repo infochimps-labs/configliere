@@ -2,7 +2,7 @@
 $: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
 
-Settings.use :define, :env_var, :commandline
+Settings.use :env_var, :commandline
 Settings.define :underpants, :env_var => 'UNDERPANTS', :default => "boxers"
 Settings.resolve!
 
@@ -18,7 +18,7 @@ UNDERPANTS="commando" ./env_var_script.rb --underpants=briefs # commandline wins
 }
 
 puts %Q{Using
-* the default setting of:   #{Settings.param_definitions[:underpants][:default].inspect}
+* the default setting of:   #{Settings.definition_of(:underpants, :default).inspect}
 * the environment variable: #{ENV['UNDERPANTS'].inspect}
 * the commandline setting:  #{ARGV.grep(/^--underpants/).inspect}
 your configliere advises that

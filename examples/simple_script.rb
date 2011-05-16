@@ -3,7 +3,7 @@ $: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
 
 puts "This is a demo of Configliere in a simple script."
-Settings.use :commandline, :config_file, :define
+Settings.use :commandline
 
 puts "You can set default values:"
 Settings({
