@@ -1,7 +1,5 @@
 module Configliere
   module Define
-    # Definitions for params: :description, :type, :encrypted, etc.
-    attr_writer :param_definitions
 
     # @param param the setting to describe. Either a simple symbol or a dotted param string.
     # @param definitions the defineables to set (:description, :type, :encrypted, etc.)
@@ -11,30 +9,26 @@ module Configliere
     #   Settings.define 'delorean.power_source', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     #   Settings.define :password, :required => true, :obscure => true
     #
-    def define param, definitions={}, &block
+    def define param, pdefs={}, &block
       param = param.to_sym
-      self.param_definitions[param].merge! definitions
-      self.use(:env_var)      if definitions.include?(:env_var)
-      self.use(:encrypted)    if definitions.include?(:encrypted)
-      self.use(:config_block) if definitions.include?(:finally)
-      self[param] = definitions[:default] if definitions.include?(:default)
-      self.env_vars param => definitions[:env_var] if definitions.include?(:env_var)
-      self.finally(&definitions[:finally]) if definitions.include?(:finally)
+      definitions[param].merge! pdefs
+      self.use(:env_var)                      if pdefs.include?(:env_var)
+      self.use(:encrypted)                    if pdefs.include?(:encrypted)
+      self.use(:config_block)                 if pdefs.include?(:finally)
+      self[param] = pdefs[:default]           if pdefs.include?(:default)
+      self.env_vars param => pdefs[:env_var]  if pdefs.include?(:env_var)
+      self.finally(&pdefs[:finally])          if pdefs.include?(:finally)
       self.finally(&block) if block
     end
 
-    def param_definitions
-      # initialize the param_definitions as an auto-vivifying hash if it's never been set
-      @param_definitions ||= DeepHash.new{|hsh, key| hsh[key] = DeepHash.new  }
-    end
-
-    # performs type coercion
+    # performs type coercion, continues up the resolve! chain
     def resolve!
       resolve_types!
       super()
       self
     end
 
+    # ensures required types are defined, continues up the validate! chain
     def validate!
       validate_requireds!
       super()
@@ -43,38 +37,53 @@ module Configliere
 
     # ===========================================================================
     #
-    # Describe params with
-    #
-    #   Settings.define :param, :description => '...'
+    # Helpers for retrieving definitions
     #
 
-    # gets the description (if any) for the param
-    # @param param the setting to describe. Either a simple symbol or a dotted param string.
-    def description_for param
-      param_definitions[param][:description]
+    private
+    def definitions
+      @definitions ||= Hash.new{|hsh, key| hsh[key.to_sym] = Hash.new  }
+    end
+    public
+
+    # Is the param defined?
+    def has_definition? param
+      definitions.has_key?(param.to_sym)
     end
 
-    # All described params with their descriptions
-    def descriptions
-      definitions_for(:description).reject{ |param, desc| param_definitions[param][:internal] }
-    end
-
-    # List of params that have descriptions
-    def described_params
-      params_with(:description)
-    end
-
-    # all params with a value for the definable aspect
+    # all params with a value for the given aspect
     #
-    # @param definable the aspect to list (:description, :type, :encrypted, etc.)
-    def params_with defineable
-      param_definitions.keys.find_all{|param| param_definitions[param][defineable] } || []
+    # @example
+    #   @config.define :has_description,  :description => 'desc 1', :foo => 'bar'
+    #   #
+    #   definition_of(:has_description)
+    #   # => {:description => 'desc 1', :foo => 'bar'}
+    #   definition_of(:has_description, :description)
+    #   # => 'desc 1'
+    #
+    # @param aspect [Symbol] the aspect to list (:description, :type, :encrypted, etc.)
+    # @returns [Hash, Object]
+    def definition_of(param, attr=nil)
+      attr ? definitions[param.to_sym][attr] : definitions[param.to_sym]
     end
 
-    def definitions_for defineable
+    # a hash holding every param with that aspect and its definition
+    #
+    # @example
+    #   @config.define :has_description,      :description => 'desc 1'
+    #   @config.define :also_has_description, :description => 'desc 2'
+    #   @config.define :no_description,       :something_else => 'foo'
+    #   #
+    #   params_with(:description)
+    #   # => { :has_description => 'desc 1', :also_has_description => 'desc 2' }
+    #
+    # @param aspect [Symbol] the aspect to list (:description, :type, :encrypted, etc.)
+    # @returns [Hash]
+    def params_with(aspect)
       hsh = {}
-      param_definitions.each do |param, defs|
-        hsh[param] = defs[defineable] if defs[defineable]
+      definitions.each do |param_name, param_def|
+        next unless param_def.has_key?(aspect)
+        hsh[param_name] = definition_of(param_name, aspect)
       end
       hsh
     end
@@ -88,26 +97,12 @@ module Configliere
     #   Settings.define :param, :type => Date
     #
 
-    def type_for param
-      param_definitions[param][:type]
-    end
-
-    # All typed params with their descriptions
-    def typed_params
-      definitions_for(:type)
-    end
-
-    # List of params that have descriptions
-    def typed_param_names
-      params_with(:type)
-    end
-
     require 'date'
 
     # Coerce all params with types defined to their proper form
     def resolve_types!
-      typed_params.each do |param, type|
-        val = self[param]
+      params_with(:type).each do |param, type|
+        val  = self[param]
         case
         when val.nil?            then val = nil
         when (type == :boolean)  then
@@ -140,19 +135,14 @@ module Configliere
     #   Settings.define :param, :required => true
     #
 
-    # List of params that are required
-    # @return [Array] list of required params
-    def required_params
-      params_with(:required)
-    end
-
     # Check that all required params are present.
     def validate_requireds!
       missing = []
-      required_params.each do |param|
-        missing << param if self[param].nil?
+      params_with(:required).each do |param, is_required|
+        missing << param if self[param].nil? && is_required
       end
-      raise "Missing values for:\n #{missing.map{|s| "  --" + s.to_s + (description_for(s) ? (" (" + description_for(s).to_s + ") ") : '') }.sort.join("\n")}" if (! missing.empty?)
+      return if missing.empty?
+      raise "Missing values for: #{missing.map{|pn| d = definition_of(pn, :description) ; (d ? "#{pn} (#{d})" : pn.to_s) }.sort.join(", ")}"
     end
 
     # Pretend that any #define'd parameter is a method
@@ -164,7 +154,7 @@ module Configliere
     def method_missing meth, *args
       meth.to_s =~ /^(\w+)(=)?$/ or return super
       name, setter = [$1.to_sym, $2]
-      return(super) unless param_definitions.include?(name)
+      return(super) unless has_definition?(name)
       if setter && (args.size == 1)
         self[name] = args.first
       elsif (!setter) && args.empty?
@@ -173,8 +163,9 @@ module Configliere
     end
 
   end
+
+  # Define is included by default
   Param.class_eval do
     include Configliere::Define
   end
 end
-
