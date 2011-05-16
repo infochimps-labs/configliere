@@ -1,17 +1,77 @@
-h2. Version 0.4.0 2011-05-13
+h2. Version 0.4.0 2011-05-13: MANY BREAKING CHANGES
 
-Bumping version number as there are a few breaking changes -- should only affect the careless and finicky, but please check before you pull.
+Killed many features for great justice.  Configliere should now be much more predictable and lightweight, and has a much stricter API. Unfortunately, this will break backwards compatibility in some ways.
+ 
+h4. Cleanup of the Configliere::Params "Magic Hash" class
 
-* Configliere now unambiguously wants symbols to define params.
-* Configliere no longer modifies any core classes:
-  - deep_merge, deep_set and deep_delete have been moved to a DeepHash class.
-  - the Sash class is gone. More on this below.
-  - blank? is not defined by default
+* Configliere no longer modifies any core classes
+* All the hash gymnastics have been relocated to DeepHash. 
+* DeepHash now converts *all* keys to symbols, and transparently handles deep keys:
+  <pre>
+  Settings['foo.bar'] = 1
+  Settings.merge! 'foo.bar' => 1
+  Settings[ [:foo, :bar] ] = 1
+  # => all give { :foo => { :bar => 1 } }
+  </pre>
+* DeepHash typeconverts objects of type Hash to DeepHash when merged or added.
+* DeepHash added several convenience methods -- @slice/slice!@, @compact/compact!@, @extract/extract!@, @reverse_merge/reverse_merge!@, @assert_valid_keys@.
+
+* Configliere::Params @#defaults@, @#resolve!@, @#validate!@ and @#use@ all return self, so you can say
+  <pre>
+  Settings.defaults(:hi => :mom).use(:commandline).resolve!.validate!
+  </pre>
+  hooray
+* Configliere::Params.use now adds middleware only to the *instance* -- you don't get commandline params in your settings object just becaus some other class use'd it.
+* Configliere::Params middlewares should supply a block to Configliere::Params.on_use to #extend the object, #use related middlewares, etc.
+
+h4. Cleanup of Configliere::Define.
+
+* The prepositional soup of accessor sugar is gone, replaced by three public methods:
+  - @definition_of(param, aspect=nil)@ (without arg, gives the definition hash; with arg, gives that value);
+  - @params_with(aspect)@ (hash of param => aspect_definition)
+  - has_definition?(param) (has #define been called for that param?)
+  see below for what's gone.
+* Specs for the magical getter/setter given when you define a param, and for deep key handling.
+
+* Commandline now tracks commandline arguments that haven't been define'd in @unknown_argvs@. It adopts them all the same, but if you don't like what you see there you're free to raise a warning or error.
+* Single-character flags now take an argument: @-a=hello@ or @-a hello@
+
+h4. Misc
+
 * :encrypted keys are now stored as base64-encoded
-  
-* Stripped out some magic: :no_help and :no_env_help (the convention is @:internal@); Settings.argv; Settings.commands?
-* Removed the long-deprecated :git_style_binaries synonym for :commands
+* cleaned up handling of encrypt_pass -- it's no longer publicly readable; set it as a member (Settings[:encrypt_pass]) or through the ENCRYPT_PASS environment variable and it will be adopted in the course of action (and, if a member, deleted). Because of the #use method refactoring, you can have independent settings bundles use encrypted independently.
+* Prompt is now its own middleware:
+  <pre>
+  Settings.use :prompt
+  pwd = Settings.prompt_for(:password)
+  <pre>
+* bin/configliere shows off the git-style-binaries aspect, and helps you set encrypted params.
+* Specs documentation is now quite readable
+* Cleaned up the STDERR-capturing part of the specs
+* Added spork and watchr support to the specs.
 
+h4. Killing features for great justice:
+
+* No modifications to core classes. Scripts that were secretly depending on Configliere for blank? etc might now break. deep_merge, deep_set and deep_delete have been moved to a DeepHash class, and the Sash class is gone.
+
+* dashed commandline params are accepted but cause a warning -- they do *not* serve as deep keys. By default Configliere happily accepts them, but you can instead make a middleware that would either restore the old --foo-bar is equivalent to --foo.bar behavior, or would silently convert --foo-bar to --foo_bar.
+
+* config_file now just takes a filename: Instead of a magic handle, scope a segment of the file with the :env option:
+  <pre>Settings.read('./config/foo.yaml', :env => ENV['RACK_ENV'])</pre>
+
+* Stripped out a whole raft of oversweet sugar:
+  - Settings.argv       Settings.rest
+  - Settings.commands?  Settings.params_with(:command).empty?
+  - Configliere.new     Configliere::Param.new
+  - param_or_ask        Settings.prompt_for (with Settings.use(:prompt))
+  - param_definitions   Not publicly accessible, use definition_of(param)
+  - described_params    Settings.params_with(:description)
+  - type_for            Settings.definition_of(param, :type)
+  - typed_params        Settings.params_with(:type)
+  - required_params     Settings.params_with(:required)
+  - define with :no_help and :no_env_help (instead say @:internal@)
+  
+* Removed the long-deprecated :git_style_binaries synonym for :commands
 
 h2. Version 0.3.4
 
