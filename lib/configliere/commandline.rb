@@ -121,13 +121,13 @@ module Configliere
     # The contents of the help message.
     # Lists the usage as well as any defined parameters and environment variables
     def help str=nil
-      h = []
-      h << usage
-      h << "\n"+@description if @description
-      h << param_lines
-      h << commands_help if respond_to?(:commands_help)
-      h << "\n\n"+str if str
-      h.flatten.compact.join("\n")+"\n"
+      buf = []
+      buf << usage
+      buf << "\n"+@description if @description
+      buf << param_lines
+      buf << commands_help if respond_to?(:commands_help)
+      buf << "\n\n"+str if str
+      buf.flatten.compact.join("\n")+"\n"
     end
 
     # Usage line
@@ -172,13 +172,13 @@ module Configliere
     def param_lines
       pdefs = definitions.reject{|name, definition| definition[:internal] }
       return if pdefs.empty?
-      h = ["\nParams:"]
+      buf = ["\nParams:"]
       width     = find_width(pdefs.keys)
       has_flags = (not params_with(:flag).empty?)
       pdefs.sort_by{|pn, pd| pn.to_s }.each do |name, definition|
-        h << param_line(name, definition, width, has_flags)
+        buf << param_line(name, definition, width, has_flags)
       end
-      h
+      buf
     end
 
     # pretty-print a param

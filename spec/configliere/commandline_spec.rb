@@ -132,6 +132,7 @@ describe "Configliere::Commandline" do
       yield
       fail('should exit via system exit')
     rescue SystemExit
+      true # pass
     end
     stderr_output
   end

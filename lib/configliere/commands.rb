@@ -8,9 +8,12 @@ module Configliere
   #   Settings.use :commands
   #
   module Commands
-
     # The name of the command.
     attr_accessor :command_name
+
+    #
+    # FIXME: this will be refactored to look like Configliere::Define
+    #
 
     # Add a command, along with a description of its predicates and the command itself.
     def define_command cmd, options={}, &block
@@ -25,19 +28,14 @@ module Configliere
       @commands ||= DeepHash.new
     end
 
-    def command
-      command_name && commands[command_name]
-    end
-
-    # The Param object for the command
-    def command_settings
-      command && command[:config]
+    def command_info
+      commands[command_name]
     end
 
     def resolve!
       super()
-      commands.each_value do |command|
-        command[:config].resolve!
+      commands.each_value do |cmd_info|
+        cmd_info[:config].resolve!
       end
       self
     end
@@ -57,22 +55,17 @@ module Configliere
       base, cmd = script_base_and_command
       if cmd
         self.command_name = cmd.to_sym
-      elsif rest.first
-        self.command_name = rest.shift.to_sym if commands.include?(rest.first.to_sym)
+      elsif (not rest.empty?) && commands.include?(rest.first.to_sym)
+        self.command_name = rest.shift.to_sym
       end
-    end
-
-    # The script name without command appendix if any: For $0 equal to any of
-    # 'git', 'git-reset', or 'git-cherry-pick', base_script_name is 'git'
-    #
-    def script_base_and_command
-      raw_script_name.split('-', 2)
     end
 
     # Usage line
     def usage
       %Q{usage: #{script_base_and_command.first} [command] [...--param=val...]}
     end
+
+ protected
 
     # Return help on commands.
     def commands_help
@@ -82,6 +75,13 @@ module Configliere
       end
       help << "\nRun `#{script_base_and_command.first} help COMMAND' for more help on COMMAND" if commands.include?(:help)
       help.flatten.join("\n")
+    end
+
+    # The script name without command appendix if any: For $0 equal to any of
+    # 'git', 'git-reset', or 'git-cherry-pick', base_script_name is 'git'
+    #
+    def script_base_and_command
+      raw_script_name.split('-', 2)
     end
   end
 

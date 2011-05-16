@@ -120,7 +120,7 @@ module Configliere
         when (type == Date)     then val = Date.parse(val)     rescue nil
         when (type == DateTime) then val = DateTime.parse(val) rescue nil
         when (type == Regexp)   then val = Regexp.new(val)     rescue nil
-        else # nothing
+        else true # nothing
         end
         self[param] = val
       end

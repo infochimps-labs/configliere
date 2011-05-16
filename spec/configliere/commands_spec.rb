@@ -11,7 +11,6 @@ describe "Configliere::Commands" do
   end
 
   describe "when no commands are defined" do
-
     it "should know that no commands are defined" do
       @config.commands.should be_empty
     end
@@ -20,16 +19,17 @@ describe "Configliere::Commands" do
       ::ARGV.replace ['not_command_but_arg', 'another_arg']
       @config.resolve!
       @config.rest.should == ['not_command_but_arg', 'another_arg']
-      @config.command.should be_nil
+      @config.command_name.should be_nil
+      @config.command_info.should be_nil
     end
 
-    it "should still recognize a git-style binary command" do
+    it "should still recognize a git-style-binary command" do
       ::ARGV.replace ['not_command_but_arg', 'another_arg']
       File.should_receive(:basename).and_return('prog-subcommand')
       @config.resolve!
       @config.rest.should == ['not_command_but_arg', 'another_arg']
       @config.command_name.should == :subcommand
-      @config.command.should be_nil
+      @config.command_info.should be_nil
     end
   end
 
@@ -55,6 +55,7 @@ describe "Configliere::Commands" do
       ::ARGV.replace ['the_command', '--fuzziness=wuzzy', 'an_arg']
       @config.resolve!
       @config.command_name.should == :the_command
+      @config.command_info.should == { :description => "foobar", :config => { :fuzziness => 'wuzzy' } }
     end
 
     it "should recognize when the command is not given" do
@@ -68,8 +69,8 @@ describe "Configliere::Commands" do
   describe "a complex command" do
     before do
       @config.defaults :outer => 'val 1'
-      @config.define_command "the_command", :description => "the command" do |command|
-        command.define :inner, :description => "inside"
+      @config.define_command "the_command", :description => "the command" do |cmd|
+        cmd.define :inner, :description => "inside"
       end
     end
 
@@ -85,7 +86,7 @@ describe "Configliere::Commands" do
       ::ARGV.replace ['the_command', '--outer=wuzzy', 'an_arg', '--inner=buzz']
       @config.resolve!
       @config[:inner].should == 'buzz'
-      @config.command[:config][:inner].should == 'buzz'
+      @config.command_info[:config][:inner].should == 'buzz'
     end
   end
 

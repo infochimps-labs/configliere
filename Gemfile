@@ -13,6 +13,8 @@ group :development do
   gem 'jeweler',   "~> 1.5.2"
   gem 'rspec',     "~> 2.5.0"
   gem 'rcov',      ">= 0.9.9"
+  gem 'reek'
+  gem 'roodi'
   #
   gem 'spork',     "~> 0.9.0.rc5"
   gem 'watchr'

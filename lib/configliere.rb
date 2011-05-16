@@ -18,6 +18,7 @@ end
 
 # Base class for Configliere errors.
 class Configliere::Error           < StandardError      ; end
+# Feature is deprecated, has or will leave the building
 class Configliere::DeprecatedError < Configliere::Error ; end
 
 # Defines a global config object

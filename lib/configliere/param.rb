@@ -65,7 +65,7 @@ module Configliere
       hsh = mws.pop if mws.last.is_a?(Hash)
       Configliere.use(*mws)
       mws.each do |mw|
-        if blk = USE_HANDLERS[mw]
+        if (blk = USE_HANDLERS[mw])
           instance_eval(&blk)
         end
       end
