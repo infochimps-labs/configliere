@@ -18,22 +18,23 @@ Here's a simple example, using params from a config file and the command line. I
     Settings.use :commandline, :config_file
 
     Settings({
-      :dest_time => '1955-11-05',
+      :dest_time => '11-05-1955',
       :delorean => {
         :power_source => 'plutonium',
         :roads_needed => true,
         },
       :username => 'marty',
     })
-    Settings.read 'my_script.yaml'  # reads ~/.configliere/my_script.yaml
+    Settings.define :dest_time, :type => DateTime, :description => "Date to travel to"
+    Settings.read './examples/simple_script.yaml'
     Settings.resolve!
     p Settings</pre>
 
-We'll override some of the defaults with a config file, in this case ~/.configliere/simple_script.yaml
+We'll override some of the defaults with a config file, in this case ./examples/simple_script.yaml
 
 <pre>
     # Settings for return
-    :dest_time:       1985-11-05
+    :dest_time:       11-05-1985
     :delorean:    
       :power_source:  1.21 jiggawatts
 </pre>
@@ -42,7 +43,7 @@ Output, when run with commandline parameters as shown:
 
 <pre>
     ./time_machine.rb --username=doc_brown --delorean.roads_needed="" --delorean.power_source="Mr. Fusion"
-    {:dest_time=>"1985-11-05", :username=>"doc_brown", :delorean=>{:power_source=>"Mr. Fusion", :roads_needed=>nil}}
+    {:dest_time=>"11-05-1985", :username=>"doc_brown", :delorean=>{:power_source=>"Mr. Fusion", :roads_needed=>nil}}
 </pre>
 
 For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
@@ -64,13 +65,13 @@ fuhgeddaboudit.
 
 h2. Settings structure
 
-Configliere settings are just a plain old normal hash.
+A Configliere settings object is just a (mostly-)normal hash.
 
 You can define static defaults in your module
 
 <pre>
     Settings({
-      :dest_time => '1955-11-05',
+      :dest_time => '11-05-1955',
       :fluxcapacitor => {
         :speed => 88,
         },
@@ -83,11 +84,11 @@ You can define static defaults in your module
     })
 </pre>
 
-(Note that all simple keys should be symbols, with an exception you're about to see.) Retrieve the settings as:
+All simple keys should be symbols. Don't use strings. Retrieve the settings as:
 
 <pre>
     # hash keys
-    Settings[:dest_time]                 #=> '1955-11-05'
+    Settings[:dest_time]                 #=> '11-05-1955'
     # deep keys
     Settings[:delorean][:power_source]   #=> 'plutonium'
     Settings[:delorean][:missing]        #=> nil
@@ -97,10 +98,165 @@ You can define static defaults in your module
     Settings['delorean.missing']         #=> nil
     Settings['delorean.missing.fail']    #=> nil
     # method-like (no deep keys tho, and you have to #define the param; see below)
-    Settings.dest_time                   #=> '1955-11-05'
+    Settings.dest_time                   #=> '11-05-1955'
 </pre>
 
-h3. Shortcut syntax for deep keys
+h3. Only basic functionality loaded by default
+
+Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
+
+<pre>
+    Configliere.use :config_file, :define # Load config files and pre-define
+    Configliere.use :all                  # all of them
+</pre>
+
+h2. Configuration files
+
+Call @Settings.read(filename)@ to read a config file.
+
+<pre>
+    # Settings for version II.
+    :dest_time:        11-05-2015
+    :delorean:
+      :power_source:    Mr. Fusion
+      :roads_needed:    ~
+</pre>
+
+If a bare filename (no '/') is given, configliere looks for the file in @Configliere::DEFAULT_CONFIG_DIR@ (normally ~/.configliere). Otherwise it loads the given file.
+
+<pre>
+    Settings.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
+    Settings.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
+</pre>
+
+You can save configuration too:
+
+<pre>
+    Settings.save!('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
+    Settings.save!('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
+</pre>
+
+You're free to use as many config files as you like. Loading a config file sets values immediately, so later-loaded files win out over earlier-loaded ones:
+
+<pre>
+    Settings.read('time_machine_global.yaml')
+    Settings.read('time_machine_site.yaml')
+</pre>
+
+h2. Command-line parameters
+
+<pre>
+    # Head back
+    time_machine --delorean.power_source='1.21 gigawatt lightning strike' --dest_time=11-05-1985
+    # (in the time_machine script:)
+    Settings.use :commandline
+    Settings.resolve!
+</pre>
+
+Interpretation of command-line parameters:
+* *name-val params*: @--param=val@ sets @Configliere[:param]@ to val. You _must_ use the '=' in there: <code>./my_cmd --filename=bar</code> good, <code>./my_cmd --filename bar</code> bad.
+* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil.
+* *scoped params*: A dash or dot within a parameter name scopes that parameter: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters). @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. 
+** Only @[\w\.\-]+@ are accepted in parameter names.
+* *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
+* *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Settings.rest.
+
+Here are some things you don't get:
+* Apart from converting @''@ (an explicit blank string) to @nil@, no type coercion is performed on parameters unless requested explicitly (see below).
+* No validation is performed on parameters.
+* No ordering or multiplicity is preserved (you can't say @--file=this --file=that@). If you instead do <code>Settings.define :file, :type => Array</code> you can supply an array or comma-separated list.
+
+Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
+
+h2. Defined Parameters
+
+You don't have to pre-define parameters, but you can:
+
+<pre>
+    Settings.use :define
+    Settings.define :dest_time, :type => DateTime, :description => 'Arrival time'
+    Settings.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+    Settings.define :password, :required => true, :encrypted => true
+</pre>
+
+* *:type*: converts params to a desired form.
+* *:description*: documents a param.
+* *:required*: marks params required.
+* *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
+* *:env_var*: take param from given environment variable if set.
+
+Defined parameters are demonstrated in most of the "example scripts":http://github.com/mrflip/configliere/tree/master/examples
+
+h3. Type Conversion
+
+<pre>
+    Settings.define :dest_time,     :type => DateTime
+    Settings.define :fugeddaboudit, :type => Array
+    Settings :fugeddaboudit => 'badabing,badaboom,hey', :dest_time => '11-05-1955'
+    Settings.resolve!
+    Settings[:fugeddaboudit]   #=> ['badabing', 'badaboom', 'hey']
+    Settings[:dest_time]       #=> #<DateTime: 4870833/2,0,2299161>
+</pre>
+
+Configliere can coerce parameter values to Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
+
+* :boolean converts nil to nil ; false, 'false', 0, '0' and '' to false; and everything else to true.
+* Array just does a simple split on ",". It doesn't do any escaping or quoting.
+* Date and DateTime convert unparseable inputs to nil.
+* :filename calls File.expand_path() on the argument
+
+h3. Description
+
+If you define a param's description, besides nicely documenting it within your code the description will be stuffed into the output when the --help commandline option is invoked.
+
+h3. Required Parameters
+
+Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Settings.resolve! in your script.)
+
+h3. Environment Variables
+
+<pre>
+    Settings.define :dest_time, :env_var => 'DEST_TIME'
+</pre>
+
+Environment variables are demonstrated in "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
+
+h3. Encrypted Parameters
+
+Define a param to be encrypted and invoke Settings.save!
+
+<pre>
+   define 'amazon.api.key', :encrypted => true
+   Settings 'amazon.api.key' => 'fnord'
+</pre>
+
+In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@. The code currently doesn't look for a collision between a :param and :encrypted_param, so be careful; you can preemptively call resolve_encrypted! to enforce order.
+
+bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
+
+Configliere provides the former.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between immediate access and having to find a paperclip and jimmy open your annoying older brother's stupid journal.
+
+Encrypted parameters are demonstrated in "examples/encrypted_script.rb":http://github.com/mrflip/configliere/tree/master/examples/encrypted_script.rb
+
+h2. Ruby Block
+
+<pre>
+    Settings.finally do |c|
+      c.dest_time = (Time.now + 60) if c.username == 'einstein'
+      # you can use hash syntax too
+      c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
+    end
+    #
+    # ... rest of setup ...
+    #
+    Settings.resolve!    # the finally blocks will be called in order
+</pre>
+
+Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
+
+Config blocks are demonstrated in "examples/config_block.rb":http://github.com/mrflip/configliere/tree/master/examples/config_block.rb
+
+h2. Shortcut syntax for deep keys
 
 You can use a 'dotted key' like 'delorean.power_source' as simple notation for a deep key: @Settings['delorean.power_source']@ is equivalent to @Settings[:delorean][:power_source]@.  You can use a dotted key in any simple reference:
 
@@ -127,183 +283,6 @@ Do *not* use a dotted key except as a simple reference. You'll ruin Christmas:
   Settings.defaults :this => "that", "made.of.fail" => "oops"
   #=> { :this => "that", :"made.of.fail" => "oops" } # !!! BROKEN !!!
 </pre>
-
-This may change once we figure out how to handle it all more cleanly, and how to balance "Keep it Simple, Stupid" with "Keep it Convenient, Kilroy".
-
-h3. Only basic functionality loaded by default
-
-Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
-
-<pre>
-    Configliere.use :config_file, :define # Load config files and pre-define
-    Configliere.use :all                  # all of them
-</pre>
-
-h2. Configuration files
-
-Call @Settings.read(:my_settings_group)@ to read a param group from the YAML global config file (@Configliere::DEFAULT_CONFIG_FILE@ -- normally ~/.configliere.yaml)
-
-<pre>
-    # Settings for version II.
-    :time_machine:
-      :dest_time:        2015-11-05
-      :delorean:
-        :power_source:    Mr. Fusion
-        :roads_needed:    ~
-</pre>
-
-You can instead supply a path to a config file.  If a bare filename (no '/') is given, configliere looks for the file in @Configliere::DEFAULT_CONFIG_DIR@ (normally ~/.configliere). Otherwise it loads the given file.
-
-<pre>
-    Settings.read(:time_machine)             # looks in ~/.configliere.yaml, and extracts the :time_machine group
-    Settings.read('/etc/time_machine.yaml')  # looks in /etc/time_machine.yaml
-    Settings.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
-</pre>
-
-When you read directly from a file you should leave off the top-level settings group:
-
-<pre>
-    # Settings for version II.
-    :dest_time:         2015-11-05
-    :delorean:
-      :power_source:    Mr. Fusion
-      :roads_needed:    ~
-</pre>
-
-Save defaults by inserting a line like:
-
-<pre>
-    Settings.save(:time_machine)            # merges into ~/.configliere.yaml, under :time_machine
-    Settings.save('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
-    Settings.save('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
-</pre>
-
-You're free to use as many config files as you like. Loading a config file sets values immediately, so later-loaded files win out over earlier-loaded ones:
-
-<pre>
-    Settings.read('time_machine_global.yaml')
-    Settings.read('time_machine_site.yaml')
-</pre>
-
-h2. Environment Variables
-
-<pre>
-    Settings.env_vars 'DEST_TIME', :password => 'TM_PASS', 'delorean.power_source' => 'POWER_SOURCE'
-</pre>
-
-As usual, dotted keys set the corresponeding nested key (@'delorean.power_source'@ sets @Settings[:delorean][:power_source]@). As shown below, you may also use #define to set up environment variables: @define 'delorean.power_source', :environment => 'POWER_SOURCE'@.
-
-Environment variables are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
-
-**NOTE**: The interface to #env_vars has changed since v0.2, see "CHANGELOG.textile":CHANGELOG.textile
-
-h2. Command-line parameters
-
-<pre>
-    # Head back
-    time_machine --delorean.power_source='1.21 gigawatt lightning strike' --dest_time=1985-11-05
-    # (in the time_machine script:)
-    Settings.use :commandline
-    Settings.resolve!
-</pre>
-
-Interpretation of command-line parameters:
-* *name-val params*: @--param=val@ sets @Configliere[:param]@ to val.
-* *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil.
-* *scoped params*: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters).
-** A dash or dot within a parameter name scopes that parameter: @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. A _ within a parameter name is left as part of the segment.
-** Only @[\w\.\-]+@ are accepted in parameter names.
-* *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
-* *stop marker*: a @--@ alone stops parameter processing and tosses all remaining params (not including the @--@) into Settings.rest.
-
-Here are some things you don't get:
-* There are no short parameters (-r, etc).
-* Apart from converting @''@ (an explicit blank string) to @nil@, no type coercion is performed on parameters unless requested explicitly (see below).
-* No validation is performed on parameters.
-* No ordering or multiplicity is preserved (you can't say @--file=this --file=that@).
-
-If you want more, you might like the Trollop gem.  If you enjoy wordy nightmares, use "getoptlog":http://linuxdevcenter.com/pub/a/linux/2003/09/18/ruby_csv.html?page=2 from the ruby standard library.
-
-Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
-
-h2. Fancy Parameters
-
-You don't have to pre-define parameters, but you can:
-
-<pre>
-    Settings.use :define
-    Settings.define :dest_time, :type => DateTime, :description => 'Arrival time'
-    Settings.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
-    Settings.define :password, :required => true, :encrypted => true
-</pre>
-
-* *:type*: converts params to a desired form.
-* *:description*: documents a param.
-* *:required*: marks params required.
-* *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
-* *:env_var*: take param from given environment variable if set.
-
-Defined parameters are demonstrated in most of the "example scripts":http://github.com/mrflip/configliere/tree/master/examples
-
-h3. Type Conversion
-
-<pre>
-    Settings.define :dest_time,     :type => DateTime
-    Settings.define :fugeddaboudit, :type => Array
-    Settings :fugeddaboudit => 'badabing,badaboom,hey', :dest_time => '1955-11-05'
-    Settings.resolve!
-    Settings[:fugeddaboudit]   #=> ['badabing', 'badaboom', 'hey']
-    Settings[:dest_time]       #=> #<DateTime: 4870833/2,0,2299161>
-</pre>
-
-Configliere can coerce parameter values to Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
-
-* :boolean converts nil to nil ; false, 'false', 0, '0' and '' to false; and everything else to true.
-* Array just does a simple split on ",". It doesn't do any escaping or quoting.
-* Date and DateTime convert unparseable inputs to nil.
-
-h3. Description
-
-If you define a param's description, besides nicely documenting it within your code the description will be stuffed into the output when the --help commandline option is invoked.
-
-h3. Required Parameters
-
-Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Settings.resolve! in your script.)
-
-h3. Encrypted Parameters
-
-Define a param to be encrypted and invoke Settings.save!
-
-<pre>
-   define 'amazon.api.key', :encrypted => true
-   Settings 'amazon.api.key' => 'fnord'
-</pre>
-
-In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@. The code currently doesn't look for a collision between a :param and :encrypted_param, so be careful; you can preemptively call resolve_encrypted! to enforce order.
-
-bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
-
-Configliere provides the latter.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between immediate access and having to find a paperclip and jimmy open your annoying older brother's stupid journal.
-
-Encrypted parameters are demonstrated in "examples/encrypted_script.rb":http://github.com/mrflip/configliere/tree/master/examples/encrypted_script.rb
-
-h2. Ruby Block
-
-<pre>
-    Settings.finally do |c|
-      c.dest_time = (Time.now + 60) if c.username == 'einstein'
-      # you can use hash syntax too
-      c[:dest_time] = (Time.now + 60) if c[:username] == 'einstein'
-    end
-    #
-    # ... rest of setup ...
-    #
-    Settings.resolve!    # the finally blocks will be called in order
-</pre>
-
-Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
-
-Config blocks are demonstrated in "examples/config_block.rb":http://github.com/mrflip/configliere/tree/master/examples/config_block.rb
 
 h2. Independent Settings
 

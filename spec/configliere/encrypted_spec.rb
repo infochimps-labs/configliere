@@ -34,7 +34,7 @@ describe "Configliere::Encrypted" do
     it 'fails if no pass is set' do
       # create the config but don't set an encrypt_pass
       @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
-      lambda{ @config.send(:encrypted, @config[:secret]) }.should raise_error('Blank encryption password!')
+      lambda{ @config.send(:encrypted, @config[:secret]) }.should raise_error('Missing encryption password!')
     end
   end
 
@@ -44,13 +44,13 @@ describe "Configliere::Encrypted" do
       @config.defaults :encrypted_secret => 'decrypt_me'
       Configliere::Crypter.should_receive(:decrypt).with('decrypt_me', 'pass').and_return('ok_decrypted')
       @config.send(:resolve_encrypted!)
-      @config.should == { :normal_param => 'normal', :secret => 'ok_decrypted'}
+      @config.should == { :normal_param => 'normal', :secret => 'ok_decrypted' }
     end
   end
 
   describe 'loading a file' do
     before do
-      @encrypted_str = "*\210BM\305\353\325\240.\226\212g\266f|\177\221\252k\263\363\260\031\263\371\035\257\024f+\001\350"
+      @encrypted_str = "KohCTcXr1aAulopntmZ8f5Gqa7PzsBmz+R2vFGYrAeg=\n"
     end
     it 'encrypts' do
       Configliere::Crypter.should_receive(:encrypt).and_return(@encrypted_str)
@@ -63,6 +63,7 @@ describe "Configliere::Encrypted" do
       YAML.should_receive(:load).and_return(@hsh)
       @config.read 'file.yaml'
       @config.resolve!
+      @config.should_not include(:encrypted_secret)
       @config.should == { :loaded_param => "loaded", :secret => 'decrypt_me', :normal_param => 'normal' }
     end
   end

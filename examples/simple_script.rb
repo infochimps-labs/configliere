@@ -7,12 +7,17 @@ Settings.use :commandline, :config_file, :define
 
 puts "You can set default values:"
 Settings({
-  :dest_time => '1955-11-05',
+  :heavy => false,
   :delorean => {
     :power_source => 'plutonium',
     :roads_needed => true,
     },
-})
+  })
+puts "  #{Settings.inspect}"
+
+puts "\nYou can define settings' type, default value, a description (that shows up with --help), and more. It's purely optional, but it's very convenient:"
+Settings.define :dest_time, :default => '11-05-1955', :type => DateTime, :description => "Date to travel to"
+Settings.define 'delorean.roads_needed', :type => :boolean
 puts "  #{Settings.inspect}"
 
 config_filename = File.dirname(__FILE__)+'/simple_script.yaml'
@@ -20,9 +25,11 @@ puts "\nYou can load values from a file -- in this case, #{config_filename} -- w
 Settings.read config_filename
 Settings.resolve!
 puts "  #{Settings.inspect}"
+puts "Note that the date was automatically typecast when we called Settings.resolve!"
+
 
 puts %Q{\nTry running the script with commandline parameters, for example
-  #{$0} --dest_time=2015-11-05 --delorean.roads_needed="" --delorean.power_source="Mr. Fusion"
+  #{$0} --dest_time=11-05-2015 --delorean.roads_needed=false --delorean.power_source="Mr. Fusion"
 In this case, you used
   #{$0} #{ARGV.map{|argv| "'#{argv}'"}.join(" ")}
 and so the final parameter values are}

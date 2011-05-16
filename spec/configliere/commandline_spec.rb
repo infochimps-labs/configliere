@@ -6,7 +6,7 @@ describe "Configliere::Commandline" do
   after do
     ::ARGV.replace []
   end
-  
+
   describe "processing long-format flags" do
     before do
       @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
@@ -90,16 +90,8 @@ describe "Configliere::Commandline" do
     #   @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
     # end
 
-    it 'should not complain about bad single-letter flags by default' do
+    it 'should complain about bad single-letter flags by default' do
       ::ARGV.replace ['-pcz']
-      @config.resolve!
-      @config.rest.should == []
-      @config.should == { :param_1 => true, :cat => true, :foo => nil}
-    end
-
-    it 'should raise an error about bad single-letter flags if asked' do
-      ::ARGV.replace ['-pcz']
-      @config.complain_about_bad_flags!
       lambda { @config.resolve! }.should raise_error(Configliere::Error)
     end
   end
@@ -125,9 +117,67 @@ describe "Configliere::Commandline" do
   end
 
   describe "constructing help messages" do
-    it "should not display a help message about environment variables if no environment variables exist with documentation" do
+
+    before do
       @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
-      @config.env_var_help.should be_nil
+    end
+
+    it 'should display help' do
+      ::ARGV.replace ['--help']
+      begin
+        $stderr = StringIO.new
+        begin
+          @config.resolve!
+          fail('should exit via system exit')
+        rescue SystemExit
+        end
+        $stderr.string.should_not be_nil
+        $stderr.string.should_not be_empty
+
+        @config.help.should_not be_nil
+        @config.help.should_not be_empty
+      ensure
+        $stderr = STDERR
+      end
+    end
+
+    it "should display command line options" do
+      ::ARGV.replace ['--help']
+
+      @config.define :logfile, :type => String,     :description => "Log file name", :default => 'myapp.log', :required => false
+      @config.define :debug, :type => :boolean,     :description => "Log debug messages to console?", :required => false
+      @config.define :dest_time, :type => DateTime, :description => "Arrival time", :required => true
+      @config.define :takes_opt, :flag => 't',      :description => "Takes a single-letter flag '-t'"
+      @config.define :foobaz, :internal => true,    :description => "You won't see me"
+      @config.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
+      @config.define :password, :required => true, :encrypted => true
+      @config.description = 'This is a sample script to demonstrate the help message. Notice how pretty everything lines up YAY'
+
+      begin
+        $stderr = StringIO.new
+        begin
+          @config.resolve!
+          fail('should exit via system exit')
+        rescue SystemExit
+        end
+        str = $stderr.string
+        should_not be_nil
+        str.should_not be_empty
+        puts str
+
+        str.should =~ %r{--debug\s}s                                 # type :boolean
+        str.should =~ %r{--logfile=String\s}s                        # type String
+        str.should =~ %r{--dest_time=DateTime[^\n]+\[Required\]}s    # shows required params
+        str.should =~ %r{--password=String[^\n]+\[Encrypted\]}s      # shows encrypted params
+        str.should =~ %r{--delorean.power_source=String\s}s          # undefined type
+        str.should =~ %r{--password=String\s*password}s              # uses name as dummy description
+        str.should =~ %r{-t, --takes_opt}s                           # single-letter flags
+
+        str.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
+        str.should =~ %r{This is a sample script}s                         # extra description
+      ensure
+        $stderr = STDERR
+      end
     end
   end
 

@@ -1,5 +1,6 @@
 require 'openssl'
 require 'digest/sha2'
+require "base64"
 module Configliere
   #
   # Encrypt and decrypt values in configliere stores
@@ -22,7 +23,7 @@ module Configliere
       cipher.iv  = iv = cipher.random_iv
       ciphertext = cipher.update(plaintext)
       ciphertext << cipher.final
-      combine_iv_and_ciphertext(iv, ciphertext)
+      Base64.encode64(combine_iv_and_ciphertext(iv, ciphertext))
     end
     #
     # Decrypt the given string, using the key and iv supplied
@@ -31,7 +32,8 @@ module Configliere
     # @param [String] encrypt_pass secret passphrase to decrypt with
     # @return [String] the decrypted plaintext
     #
-    def self.decrypt iv_and_ciphertext, encrypt_pass, options={}
+    def self.decrypt enc_ciphertext, encrypt_pass, options={}
+      iv_and_ciphertext = Base64.decode64(enc_ciphertext)
       cipher    = new_cipher :decrypt, encrypt_pass, options
       cipher.iv, ciphertext = separate_iv_and_ciphertext(cipher, iv_and_ciphertext)
       plaintext = cipher.update(ciphertext)
@@ -64,7 +66,8 @@ module Configliere
 
     # Convert the encrypt_pass passphrase into the key used for encryption
     def self.encrypt_key encrypt_pass, options={}
-      raise 'Blank encryption password!' if encrypt_pass.blank?
+      encrypt_pass = encrypt_pass.to_s
+      raise 'Missing encryption password!' if encrypt_pass.empty?
       # this provides the required 256 bits of key for the aes-256-cbc cipher
       Digest::SHA256.digest(encrypt_pass)
     end

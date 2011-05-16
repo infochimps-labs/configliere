@@ -1,9 +1,12 @@
-require 'configliere/core_ext/sash.rb'
 module Configliere
-  class ParamParent < ::Hash
-    # default export method: self
+  #
+  # We want to be able to call super() on these methods in all included models,
+  # so we define them in this parent shim class.
+  #
+  class ParamParent < DeepHash
+    # default export method: dup of self
     def export
-      to_hash
+      dup.tap{|hsh| hsh.each{|k,v| hsh[k] = v.respond_to?(:export) ? v.export : v } }
     end
     # terminate resolution chain
     def resolve!
@@ -25,8 +28,7 @@ module Configliere
     #   The default value for the mash. Defaults to an empty hash.
     #
     # @details [Alternatives]
-    #   If constructor is a Hash, a new mash will be created based on the keys of
-    #   the hash and no default value will be set.
+    #   If constructor is a Hash, adopt its values.
     def initialize(constructor = {})
       if constructor.is_a?(Hash)
         super()
@@ -36,7 +38,7 @@ module Configliere
       end
     end
 
-    # @return [Hash] The mash as a Hash with string keys.
+    # @return [Hash] converts to a plain hash.
     def to_hash
       Hash.new(default).merge(self)
     end
@@ -68,7 +70,7 @@ module Configliere
     end
 
     def []= param, val
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_set( *(convert_key(param) | [val]) )
       else
         super param, val
@@ -76,7 +78,7 @@ module Configliere
     end
 
     def [] param
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_get( *convert_key(param) )
       else
         super param
@@ -84,7 +86,7 @@ module Configliere
     end
 
     def delete param
-      if param =~ /\./
+      if param.to_s =~ /\./
         return deep_delete( *convert_key(param) )
       else
         super param
@@ -97,7 +99,6 @@ module Configliere
       self.deep_merge!(hsh) unless hsh.nil?
     end
 
-  protected
     # @param key<Object> The key to convert.
     #
     # @param [Object]

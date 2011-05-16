@@ -22,7 +22,7 @@ module Configliere
     #
     # @example
     #     # Read from config/apey_eye.yaml and use settings appropriate for development/staging/production
-    #     Settings.read(root_path('config/apey_eye.yaml'), :env => (ENV['RACK_ENV'] || 'production'))
+    #     Settings.read(root_path('config/foo.yaml'), :env => ENV['RACK_ENV'])
     #
     def read handle, options={}
       filename = filename_for_handle(handle)
@@ -47,19 +47,13 @@ module Configliere
     def save! handle
       filename = filename_for_handle(handle)
       if handle.is_a?(Symbol)
-        ConfigFile.merge_into_yaml_file filename, handle, self.export
+        ConfigFile.merge_into_yaml_file filename, handle, self.export.to_hash
       else
-        ConfigFile.write_yaml_file filename, self.export
+        ConfigFile.write_yaml_file filename, self.export.to_hash
       end
     end
 
   protected
-
-    # form suitable for serialization to disk
-    # (e.g. the encryption done in configliere/encrypted)
-    def export
-      super.to_hash
-    end
 
     def self.write_yaml_file filename, hsh
       FileUtils.mkdir_p(File.dirname(filename))

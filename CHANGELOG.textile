@@ -1,3 +1,31 @@
+h2. Version 0.4.0 2011-05-13
+
+Bumping version number as there are a few breaking changes -- should only affect the careless and finicky, but please check before you pull.
+
+* Configliere now unambiguously wants symbols to define params.
+* Configliere no longer modifies any core classes:
+  - deep_merge, deep_set and deep_delete have been moved to a DeepHash class.
+  - the Sash class is gone. More on this below.
+  - blank? is not defined by default
+* :encrypted keys are now stored as base64-encoded
+  
+* Stripped out some magic: :no_help and :no_env_help (the convention is @:internal@); Settings.argv; Settings.commands?
+* Removed the long-deprecated :git_style_binaries synonym for :commands
+
+
+h2. Version 0.3.4
+
+The jump in minor version number was unintentional
+
+* handle case wehre file is empty on environment merge
+* read returns self, so can chain
+
+h2. Version 0.2.3
+
+* Added a feature to load only production/development/etc subhash from a config file, so:
+
+  Settings.read(root_path('config/foo.yaml'), :env => ENV['RACK_ENV'])
+
 h2. Version 0.2.1 2011-01-28
 
 * Missing required params include their definition in error message

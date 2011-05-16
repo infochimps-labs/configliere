@@ -1,85 +1,85 @@
 #!/usr/bin/env ruby
-require 'rubygems' ; $: << File.dirname(__FILE__)+'/../lib'
+$: << File.dirname(__FILE__)+'/../lib'
 require 'configliere'
-require 'configliere/client'
-require 'configliere/client/commands'
-Log = Logger.new(STDERR) unless defined?(Log)
 
-class ConfigliereScript < Configliere::CommandClient
-  def usage
-    %Q{Client for the configliere gem: manipulate configuration and passwords for automated scripts
+Settings.use :commands
 
-usage: #{File.basename($0)} command handle [...--option=val...]
-where
-  command:             One of: #{COMMANDS.keys[0..-2].join(', ')} or #{COMMANDS.keys.last}
-  handle:              Name of the configliere group (within the configliere_file) or path to a configliere YAML file.
+Settings.description =  %Q{Client for the configliere gem: manipulate configuration and passwords for automated scripts}
 
-Configuration taken from #{configliere_file} by default.}
-    end
+Settings.define_command :dump,    :description => "Show the whole contents of the file"
+Settings.define_command :list,    :description => "Show all params in the configliere file."
+Settings.define_command :get,     :description => "show values given as commandline args, eg: #{File.basename($0)} get this that"
+Settings.define_command :set,     :description => "sets values given as commandline args, eg: #{File.basename($0)} set this=1 that=3"
+Settings.define_command :delete,  :description => "sets values given as commandline args, eg: #{File.basename($0)} delete this that"
+Settings.define_command :encrypt, :description => "encrypt the param"
+Settings.define_command :decrypt, :description => "Store the param as decrypted back into the file. Can be undone with 'encrypt'."
 
-  def process_options! *args
-    super *args
-    self.command = options[:_rest].shift.to_sym rescue nil
-    self.handle  = options[:_rest].shift.to_sym rescue nil
+Settings.define :from,   :flag => 'f', :type => :filename, :description => "Configliere config file to load"
+Settings.define :into,   :flag => 'i', :type => :filename, :description => "Configliere config file to save into"
+
+Settings.resolve!
+ARGV.replace []
+
+Store = Configliere.new
+Store.read(Settings.from) if Settings.from
+
+#
+# Execute
+#
+
+case Settings.command_name
+when :dump
+  puts Store.to_hash.to_yaml
+
+when :list
+  $stderr.puts "Param names in #{Settings.from}:"
+  Store.each do |attr, val|
+    puts "  #{attr}"
   end
 
+when :get
+  $stderr.puts "Values for #{Settings.rest.join(", ")} from #{Settings.from}"
+  Settings.rest.map(&:to_sym).each do |attr|
+    puts "%-23s\t%s" % ["#{attr}:", Store[attr]]
+  end
 
-    # ===========================================================================
-    #
-    # Commands
-    #
+when :set
+  $stderr.puts "Setting #{Settings.rest.join(", ")} for #{Settings.from}"
+  Settings.rest.each do |attr_val|
+    attr, val = attr_val.split('=', 2)
+    attr = attr.to_sym
+    if val.nil? then warn "Please specify a value for #{attr}" ; next ; end
+    Store[attr] = val
 
-    COMMANDS[:fix] = "encrypt the param"
-    def fix
-      Log.info "Fixing stored info for #{handle}"
-      store.fix!(handle, option_or_ask(:key))
-    end
-    COMMANDS[:encrypt] = "synonym for fix. Params are stored encrypted by default"
-    def encrypt() fix end
+    puts "%-23s\t%s" % ["#{attr}:", val.inspect]
+  end
 
-    COMMANDS[:decrypt] = "Store the param as decrypted back into the file. Can be undone with 'fix'."
-    def decrypt
-      Log.info "Storing info for #{handle} in **DECRYPTED** form."
-      param = get(handle)
-      store.put_decrypted!(handle, param)
-    end
+when :delete
+  $stderr.puts "Deleting #{Settings.rest.join(", ")} from #{Settings.from}. O, I die, Horatio."
+  Settings.rest.map(&:to_sym).each do |attr|
+    Store.delete(attr)
+  end
 
-    COMMANDS[:list] = "Show all params in the configliere file."
-    def list
-      puts "List of param names: #{store.handles.inspect}"
-    end
+when :encrypt
+  Store.use :encrypted
+  $stderr.puts "Encrypting #{Settings.rest.join(", ")} from #{Settings.from}. Fnord"
+  Settings.rest.each{|attr| Store.define attr, :encrypted => true }
+  Store.encrypt_pass = Settings.encrypt_pass || Settings[:encrypt_pass]
+  Store.resolve!
 
-    COMMANDS[:delete] = "Permanently deletes the param"
-    def delete
-      Log.info "Permanently deleting stored info for #{handle}. O, I die, Horatio."
-      store.delete! handle, options[:key]
-    end
+when :decrypt
+  Store.use :encrypted
+  $stderr.puts "Decrypting #{Settings.rest.join(", ")} from #{Settings.from}. Fnord"
+  Settings.rest.each{|attr| Store.define attr, :encrypted => true }
+  Store.encrypt_pass = Settings.encrypt_pass || Settings[:encrypt_pass]
+  Store.resolve!
 
-    COMMANDS[:set] = "sets values using remaining arguments from the command line. eg #{File.basename($0)} set my_program --username=bob --password=frank"
-    def set
-      param = get(handle)
-      param.merge! external_options
-      store.put handle, param
-      store.save!
-      Log.info "Stored configuration for #{handle}: #{param}"
-    end
+  puts Store.to_hash.to_yaml
 
-    COMMANDS[:change_key] = "set a new key and/or new key options. Specify the old key as usual with --key='...' and the new one with --new_key='...'"
-    def change_key
-      param = get(handle)
-      new_key = option_or_ask(:new_key)
-      new_hsh = param.to_decrypted
-      new_param = Configliere::Param.new(new_key, new_hsh)
-      store.put! handle, new_param
-      Log.info "Changed param key for #{handle}: #{new_param}"
-    end
-
-    COMMANDS[:show] = "print the decrypted information"
-    def show
-      param = get(handle)
-      puts "Stored info for #{handle}:\n  #{param.to_s}"
-    end
-
+else
+  Settings.die "Please use one of the given commands"
 end
 
-ConfigliereScript.new.run
+if Settings.into
+  Store.save!(Settings.into)
+end
