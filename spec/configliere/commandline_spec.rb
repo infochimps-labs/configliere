@@ -1,96 +1,118 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-Configliere.use :commandline
 
 describe "Configliere::Commandline" do
+  before do
+    @config = Configliere::Param.new :date => '11-05-1955', :cat => :hat
+    @config.use :commandline
+  end
   after do
     ::ARGV.replace []
   end
 
-  describe "processing long-format flags" do
-    before do
-      @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
-    end
-
-    it 'should handle --param=val pairs' do
-      ::ARGV.replace ['--my_param=my_val']
+  describe "with long-format flags" do
+    it 'accepts --param=val pairs' do
+      ::ARGV.replace ['--enchantment=under_sea']
       @config.resolve!
-      @config.should == { :my_param => 'my_val', :param_1 => 'val 1', :cat => :hat}
+      @config.should == { :enchantment => 'under_sea', :date => '11-05-1955', :cat => :hat}
     end
-    it 'should handle --dotted.param.name=val pairs' do
+    it 'accepts --dotted.param.name=val pairs as deep keys' do
       ::ARGV.replace ['--dotted.param.name=my_val']
       @config.resolve!
       @config.rest.should be_empty
-      @config.should == { :dotted => { :param => { :name => 'my_val' }}, :param_1 => 'val 1', :cat => :hat}
+      @config.should == { :dotted => { :param => { :name => 'my_val' }}, :date => '11-05-1955', :cat => :hat }
     end
-    it 'should handle --dashed-param-name=val pairs' do
+    it 'accepts --dashed-param-name=val pairs as deep keys' do
       ::ARGV.replace ['--dashed-param-name=my_val']
       @config.resolve!
       @config.rest.should be_empty
-      @config.should == { :dashed => { :param => { :name => 'my_val' }}, :param_1 => 'val 1', :cat => :hat}
+      @config.should == { :dashed => { :param => { :name => 'my_val' }}, :date => '11-05-1955', :cat => :hat }
     end
-    it 'should handle the last-seen of the commandline values' do
-      ::ARGV.replace ['--param_1=A', '--param_1=B']
+    it 'adopts only the last-seen of duplicate commandline flags' do
+      ::ARGV.replace ['--date=A', '--date=B']
       @config.resolve!
       @config.rest.should be_empty
-      @config.should == { :param_1 => 'B', :cat => :hat}
+      @config.should == { :date => 'B', :cat => :hat}
     end
-    it 'should set a bare parameter (no "=") to true' do
-      ::ARGV.replace ['--param_1', '--deep.param']
+    it 'does NOT set a bare parameter (no "=") followed by a non-param to that value' do
+      ::ARGV.replace ['--date', '11-05-1985', '--heavy', '--power.source', 'household waste', 'go']
+      @config.resolve!
+      @config.rest.should == ['11-05-1985', 'household waste', 'go']
+      @config.should == { :date => true, :heavy => true, :power => { :source => true }, :cat => :hat }
+    end
+    it 'sets a bare parameter (no "=") to true' do
+      ::ARGV.replace ['--date', '--deep.param']
       @config.resolve!
       @config.rest.should be_empty
-      @config.should == { :param_1 => true, :deep => { :param => true }, :cat => :hat}
+      @config.should == { :date => true, :deep => { :param => true }, :cat => :hat}
     end
-    it 'should set an explicit blank to nil' do
-      ::ARGV.replace ['--param_1=', '--deep.param=']
+    it 'sets an explicit blank to nil' do
+      ::ARGV.replace ['--date=', '--deep.param=']
       @config.resolve!
-      @config.should == { :param_1 => nil, :deep => { :param => nil }, :cat => :hat}
+      @config.should == { :date => nil, :deep => { :param => nil }, :cat => :hat}
     end
 
-    it 'should save non --param args into rest' do
-      ::ARGV.replace ['--param_1', 'file1', 'file2']
+    it 'captures non --param args into Settings.rest' do
+      ::ARGV.replace ['--date', 'file1', 'file2']
       @config.resolve!
-      @config.should == { :param_1 => true, :cat => :hat}
+      @config.should == { :date => true, :cat => :hat}
       @config.rest.should == ['file1', 'file2']
     end
 
-    it 'should stop processing on "--"' do
-      ::ARGV.replace ['--param_1=A', '--', '--param_1=B']
+    it 'stops processing args on "--"' do
+      ::ARGV.replace ['--date=A', '--', '--date=B']
       @config.resolve!
-      @config.rest.should == ['--param_1=B']
-      @config.should == { :param_1 => 'A', :cat => :hat}
+      @config.rest.should == ['--date=B']
+      @config.should == { :date => 'A', :cat => :hat}
     end
   end
 
-  describe "processing single-letter flags" do
+  describe "with single-letter flags" do
     before do
-      @config = Configliere::Param.new :param_1 => 'val 1', :cat => nil, :foo => nil
-      @config.param_definitions = { :param_1 => { :flag => :p }, :cat =>  { :flag => 'c' } }
+      @config.define :date,    :flag => :d
+      @config.define :cat,     :flag => 'c'
+      @config.define :process, :flag => :p
     end
 
-    it 'should parse flags given separately' do
+    it 'accepts them separately' do
       ::ARGV.replace ['-p', '-c']
       @config.resolve!
       @config.rest.should == []
-      @config.should == { :param_1 => true, :cat => true, :foo => nil}
+      @config.should == { :date => '11-05-1955', :cat => true, :process => true}
     end
 
-    it 'should parse flags given together' do
+    it 'accepts them as a group ("-abc")' do
       ::ARGV.replace ['-pc']
       @config.resolve!
       @config.rest.should == []
-      @config.should == { :param_1 => true, :cat => true, :foo => nil}
+      @config.should == { :date => '11-05-1955', :cat => true, :process => true}
     end
 
-    it 'should parse a single-letter flag with a value' do
-      ::ARGV.replace ['-p=new_val', '-c']
+    it 'accepts a value with -d=new_val' do
+      ::ARGV.replace ['-d=new_val', '-c']
       @config.resolve!
       @config.rest.should == []
-      @config.should == { :param_1 => 'new_val', :cat => true, :foo => nil }
+      @config.should == { :date => 'new_val', :cat => true }
     end
 
-    it 'should complain about bad single-letter flags by default' do
-      ::ARGV.replace ['-pcz']
-      lambda { @config.resolve! }.should raise_error(Configliere::Error)
+    it 'accepts a space-separated value (-d new_val)' do
+      ::ARGV.replace ['-d', 'new_val', '-c', '-p']
+      @config.resolve!
+      @config.rest.should == []
+      @config.should == { :date => 'new_val', :cat => true, :process => true }
+    end
+
+    it 'accepts a space-separated value only if the next arg is not a flag' do
+      ::ARGV.replace ['-d', 'new_val', '-c', '-p', 'vigorously']
+      @config.resolve!
+      @config.rest.should == []
+      @config.should == { :date => 'new_val', :cat => true, :process => 'vigorously' }
+    end
+
+    it 'stores unknown single-letter flags in unknown_params' do
+      ::ARGV.replace ['-dcz']
+      lambda{ @config.resolve! }.should_not raise_error(Configliere::Error)
+      @config.should == { :date => true, :cat => true }
+      @config.unknown_params.should == ['z']
     end
   end
 
@@ -106,10 +128,6 @@ describe "Configliere::Commandline" do
   end
 
   describe "the help message" do
-    before do
-      @config = Configliere::Param.new :param_1 => 'val 1', :cat => :hat
-    end
-
     it 'displays help' do
       ::ARGV.replace ['--help']
       stderr_output = capture_help_message{ @config.resolve! }
@@ -153,6 +171,15 @@ describe "Configliere::Commandline" do
 
       stderr_output.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
       stderr_output.should =~ %r{This is a sample script}s                         # extra description
+    end
+  end
+
+  describe '#resolve!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.resolve!.should equal(@config)
+      Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
     end
   end
 

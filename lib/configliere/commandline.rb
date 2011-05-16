@@ -1,12 +1,15 @@
-# Configliere.use :define
 module Configliere
 
   #
   # Command line tool to manage param info
   #
+  # @example
+  #   Settings.use :commandline
+  #
   module Commandline
     attr_accessor :rest
     attr_accessor :description
+    attr_reader   :unknown_params
 
     # Processing to reconcile all options
     #
@@ -23,6 +26,7 @@ module Configliere
         exit(2)
       end
       super()
+      self
     end
 
     #
@@ -38,6 +42,7 @@ module Configliere
     def process_argv!
       args = ARGV.dup
       self.rest = []
+      @unknown_params = []
       until args.empty? do
         arg = args.shift
         case
@@ -45,71 +50,38 @@ module Configliere
         when arg == '--'
           self.rest += args
           break
-        # --param=val
+        # --param=val or --param
         when arg =~ /\A--([\w\-\.]+)(?:=(.*))?\z/
           param, val = [$1, $2]
           param.gsub!(/\-/, '.')                        # translate --scoped-flag to --scoped.flag
           param = param.to_sym unless (param =~ /\./)   # symbolize non-scoped keys
           self[param] = parse_value(val)
         # -abc
-        when arg =~ /\A-(\w+)\z/
+        when arg =~ /\A-(\w\w+)\z/
           $1.each_char do |flag|
-            param = param_with_flag(flag)
-            self[param] = true if param
+            param = find_param_for_flag(flag)
+            unless param then @unknown_params << flag ; next ; end
+            self[param] = true
           end
+        # -a val
+        when arg =~ /\A-(\w)\z/
+          flag = find_param_for_flag($1)
+          unless flag then @unknown_params << flag ; next ; end
+          if (not args.empty?) && (args.first !~ /\A-/)
+            val = args.shift
+          else
+            val = nil
+          end
+          self[flag] = parse_value(val)
         # -a=val
         when arg =~ /\A-(\w)=(.*)\z/
-          param, val = param_with_flag($1), $2
-          self[param] = parse_value(val) if param
+          flag, val = [find_param_for_flag($1), $2]
+          unless flag then @unknown_params << flag ; next ; end
+          self[flag] = parse_value(val)
         else
           self.rest << arg
         end
       end
-    end
-
-    def parse_value val
-      case
-      when val == nil then true  # --flag    option on its own means 'set that option'
-      when val == '' then nil    # --flag='' the explicit empty string means nil
-      else val                   # else just return the value
-      end
-    end
-
-    # Retrieve the first param defined with the given flag.
-    def param_with_flag flag
-      params_with(:flag).each do |param|
-        return param if param_definitions[param][:flag].to_s == flag.to_s
-      end
-      raise Configliere::Error.new("Unknown option: -#{flag}")
-    end
-
-    # Configliere internal params
-    def define_special_params
-      Settings.define :encrypt_pass, :description => "Passphrase to extract encrypted config params.", :internal => true
-    end
-
-    # All commandline name-value params that aren't internal to configliere
-    def normal_params
-      reject{|param, val| param_definitions[param][:internal] }
-    end
-
-    # die with a warning
-    #
-    # @example
-    #    Settings.define :foo, :finally => lambda{ Settings.foo.to_i < 5 or die("too much foo!") }
-    #
-    # @param str [String] the string to dump out before exiting
-    # @param exit_code [Integer] UNIX exit code to set, default -1
-    def die str, exit_code=-1
-      dump_help "****\n#{str}\n****"
-      exit exit_code
-    end
-
-    # Retrieve the given param, or prompt for it
-    def param_or_ask attr, hint=nil
-      return self[attr] if include?(attr)
-      require 'highline/import'
-      self[attr] = ask("#{attr}"+(hint ? " for #{hint}?" : '?'))
     end
 
     # ===========================================================================
@@ -167,10 +139,38 @@ module Configliere
       File.basename($0)
     end
 
+    # die with a warning
+    #
+    # @example
+    #    Settings.define :foo, :finally => lambda{ Settings.foo.to_i < 5 or die("too much foo!") }
+    #
+    # @param str [String] the string to dump out before exiting
+    # @param exit_code [Integer] UNIX exit code to set, default -1
+    def die str, exit_code=-1
+      dump_help "****\n#{str}\n****"
+      exit exit_code
+    end
+
   protected
 
+    def parse_value val
+      case
+      when val == nil then true  # --flag    option on its own means 'set that option'
+      when val == '' then nil    # --flag='' the explicit empty string means nil
+      else val                   # else just return the value
+      end
+    end
+
+    # Retrieve the first param defined with the given flag.
+    def find_param_for_flag(flag)
+      params_with(:flag).each do |param_name, param_flag|
+        return param_name if flag.to_s == param_flag.to_s
+      end
+      nil
+    end
+
     def param_lines
-      pdefs = param_definitions.reject{|name, definition| definition[:internal] }
+      pdefs = definitions.reject{|name, definition| definition[:internal] }
       return if pdefs.empty?
       h = ["\nParams:"]
       width     = find_width(pdefs.keys)
@@ -183,7 +183,7 @@ module Configliere
 
     # pretty-print a param
     def param_line(name, definition, width, has_flags)
-      desc = description_for(name).to_s.strip
+      desc = definition_of(name, :description).to_s.strip
       buf = ['  ']
       buf << (definition[:flag] ? "-#{definition[:flag]}," : "   ") if has_flags
       buf << sprintf("--%-#{width}s", param_with_type(name))
@@ -203,19 +203,19 @@ module Configliere
     end
 
     def param_with_type(param)
-      str = param.to_s
-      case type_for(param)
+      str  = param.to_s
+      type = definition_of(param, :type)
+      case type
       when :boolean then str += ''
       when nil      then str += '=String'
-      else               str += '=' + type_for(param).to_s
+      else               str += "=#{type}"
       end
       str
     end
 
   end
 
-  Param.class_eval do
-    # include read / save operations
-    include Commandline
+  Param.on_use(:commandline) do
+    extend Configliere::Commandline
   end
 end
