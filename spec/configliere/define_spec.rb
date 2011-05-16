@@ -85,14 +85,14 @@ describe "Configliere::Define" do
         @config[:has_type] = orig ; @config.resolve! ; @config[:has_type].should == desired
       end
     end
-    # it 'converts :now to the current moment' do
-    #   @config.define :has_type, :type => DateTime
-    #   @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
-    #   @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now, 4)
-    #   @config.define :has_type, :type => Date
-    #   @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
-    #   @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today, 4)
-    # end
+    it 'converts :now to the current moment' do
+      @config.define :has_type, :type => DateTime
+      @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now)
+      @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now)
+      @config.define :has_type, :type => Date
+      @config[:has_type] = :now  ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today)
+      @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(Date.today)
+    end
   end
 
   describe 'creates magical methods' do
