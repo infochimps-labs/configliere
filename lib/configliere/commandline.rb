@@ -9,7 +9,7 @@ module Configliere
   module Commandline
     attr_accessor :rest
     attr_accessor :description
-    attr_reader   :unknown_params
+    attr_reader   :unknown_argvs
 
     # Processing to reconcile all options
     #
@@ -42,7 +42,7 @@ module Configliere
     def process_argv!
       args = ARGV.dup
       self.rest = []
-      @unknown_params = []
+      @unknown_argvs = []
       until args.empty? do
         arg = args.shift
         case
@@ -53,20 +53,20 @@ module Configliere
         # --param=val or --param
         when arg =~ /\A--([\w\-\.]+)(?:=(.*))?\z/
           param, val = [$1, $2]
-          param.gsub!(/\-/, '.')                        # translate --scoped-flag to --scoped.flag
-          param = param.to_sym unless (param =~ /\./)   # symbolize non-scoped keys
+          warn "Configliere uses _underscores not dashes for params" if param.include?('-')
+          @unknown_argvs << param.to_sym if (not has_definition?(param))
           self[param] = parse_value(val)
         # -abc
         when arg =~ /\A-(\w\w+)\z/
           $1.each_char do |flag|
             param = find_param_for_flag(flag)
-            unless param then @unknown_params << flag ; next ; end
+            unless param then @unknown_argvs << flag ; next ; end
             self[param] = true
           end
         # -a val
         when arg =~ /\A-(\w)\z/
           flag = find_param_for_flag($1)
-          unless flag then @unknown_params << flag ; next ; end
+          unless flag then @unknown_argvs << flag ; next ; end
           if (not args.empty?) && (args.first !~ /\A-/)
             val = args.shift
           else
@@ -76,7 +76,7 @@ module Configliere
         # -a=val
         when arg =~ /\A-(\w)=(.*)\z/
           flag, val = [find_param_for_flag($1), $2]
-          unless flag then @unknown_params << flag ; next ; end
+          unless flag then @unknown_argvs << flag ; next ; end
           self[flag] = parse_value(val)
         else
           self.rest << arg

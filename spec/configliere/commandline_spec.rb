@@ -9,7 +9,7 @@ describe "Configliere::Commandline" do
     ::ARGV.replace []
   end
 
-  describe "with long-format flags" do
+  describe "with long-format argvs" do
     it 'accepts --param=val pairs' do
       ::ARGV.replace ['--enchantment=under_sea']
       @config.resolve!
@@ -21,11 +21,12 @@ describe "Configliere::Commandline" do
       @config.rest.should be_empty
       @config.should == { :dotted => { :param => { :name => 'my_val' }}, :date => '11-05-1955', :cat => :hat }
     end
-    it 'accepts --dashed-param-name=val pairs as deep keys' do
+    it 'NO LONGER accepts --dashed-param-name=val pairs as deep keys' do
       ::ARGV.replace ['--dashed-param-name=my_val']
+      @config.should_receive(:warn).with("Configliere uses _underscores not dashes for params")
       @config.resolve!
       @config.rest.should be_empty
-      @config.should == { :dashed => { :param => { :name => 'my_val' }}, :date => '11-05-1955', :cat => :hat }
+      @config.should == { :'dashed-param-name' => 'my_val', :date => '11-05-1955', :cat => :hat }
     end
     it 'adopts only the last-seen of duplicate commandline flags' do
       ::ARGV.replace ['--date=A', '--date=B']
@@ -63,6 +64,14 @@ describe "Configliere::Commandline" do
       @config.resolve!
       @config.rest.should == ['--date=B']
       @config.should == { :date => 'A', :cat => :hat}
+    end
+
+    it 'places undefined argvs into #unknown_argvs' do
+      @config.define :raven, :description => 'squawk'
+      ::ARGV.replace ['--never=more', '--lenore', '--raven=ray_lewis']
+      @config.resolve!
+      @config.unknown_argvs.should == [:never, :lenore]
+      @config.should == { :date => '11-05-1955', :cat => :hat, :never => 'more', :lenore => true, :raven => 'ray_lewis' }
     end
   end
 
@@ -108,11 +117,11 @@ describe "Configliere::Commandline" do
       @config.should == { :date => 'new_val', :cat => true, :process => 'vigorously' }
     end
 
-    it 'stores unknown single-letter flags in unknown_params' do
+    it 'stores unknown single-letter flags in unknown_argvs' do
       ::ARGV.replace ['-dcz']
       lambda{ @config.resolve! }.should_not raise_error(Configliere::Error)
       @config.should == { :date => true, :cat => true }
-      @config.unknown_params.should == ['z']
+      @config.unknown_argvs.should == ['z']
     end
   end
 
