@@ -74,7 +74,7 @@ module Configliere
     end
 
     # @internal
-    USE_HANDLERS = {}
+    USE_HANDLERS = {} unless defined?(USE_HANDLERS)
     # Block executed when use is invoked
     def self.on_use mw, &block
       USE_HANDLERS[mw] = block

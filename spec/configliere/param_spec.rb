@@ -5,45 +5,43 @@ describe "Configliere::Param" do
     @config = Configliere::Param.new :hat => :cat, :basket => :lotion, :moon => { :man => :smiling }
   end
 
-  describe '#defaults' do
+  describe 'calling #defaults' do
     it 'deep_merges new params' do
       @config.defaults :basket => :tasket, :moon => { :cow => :jumping }
       @config.should == { :hat => :cat, :basket => :tasket, :moon => { :man => :smiling, :cow => :jumping } }
     end
-  end
-
-  describe '#[]=' do
-    it 'symbolizes keys' do
-      @config['hat'] = :fedora
-      @config['new'] = :unseen
-#      @config.should == { :hat => :fedora, :basket => :lotion, :new => :unseen, :moon => { :man => :smiling } }
-    end
-    it 'deep-sets dotted vals, replacing values' do
-      @config['moon.man'] = :cheesy
-      @config[:moon][:man].should == :cheesy
-    end
-    it 'deep-sets dotted vals, creating new values' do
-      @config['moon.cheese.type'] = :tilsit
-      @config[:moon][:cheese][:type].should == :tilsit
-    end
-    it 'deep-sets dotted vals, auto-vivifying intermediate hashes' do
-      @config['this.that.the_other'] = :fuhgeddaboudit
-      @config[:this][:that][:the_other].should == :fuhgeddaboudit
+    it 'returns self, to allow chaining' do
+      obj = @config.defaults(:basket => :ball)
+      obj.should equal(@config)
     end
   end
 
-  describe '#[]' do
-    it 'deep-gets dotted vals' do
-      hsh = { :hat => :cat, :basket => :lotion, :moon => { :man => :smiling, :cheese => {:type => :tilsit} } }
-      @config = Configliere::Param.new hsh.dup
-      @config['moon.man'].should == :smiling
-      @config['moon.cheese.type'].should == :tilsit
-      @config['moon.cheese.smell'].should be_nil
-      @config['moon.non.existent.interim.values'].should be_nil
-      @config['moon.non'].should be_nil
-      if (RUBY_VERSION >= '1.9') then lambda{ @config['hat.cat'] }.should raise_error(TypeError)
-      else                            lambda{ @config['hat.cat'] }.should raise_error(NoMethodError, 'undefined method `[]\' for :cat:Symbol') end
-      @config.should == hsh # shouldn't change from reading (specifically, shouldn't autovivify)
+  describe 'adding plugins with #use' do
+    before do
+      Configliere.should_receive(:use).with(:foobar)
+    end
+    it 'requires the corresponding library' do
+      obj = @config.use(:foobar)
+    end
+    it 'returns self, to allow chaining' do
+      obj = @config.use(:foobar)
+      obj.should equal(@config)
+    end
+    it 'invokes the on_use handler' do
+      Configliere::Param.on_use(:foobar) do
+        method_on_config(:param)
+      end
+      @config.should_receive(:method_on_config).with(:param)
+      @config.use(:foobar)
+    end
+  end
+
+  describe '#resolve!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.resolve!.should equal(@config)
+      Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
     end
   end
 
