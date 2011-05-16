@@ -15,10 +15,19 @@ describe "Configliere::ConfigBlock" do
       @config.resolve!
     end
     it 'resolves blocks last' do
-      Configliere.use :config_block, :define, :encrypted
+      Configliere.use :config_block, :encrypted
       @config.should_receive(:resolve_types!).ordered
       @config.should_receive(:resolve_finally_blocks!).ordered
       @config.resolve!
+    end
+
+    describe '#resolve!' do
+      it 'calls super and returns self' do
+        Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
+        @config.should_receive(:dummy)
+        @config.resolve!.should equal(@config)
+        Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
+      end
     end
   end
 
