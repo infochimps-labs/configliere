@@ -1,4 +1,3 @@
-Configliere.use :commandline
 module Configliere
 
   #
@@ -6,7 +5,7 @@ module Configliere
   #
   # To include, specify
   #
-  #   Configliere.use :commands
+  #   Settings.use :commands
   #
   module Commands
 
@@ -16,7 +15,8 @@ module Configliere
     # Add a command, along with a description of its predicates and the command itself.
     def define_command cmd, options={}, &block
       cmd = cmd.to_sym
-      command_configuration = Configliere.new
+      command_configuration = Configliere::Param.new
+      command_configuration.use :commandline, :env_var
       yield command_configuration if block_given?
       commands[cmd] = options.merge(:config => command_configuration)
     end
@@ -39,6 +39,7 @@ module Configliere
       commands.each_value do |command|
         command[:config].resolve!
       end
+      self
     end
 
     #
@@ -82,13 +83,10 @@ module Configliere
       help << "\nRun `#{script_base_and_command.first} help COMMAND' for more help on COMMAND" if commands.include?(:help)
       help.flatten.join("\n")
     end
-
   end
 
-  Param.class_eval do
-    # include command syntax methods in chain.  Since commandline is required
-    # first at the top of this file, Commands methods sit below
-    # Commandline methods in the superclass chain.
-    include Commands
+  Param.on_use(:commands) do
+    use :commandline
+    extend Configliere::Commands
   end
 end

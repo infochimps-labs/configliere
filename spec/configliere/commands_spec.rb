@@ -1,16 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-Configliere.use :commands
 
 describe "Configliere::Commands" do
+  before do
+    @config = Configliere::Param.new
+    @config.use :commands
+  end
 
   after do
     ::ARGV.replace []
   end
 
   describe "when no commands are defined" do
-    before do
-      @config = Configliere::Param.new
-    end
 
     it "should know that no commands are defined" do
       @config.commands.should be_empty
@@ -35,7 +35,7 @@ describe "Configliere::Commands" do
 
   describe "a simple command" do
     before do
-      @config = Configliere::Param.new :fuzziness => 'smooth'
+      @config.defaults :fuzziness => 'smooth'
       @config.define_command :the_command, :description => "foobar"
     end
 
@@ -67,7 +67,7 @@ describe "Configliere::Commands" do
 
   describe "a complex command" do
     before do
-      @config = Configliere::Param.new :outer => 'val 1'
+      @config.defaults :outer => 'val 1'
       @config.define_command "the_command", :description => "the command" do |command|
         command.define :inner, :description => "inside"
       end
@@ -87,7 +87,16 @@ describe "Configliere::Commands" do
       @config[:inner].should == 'buzz'
       @config.command[:config][:inner].should == 'buzz'
     end
-
   end
+
+  describe '#resolve!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.resolve!.should equal(@config)
+      Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
+    end
+  end
+
 end
 
