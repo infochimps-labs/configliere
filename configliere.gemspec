@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.4.1"
+  s.version = "0.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mrflip"]
@@ -24,7 +24,10 @@ Configliere manage settings from many sources: static constants, simple config f
   ]
   s.files = [
     ".document",
+    ".watchr",
     "CHANGELOG.textile",
+    "Gemfile",
+    "Gemfile.lock",
     "LICENSE",
     "README.textile",
     "Rakefile",
@@ -41,6 +44,8 @@ Configliere manage settings from many sources: static constants, simple config f
     "examples/encrypted_script.rb",
     "examples/env_var_script.rb",
     "examples/help_message_demo.rb",
+    "examples/independent_config.rb",
+    "examples/prompt.rb",
     "examples/simple_script.rb",
     "examples/simple_script.yaml",
     "lib/configliere.rb",
@@ -54,6 +59,7 @@ Configliere manage settings from many sources: static constants, simple config f
     "lib/configliere/encrypted.rb",
     "lib/configliere/env_var.rb",
     "lib/configliere/param.rb",
+    "lib/configliere/prompt.rb",
     "spec/configliere/commandline_spec.rb",
     "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
@@ -64,6 +70,7 @@ Configliere manage settings from many sources: static constants, simple config f
     "spec/configliere/encrypted_spec.rb",
     "spec/configliere/env_var_spec.rb",
     "spec/configliere/param_spec.rb",
+    "spec/configliere/prompt_spec.rb",
     "spec/configliere_spec.rb",
     "spec/spec.opts",
     "spec/spec_helper.rb"
@@ -77,6 +84,8 @@ Configliere manage settings from many sources: static constants, simple config f
     "examples/encrypted_script.rb",
     "examples/env_var_script.rb",
     "examples/help_message_demo.rb",
+    "examples/independent_config.rb",
+    "examples/prompt.rb",
     "examples/simple_script.rb",
     "spec/configliere/commandline_spec.rb",
     "spec/configliere/commands_spec.rb",
@@ -88,6 +97,7 @@ Configliere manage settings from many sources: static constants, simple config f
     "spec/configliere/encrypted_spec.rb",
     "spec/configliere/env_var_spec.rb",
     "spec/configliere/param_spec.rb",
+    "spec/configliere/prompt_spec.rb",
     "spec/configliere_spec.rb",
     "spec/spec_helper.rb"
   ]
@@ -96,15 +106,39 @@ Configliere manage settings from many sources: static constants, simple config f
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_development_dependency(%q<bundler>, ["~> 1.0.12"])
+      s.add_development_dependency(%q<yard>, ["~> 0.6.7"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.5.0"])
+      s.add_development_dependency(%q<rcov>, [">= 0.9.9"])
+      s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+      s.add_development_dependency(%q<watchr>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<yard>, [">= 0"])
+      s.add_development_dependency(%q<highline>, [">= 0"])
     else
+      s.add_dependency(%q<bundler>, ["~> 1.0.12"])
+      s.add_dependency(%q<yard>, ["~> 0.6.7"])
+      s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_dependency(%q<rspec>, ["~> 2.5.0"])
+      s.add_dependency(%q<rcov>, [">= 0.9.9"])
+      s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+      s.add_dependency(%q<watchr>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<yard>, [">= 0"])
+      s.add_dependency(%q<highline>, [">= 0"])
     end
   else
+    s.add_dependency(%q<bundler>, ["~> 1.0.12"])
+    s.add_dependency(%q<yard>, ["~> 0.6.7"])
+    s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+    s.add_dependency(%q<rspec>, ["~> 2.5.0"])
+    s.add_dependency(%q<rcov>, [">= 0.9.9"])
+    s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+    s.add_dependency(%q<watchr>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<yard>, [">= 0"])
+    s.add_dependency(%q<highline>, [">= 0"])
   end
 end
 
