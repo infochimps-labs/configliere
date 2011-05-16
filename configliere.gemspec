@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.4.2"
+  s.version = "0.4.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["infochimps", "mrflip"]
@@ -112,6 +112,7 @@ Configliere manage settings from many sources: static constants, simple config f
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+      s.add_development_dependency(%q<RedCloth>, [">= 0"])
       s.add_development_dependency(%q<gorillib>, [">= 0.0.4"])
       s.add_development_dependency(%q<highline>, [">= 1.5.2"])
     else
@@ -120,6 +121,7 @@ Configliere manage settings from many sources: static constants, simple config f
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+      s.add_dependency(%q<RedCloth>, [">= 0"])
       s.add_dependency(%q<gorillib>, [">= 0.0.4"])
       s.add_dependency(%q<highline>, [">= 1.5.2"])
     end
@@ -129,6 +131,7 @@ Configliere manage settings from many sources: static constants, simple config f
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<rspec>, ["~> 2.5.0"])
     s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
+    s.add_dependency(%q<RedCloth>, [">= 0"])
     s.add_dependency(%q<gorillib>, [">= 0.0.4"])
     s.add_dependency(%q<highline>, [">= 1.5.2"])
   end
