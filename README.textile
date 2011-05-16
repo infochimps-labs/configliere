@@ -8,14 +8,18 @@ You've got a script. It's got some settings. Some settings are for this module, 
 
 Configliere manages settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 
-h3. Example
+h2. Notice
+
+Configliere 4.x is even more lightweight yet more powerful. The focus is on stripping out obscure features and magic code. However, this will breaking said obscure features and magic code: see the "CHANGELOG.":CHANGELOG.textile 
+
+h2. Example
 
 Here's a simple example, using params from a config file and the command line. In the script:
 
 <pre>
     #/usr/bin/env ruby
     require 'configliere'
-    Settings.use :commandline, :config_file
+    Settings.use :commandline
 
     Settings({
       :dest_time => '11-05-1955',
@@ -25,7 +29,7 @@ Here's a simple example, using params from a config file and the command line. I
         },
       :username => 'marty',
     })
-    Settings.define :dest_time, :type => DateTime, :description => "Date to travel to"
+    Settings.define :dest_time, :type => DateTime, :description => "Target date"
     Settings.read './examples/simple_script.yaml'
     Settings.resolve!
     p Settings</pre>
@@ -48,17 +52,25 @@ Output, when run with commandline parameters as shown:
 
 For an extensive usage in production, see the "wukong gem.":http://github.com/mrflip/wukong
 
-h3. Design goals:
+h2. Design goals:
 
-* *Don't go outside the family*. Requires almost no external resources and almost no code in your script.
-* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up.
+* *Omerta (Code of Silence)*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you don't have to pre-define anything -- commandline parameters map directly to values in the Configliere hash. Here's all you need to have full-fledged commandline params:
+  <pre>
+  require 'configliere' ; Settings.use :commandline
+  # if run with --foo=bar go, Settings[:foo] == bar and Settings.rest == ["go"]
+  </pre>
+
 * *Be willing to sit down with the Five Families*. Takes settings from (at your option):
 ** Pre-defined defaults from constants
-** Simple config files
+** Simple config files 
 ** Environment variables
-** Commandline options
-** Ruby block called when all other options are in place
-* *Code of Silence*. Most commandline parsers force you to pre-define all your parameters in a centralized and wordy syntax. In configliere, you pre-define nothing -- commandline parameters map directly to values in the Configliere hash.
+** Commandline options and git-style command runners
+** Ruby block (called when all other options are in place)
+
+* *Don't go outside the family*. Has no dependencies and requires almost no code in your script. Configliere offers many features, but only loads the code you request explicitly. (See below for details)
+
+* *Don't mess with my crew*. Settings for a model over here can be done independently of settings for a model over there, and don't require asking the boss to set something up. Configliere makes no changes to standard ruby classes.
+
 * *Can hide your assets*. Rather than storing passwords and API keys in plain sight, configliere has a protection racket that can obscure values when stored to disk.
 
 fuhgeddaboudit.
@@ -84,7 +96,7 @@ You can define static defaults in your module
     })
 </pre>
 
-All simple keys should be symbols. Don't use strings. Retrieve the settings as:
+All simple keys should be symbols. Retrieve the settings as:
 
 <pre>
     # hash keys
@@ -101,18 +113,9 @@ All simple keys should be symbols. Don't use strings. Retrieve the settings as:
     Settings.dest_time                   #=> '11-05-1955'
 </pre>
 
-h3. Only basic functionality loaded by default
-
-Configliere doesn't load any other functionality by default -- you may not want to load config files, or environment variable handling, and so forth.  You can require each file directly, or call @Configliere.use@ with a list of mixins (:all to load all functionality).
-
-<pre>
-    Configliere.use :config_file, :define # Load config files and pre-define
-    Configliere.use :all                  # all of them
-</pre>
-
 h2. Configuration files
 
-Call @Settings.read(filename)@ to read a config file.
+Call @Settings.read(filename)@ to read a YAML config file. 
 
 <pre>
     # Settings for version II.
@@ -129,18 +132,13 @@ If a bare filename (no '/') is given, configliere looks for the file in @Configl
     Settings.read('time_machine.yaml')       # looks in ~/.configliere/time_machine.yaml
 </pre>
 
+As you can see, you're free to use as many config files as you like. Loading a config file sets values immediately, so later-loaded files win out over earlier-loaded ones.
+
 You can save configuration too:
 
 <pre>
     Settings.save!('/etc/time_machine.yaml') # overwrites /etc/time_machine.yaml
     Settings.save!('time_machine.yaml')      # overwrites ~/.configliere/time_machine.yaml
-</pre>
-
-You're free to use as many config files as you like. Loading a config file sets values immediately, so later-loaded files win out over earlier-loaded ones:
-
-<pre>
-    Settings.read('time_machine_global.yaml')
-    Settings.read('time_machine_site.yaml')
 </pre>
 
 h2. Command-line parameters
@@ -156,6 +154,7 @@ h2. Command-line parameters
 Interpretation of command-line parameters:
 * *name-val params*: @--param=val@ sets @Configliere[:param]@ to val. You _must_ use the '=' in there: <code>./my_cmd --filename=bar</code> good, <code>./my_cmd --filename bar</code> bad.
 * *boolean params*: @--param@ sets @Configliere[:param]@ to be true. @--param=""@ sets @Configliere[:param]@ to be nil.
+* *single-char flags*: Define a flag for a variable: <code>Settings.define :filename, :flag => "f"</code> allows you to say <code>./my_cmd -f=bar</code>.
 * *scoped params*: A dash or dot within a parameter name scopes that parameter: @--group-sub_group-param=val@ sets @Configliere[:group][:subgroup][:param]@ to val (and similarly for boolean parameters). @--group.sub_group.param=val@ and @--group-sub_group-param=val@ do the same thing. 
 ** Only @[\w\.\-]+@ are accepted in parameter names.
 * *Settings.rest*: anything else is stored, in order, in @Settings.rest@.
@@ -164,7 +163,7 @@ Interpretation of command-line parameters:
 Here are some things you don't get:
 * Apart from converting @''@ (an explicit blank string) to @nil@, no type coercion is performed on parameters unless requested explicitly (see below).
 * No validation is performed on parameters.
-* No ordering or multiplicity is preserved (you can't say @--file=this --file=that@). If you instead do <code>Settings.define :file, :type => Array</code> you can supply an array or comma-separated list.
+* No ordering or multiplicity is preserved (you can't say @--file=this --file=that@). Defining the param as an array <code>Settings.define :file, :type => Array</code> allows you to give a simple comma-separated list.
 
 Commandline parameters are demonstrated in "examples/simple_script.rb":http://github.com/mrflip/configliere/tree/master/examples/simple_script.rb and "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
 
@@ -173,21 +172,35 @@ h2. Defined Parameters
 You don't have to pre-define parameters, but you can:
 
 <pre>
-    Settings.use :define
     Settings.define :dest_time, :type => DateTime, :description => 'Arrival time'
     Settings.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
     Settings.define :password, :required => true, :encrypted => true
 </pre>
 
-* *:type*: converts params to a desired form.
-* *:description*: documents a param.
-* *:required*: marks params required.
-* *:encrypted*: marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
-* *:env_var*: take param from given environment variable if set.
+* @:description@: documents a param.
+* @:type@:        converts params to a desired form.
+* @:required@:    marks params required.
+* @:encrypted@:   marks params to be obscured when saved to disk. See [#Encrypted Parameters] below for caveats.
+* @:env_var@:     take param from given environment variable if set.
 
 Defined parameters are demonstrated in most of the "example scripts":http://github.com/mrflip/configliere/tree/master/examples
 
+h3. Description
+
+If you define a param's description, besides nicely documenting it within your code the description will be stuffed into the output when the --help commandline option is invoked.
+
+<pre>
+  $ ./examples/simple_script
+  usage: simple_script.rb [...--param=val...]
+
+  Params:
+    --delorean.roads_needed   delorean.roads_needed
+    --dest_time=DateTime      Date to travel to [Default: 11-05-1955]
+<pre>
+
 h3. Type Conversion
+
+Parameters defined with a @:type@ and will be type-converted when you call @Settings.resolve!@.
 
 <pre>
     Settings.define :dest_time,     :type => DateTime
@@ -198,49 +211,46 @@ h3. Type Conversion
     Settings[:dest_time]       #=> #<DateTime: 4870833/2,0,2299161>
 </pre>
 
-Configliere can coerce parameter values to Integer, Float, :boolean, Symbol, Array, Date and DateTime. (Make sure to call Settings.resolve! in your script.)
+Configliere can coerce parameter values to Integer, Float, :boolean, Symbol, Array, Date and DateTime. 
 
 * :boolean converts nil to nil ; false, 'false', 0, '0' and '' to false; and everything else to true.
 * Array just does a simple split on ",". It doesn't do any escaping or quoting.
 * Date and DateTime convert unparseable inputs to nil.
-* :filename calls File.expand_path() on the argument
-
-h3. Description
-
-If you define a param's description, besides nicely documenting it within your code the description will be stuffed into the output when the --help commandline option is invoked.
+* :filename calls File.expand_path() on the param.
 
 h3. Required Parameters
 
-Any required parameter found to be nil raises an error (listing all missing params). (Make sure to call Settings.resolve! in your script.)
+Any required parameter found to be nil raise an error (listing all missing params) when you call Settings.resolve! (See "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb)
 
 h3. Environment Variables
 
 <pre>
-    Settings.define :dest_time, :env_var => 'DEST_TIME'
+    Settings.define :dest_time,   :env_var => 'DEST_TIME'
+    Settings.define :environment, :env_var => 'RACK_ENV'
 </pre>
-
-Environment variables are demonstrated in "examples/env_var_script.rb":http://github.com/mrflip/configliere/tree/master/examples/env_var_script.rb
 
 h3. Encrypted Parameters
 
-Define a param to be encrypted and invoke Settings.save!
+Define a param to be encrypted and invoke Settings.save!. It will use Settings.encrypt_pass (or the ENCRYPT_PASS environment variable) to encrypt the data when it is saved to disk. (see "examples/encrypted_script.rb":http://github.com/mrflip/configliere/tree/master/examples/encrypted_script.rb)
 
 <pre>
-   define 'amazon.api.key', :encrypted => true
-   Settings 'amazon.api.key' => 'fnord'
+    Settings.use :encrypted
+    Settings.define 'amazon.api.key', :encrypted => true
+    Settings 'amazon.api.key' => 'fnord'
 </pre>
 
-In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@. The code currently doesn't look for a collision between a :param and :encrypted_param, so be careful; you can preemptively call resolve_encrypted! to enforce order.
+In this example, the hash saved to disk will contain @{ :amazon => { :api => { :encrypted_key => "...encrypted val..." } } }@. After reading from disk, #resolve! will recover its original value: @{ :amazon => { :api => { :key => "fnord" } } }@.
 
 bq.  There are two kinds of cryptography in this world: cryptography that will stop your kid sister from reading your files, and cryptography that will stop major governments from reading your files. This book is about the latter. -- Preface to Applied Cryptography by Bruce Schneier
 
-Configliere provides the former.  Anyone with access to the script, its config files and the config file passphrase can recover the plaintext password. Still, there's a difference between immediate access and having to find a paperclip and jimmy open your annoying older brother's stupid journal.
+Configliere provides the former.
 
-Encrypted parameters are demonstrated in "examples/encrypted_script.rb":http://github.com/mrflip/configliere/tree/master/examples/encrypted_script.rb
+Anyone with access to the script, its config files and its normal launch environment can recover the plaintext password; but it at least doesn't appear when you cat the file while giving a presentation.
 
 h2. Ruby Block
 
 <pre>
+    Settings.use :config_block
     Settings.finally do |c|
       c.dest_time = (Time.now + 60) if c.username == 'einstein'
       # you can use hash syntax too
@@ -252,7 +262,7 @@ h2. Ruby Block
     Settings.resolve!    # the finally blocks will be called in order
 </pre>
 
-Configliere 'finally' blocks are invoked when you call @#resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
+Configliere 'finally' blocks are invoked when you call @resolve!@.  They're guaranteed to be called at the end of the resolve chain, and before the validate chain.
 
 Config blocks are demonstrated in "examples/config_block.rb":http://github.com/mrflip/configliere/tree/master/examples/config_block.rb
 
@@ -290,20 +300,22 @@ All of the above examples use the global variable @Settings@, defined in configl
 
 <pre>
     class Wolfman
-      attr_accessor :config
-
-      def config
-        @config ||= Configliere.new({
+      attr_reader :config
+      def self.config() @@config ; end      
+      self.config = Configliere::Param.new({
           :moon    => full',
           :nards   => true,
           })
-      end
     end
+    Wolfman.use :commandline
 
-    teen_wolf = proj.new
+    teen_wolf = Wolfman.new
     teen_wolf.config.defaults(:give_me => 'keg of beer')
+    
     teen_wolf.config #=> {:moon=>"full", :nards=>true, :give_me=>"keg of beer" }
     Settings         #=> {}
+
+    
 </pre>
 
 Values in here don't overlap with the Settings object or any other settings universe. However, every one that pulls in commandline params gets a full copy of the commandline params.
