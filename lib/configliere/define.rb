@@ -58,8 +58,9 @@ module Configliere
     public
 
     # Is the param defined?
-    def has_definition? param
-      definitions.has_key?(param.to_sym)
+    def has_definition?(param, attr=nil)
+      if attr then definitions.has_key?(param.to_sym) && definitions[param].has_key?(attr)
+      else         definitions.has_key?(param.to_sym) end
     end
 
     # all params with a value for the given aspect

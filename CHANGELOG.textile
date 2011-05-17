@@ -1,3 +1,7 @@
+h2. Version 0.4.(next)
+
+* can now ask for @has_definition?(:my_param)@ or @has_definition?(:my_param, :description)@.
+
 h2. Version 0.4.0 2011-05-13: MANY BREAKING CHANGES
 
 Killed many features for great justice.  Configliere should now be much more predictable and lightweight, and has a much stricter API. Unfortunately, this will break backwards compatibility in some ways.

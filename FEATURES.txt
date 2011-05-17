@@ -1,4 +1,3 @@
-
 Configliere::Commandline
   with long-format argvs
     accepts --param=val pairs
@@ -172,8 +171,11 @@ Configliere::Define
     with a param and attr, gives me the description hash
     symbolizes the param
   has_definition?
-    is true if defined
-    is false if not defined
+    is true if defined (one arg)
+    is false if not defined (one arg)
+    is true if defined and attribute is defined
+    is false if defined and attribute is defined
+    is false if not defined and attribute is given
   type coercion
     for boolean converts "0" to false
     for boolean converts 0 to false
@@ -292,5 +294,5 @@ Configliere
   creates a global method Settings, so you can say Settings(:foo => :bar)
   requires corresponding plugins when you call use
 
-Finished in 0.26994 seconds
-211 examples, 0 failures
+Finished in 0.26971 seconds
+214 examples, 0 failures

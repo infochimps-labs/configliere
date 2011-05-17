@@ -49,11 +49,20 @@ describe "Configliere::Define" do
     before do
       @config.define :i_am_defined, :description => 'desc 1'
     end
-    it 'is true if defined' do
+    it 'is true if defined (one arg)' do
       @config.has_definition?(:i_am_defined).should == true
     end
-    it 'is false if not defined' do
+    it 'is false if not defined (one arg)' do
       @config.has_definition?(:i_am_not_defined).should == false
+    end
+    it 'is true if defined and attribute is defined' do
+      @config.has_definition?(:i_am_defined, :description).should == true
+    end
+    it 'is false if defined and attribute is defined' do
+      @config.has_definition?(:i_am_defined, :zoink).should == false
+    end
+    it 'is false if not defined and attribute is given' do
+      @config.has_definition?(:i_am_not_defined, :zoink).should == false
     end
   end
 
