@@ -47,4 +47,3 @@ describe "Configliere::Prompt" do
   end
 
 end
-

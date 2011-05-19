@@ -21,16 +21,21 @@ describe "Configliere::ConfigBlock" do
       @config.resolve!
     end
 
-    describe '#resolve!' do
-      it 'calls super and returns self' do
-        Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
-        @config.should_receive(:dummy)
-        @config.resolve!.should equal(@config)
-        Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
-      end
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.resolve!.should equal(@config)
+      Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
+    end
+  end
+
+  describe '#validate!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.validate!.should equal(@config)
+      Configliere::ParamParent.class_eval do def validate!() self ; end ; end
     end
   end
 
 end
-
-

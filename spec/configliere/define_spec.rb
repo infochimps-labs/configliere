@@ -11,6 +11,11 @@ describe "Configliere::Define" do
       @config.definition_of(:simple).should == { :description => 'desc'}
     end
 
+    it 'returns self' do
+      ret_val = @config.define :simple, :description => 'desc'
+      ret_val.should equal(@config)
+    end
+
     it 'merges new definitions' do
       @config.define :described_in_steps, :description => 'desc 1'
       @config.define :described_in_steps, :description => 'desc 2'
@@ -191,5 +196,12 @@ describe "Configliere::Define" do
     end
   end
 
+  describe '#validate!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.validate!.should equal(@config)
+      Configliere::ParamParent.class_eval do def validate!() self ; end ; end
+    end
+  end
 end
-

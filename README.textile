@@ -331,14 +331,13 @@ All of the above examples use the global variable @Settings@, defined in configl
 
 <pre>
     class Wolfman
-      attr_reader :config
-      def self.config() @@config ; end      
-      self.config = Configliere::Param.new({
+      def config
+        @config ||= Configliere::Param.new.use(:commandline).defaults({
           :moon    => 'full',
           :nards   => true,
           })
+      end
     end
-    Wolfman.use :commandline
 
     teen_wolf = Wolfman.new
     teen_wolf.config.defaults(:give_me => 'keg of beer')

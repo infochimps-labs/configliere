@@ -211,5 +211,13 @@ describe "Configliere::Commandline" do
     end
   end
 
-end
+  describe '#validate!' do
+    it 'calls super and returns self' do
+      Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
+      @config.should_receive(:dummy)
+      @config.validate!.should equal(@config)
+      Configliere::ParamParent.class_eval do def validate!() self ; end ; end
+    end
+  end
 
+end

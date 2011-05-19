@@ -30,6 +30,7 @@ module Configliere
       self.env_vars param => pdefs[:env_var]  if pdefs.include?(:env_var)
       self.finally(&pdefs[:finally])          if pdefs.include?(:finally)
       self.finally(&block) if block
+      self
     end
 
     # performs type coercion, continues up the resolve! chain
