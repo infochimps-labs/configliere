@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.4.4"
+  s.version = "0.4.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["infochimps", "mrflip"]
-  s.date = %q{2011-05-16}
+  s.date = %q{2011-05-18}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
@@ -26,6 +26,7 @@ Configliere manage settings from many sources: static constants, simple config f
     ".document",
     ".watchr",
     "CHANGELOG.textile",
+    "FEATURES.txt",
     "Gemfile",
     "Gemfile.lock",
     "LICENSE",
@@ -113,7 +114,6 @@ Configliere manage settings from many sources: static constants, simple config f
       s.add_development_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
       s.add_development_dependency(%q<RedCloth>, [">= 0"])
-      s.add_development_dependency(%q<gorillib>, [">= 0.0.4"])
       s.add_development_dependency(%q<highline>, [">= 1.5.2"])
     else
       s.add_dependency(%q<bundler>, ["~> 1.0.12"])
@@ -122,7 +122,6 @@ Configliere manage settings from many sources: static constants, simple config f
       s.add_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
       s.add_dependency(%q<RedCloth>, [">= 0"])
-      s.add_dependency(%q<gorillib>, [">= 0.0.4"])
       s.add_dependency(%q<highline>, [">= 1.5.2"])
     end
   else
@@ -132,7 +131,6 @@ Configliere manage settings from many sources: static constants, simple config f
     s.add_dependency(%q<rspec>, ["~> 2.5.0"])
     s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
     s.add_dependency(%q<RedCloth>, [">= 0"])
-    s.add_dependency(%q<gorillib>, [">= 0.0.4"])
     s.add_dependency(%q<highline>, [">= 1.5.2"])
   end
 end
