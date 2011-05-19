@@ -1,3 +1,4 @@
+
 Configliere::Commandline
   with long-format argvs
     accepts --param=val pairs
@@ -26,6 +27,8 @@ Configliere::Commandline
     exports dashed flags
   #resolve!
     calls super and returns self
+  #validate!
+    calls super and returns self
 
 Configliere::Commands
   when no commands are defined
@@ -45,13 +48,16 @@ Configliere::Commands
     displays the commands and their descriptions
   #resolve!
     calls super and returns self
+  #validate!
+    calls super and returns self
 
 Configliere::ConfigBlock
   resolving
     runs blocks
     resolves blocks last
-    #resolve!
-      calls super and returns self
+    calls super and returns self
+  #validate!
+    calls super and returns self
 
 Configliere::ConfigFile
   is used by default
@@ -73,6 +79,8 @@ Configliere::ConfigFile
     with a simple pathname, in the default config dir
     and ensures the directory exists
   #resolve!
+    calls super and returns self
+  #validate!
     calls super and returns self
 
 Crypter
@@ -164,6 +172,7 @@ Configliere::Define
   takes a description
   defining any aspect of a param
     adopts values
+    returns self
     merges new definitions
     lists params defined as the given aspect
   definition_of
@@ -237,6 +246,8 @@ Configliere::Define
     type converts
   #resolve!
     calls super and returns self
+  #validate!
+    calls super and returns self
 
 Configliere::Encrypted
   defines encrypted params
@@ -257,6 +268,8 @@ Configliere::Encrypted
   #resolve!
     calls super and returns self
     removes the encrypt_pass from sight
+  #validate!
+    calls super and returns self
 
 Configliere::EnvVar
   environment variables can be defined
@@ -264,6 +277,8 @@ Configliere::EnvVar
     with #env_vars, a hash pairs environment variables into the individual params
     with #define
   #resolve!
+    calls super and returns self
+  #validate!
     calls super and returns self
 
 Configliere::Param
@@ -294,5 +309,5 @@ Configliere
   creates a global method Settings, so you can say Settings(:foo => :bar)
   requires corresponding plugins when you call use
 
-Finished in 0.26971 seconds
-214 examples, 0 failures
+Finished in 0.27345 seconds
+222 examples, 0 failures
