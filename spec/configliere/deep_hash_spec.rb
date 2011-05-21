@@ -4,7 +4,7 @@ class AwesomeHash < DeepHash ; end
 
 describe DeepHash do
   before(:each) do
-    @deep_hash = DeepHash.new.merge!({ :nested_1 => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => "val2" }, :leaf_at_top => 'val1b' })
+    @deep_hash = DeepHash.new({ :nested_1 => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => 'val1b' })
     @hash = { "str_key" => "strk_val", :sym_key => "symk_val"}
     @sub  = AwesomeHash.new("str_key" => "strk_val", :sym_key => "symk_val")
   end
@@ -62,7 +62,7 @@ describe DeepHash do
     it 'symbolizes keys' do
       @deep_hash['leaf_at_top'] = :fedora
       @deep_hash['new']         = :unseen
-      @deep_hash.should == {:nested_1 => {:nested_2 => {:leaf_3 => "val3"}, :leaf_2 => "val2"}, :leaf_at_top => :fedora, :new => :unseen}
+      @deep_hash.should == {:nested_1 => {:nested_2 => {:leaf_3 => "val3"}, :leaf_2 => ['arr']}, :leaf_at_top => :fedora, :new => :unseen}
     end
     it 'deep-sets dotted vals, replacing values' do
       @deep_hash['moon.man'] = :cheesy
@@ -211,23 +211,6 @@ describe DeepHash do
     end
   end
 
-  describe 'assert_valid_keys' do
-    before do
-      @deep_hash = DeepHash.new({ :failure => "stuff", :funny => "business" })
-    end
-
-    it 'is true and does not raise when valid' do
-      @deep_hash.assert_valid_keys([ :failure, :funny ]).should be_nil
-      @deep_hash.assert_valid_keys(:failure, :funny).should be_nil
-    end
-
-    it 'fails when invalid' do
-      @deep_hash[:failore] = @deep_hash.delete(:failure)
-      lambda{ @deep_hash.assert_valid_keys([ :failure, :funny ]) }.should raise_error(ArgumentError, "Unknown key(s): failore")
-      lambda{ @deep_hash.assert_valid_keys(:failure, :funny)     }.should raise_error(ArgumentError, "Unknown key(s): failore")
-    end
-  end
-
   describe "#delete" do
     it 'converts Symbol key into String before deleting' do
       deep_hash = DeepHash.new(@hash)
@@ -244,23 +227,9 @@ describe DeepHash do
     end
   end
 
-  describe "#merge" do
-    before(:each) do
-      @deep_hash = DeepHash.new(@hash).merge(:no => "in between")
-    end
-
-    it 'returns instance of DeepHash' do
-      @deep_hash.should be_an_instance_of(DeepHash)
-    end
-
-    it 'merges in give Hash' do
-      @deep_hash["no"].should == "in between"
-    end
-  end
-
   describe "#fetch" do
     before(:each) do
-      @deep_hash = DeepHash.new(@hash).merge(:no => "in between")
+      @deep_hash = DeepHash.new(:no => "in between")
     end
 
     it 'converts key before fetching' do
@@ -272,7 +241,6 @@ describe DeepHash do
     end
   end
 
-
   describe "#values_at" do
     before(:each) do
       @deep_hash = DeepHash.new(@hash).merge(:no => "in between")
@@ -283,68 +251,243 @@ describe DeepHash do
     end
   end
 
-  describe "#symbolize_keys" do
-    it 'with bang returns the deep_hash itself' do
-      deep_hash = DeepHash.new(@hash)
-      deep_hash.symbolize_keys!.object_id.should == deep_hash.object_id
-    end
+  it 'responds to #symbolize_keys, #symbolize_keys! and #stringify_keys but not #stringify_keys!' do
+    DeepHash.new.should respond_to(:symbolize_keys )
+    DeepHash.new.should respond_to(:symbolize_keys!)
+    DeepHash.new.should respond_to(:stringify_keys )
+    DeepHash.new.should_not respond_to(:stringify_keys!)
+  end
 
+  describe '#symbolize_keys' do
     it 'returns a dup of itself' do
       deep_hash = DeepHash.new(@hash)
       deep_hash.symbolize_keys.should == deep_hash
     end
   end
 
-  describe "#reverse_merge" do
+  describe '#symbolize_keys!' do
+    it 'with bang returns the deep_hash itself' do
+      deep_hash = DeepHash.new(@hash)
+      deep_hash.symbolize_keys!.object_id.should == deep_hash.object_id
+    end
+  end
+
+  describe '#stringify_keys' do
+    it 'converts keys that are all symbols' do
+      @deep_hash.stringify_keys.should ==
+        { 'nested_1' => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, 'leaf_at_top' => 'val1b' }
+    end
+
+    it 'returns a Hash, not a DeepHash' do
+      @deep_hash.stringify_keys.class.should == Hash
+      @deep_hash.stringify_keys.should_not be_a(DeepHash)
+    end
+
+    it 'only stringifies and hashifies the top level' do
+      stringified = @deep_hash.stringify_keys
+      stringified.should == { 'nested_1' => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, 'leaf_at_top' => 'val1b' }
+      stringified['nested_1'].should be_a(DeepHash)
+    end
+  end
+
+  describe '#assert_valid_keys' do
     before do
-      @defaults  = { :a => "x", :b => "y", :c => 10 }.freeze
-      @deep_hash = DeepHash.new({ :a => 1, :b => 2 })
+      @deep_hash = DeepHash.new({ :failure => "stuff", :funny => "business" })
     end
 
-    it 'merges defaults into options, creating a new hash' do
-      @deep_hash.reverse_merge(@defaults).should == { :a => 1, :b => 2, :c => 10 }
-      @deep_hash.should == { :a => 1, :b => 2 }
+    it 'is true and does not raise when valid' do
+      @deep_hash.assert_valid_keys([ :failure, :funny ]).should be_nil
+      @deep_hash.assert_valid_keys(:failure, :funny).should be_nil
     end
 
-    it 'with bang merges! defaults into options, replacing options' do
-      @deep_hash.reverse_merge!(@defaults).should == { :a => 1, :b => 2, :c => 10 }
-      @deep_hash.should == { :a => 1, :b => 2, :c => 10 }
+    it 'fails when invalid' do
+      @deep_hash[:failore] = @deep_hash.delete(:failure)
+      lambda{ @deep_hash.assert_valid_keys([ :failure, :funny ]) }.should raise_error(ArgumentError, "Unknown key(s): failore")
+      lambda{ @deep_hash.assert_valid_keys(:failure, :funny)     }.should raise_error(ArgumentError, "Unknown key(s): failore")
+    end
+  end
+
+  describe "#merge" do
+    it 'merges given Hash' do
+      merged = @deep_hash.merge(:no => "in between")
+      merged.should == { :nested_1 => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => 'val1b', :no => 'in between' }
+    end
+
+    it 'returns a new instance' do
+      merged = @deep_hash.merge(:no => "in between")
+      merged.should_not equal(@deep_hash)
+    end
+
+    it 'returns instance of DeepHash' do
+      merged = @deep_hash.merge(:no => "in between")
+      merged.should be_an_instance_of(DeepHash)
+      merged[:no].should  == "in between"
+      merged["no"].should == "in between"
+    end
+
+    it "converts all Hash values into DeepHashes"  do
+      merged = @deep_hash.merge({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      merged[:nested_1].should be_an_instance_of(DeepHash)
+      merged[:nested_1][:nested_2].should be_an_instance_of(DeepHash)
+      merged[:other1].should be_an_instance_of(DeepHash)
+    end
+
+    it "converts string keys to symbol keys even if they occur deep in the given hash" do
+      merged = @deep_hash.merge({   'a' => { 'b' => { 'c' => { :d => :e }}}})
+      merged[:a].should     == { :b  => { :c  => { :d => :e }}}
+      merged[:a].should_not == { 'b' => { 'c' => { :d => :e }}}
+    end
+
+    it "DOES merge values where given hash has nil value" do
+      merged = @deep_hash.merge(:a => { :b => nil }, :c => nil, :leaf_3_also => nil)
+      merged[:a][:b].should be_nil
+      merged[:c].should be_nil
+      merged[:leaf_3_also].should be_nil
+    end
+
+    it "replaces child hashes, and does not merge them"  do
+      merged = @deep_hash.merge({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      merged.should          == { :nested_1 => { :nested_2  => { :leaf_3_also => "val3a" } }, :other1 => { :other2 => "other_val2" }, :leaf_at_top => 'val1b' }
+    end
+  end
+
+  describe "#merge!" do
+    it 'merges given Hash' do
+      @deep_hash.merge!(:no => "in between")
+      @deep_hash.should == { :nested_1 => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => 'val1b', :no => 'in between' }
+    end
+
+    it 'returns a new instance' do
+      @deep_hash.merge!(:no => "in between")
+      @deep_hash.should equal(@deep_hash)
+    end
+
+    it 'returns instance of DeepHash' do
+      @deep_hash.merge!(:no => "in between")
+      @deep_hash.should be_an_instance_of(DeepHash)
+      @deep_hash[:no].should  == "in between"
+      @deep_hash["no"].should == "in between"
+    end
+
+    it "converts all Hash values into DeepHashes"  do
+      @deep_hash.merge!({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      @deep_hash[:nested_1].should be_an_instance_of(DeepHash)
+      @deep_hash[:nested_1][:nested_2].should be_an_instance_of(DeepHash)
+      @deep_hash[:other1].should be_an_instance_of(DeepHash)
+    end
+
+    it "converts string keys to symbol keys even if they occur deep in the given hash" do
+      @deep_hash.merge!({   'a' => { 'b' => { 'c' => { :d => :e }}}})
+      @deep_hash[:a].should     == { :b  => { :c  => { :d => :e }}}
+      @deep_hash[:a].should_not == { 'b' => { 'c' => { :d => :e }}}
+    end
+
+    it "DOES merge values where given hash has nil value" do
+      @deep_hash.merge!(:a => { :b => nil }, :c => nil, :leaf_3_also => nil)
+      @deep_hash[:a][:b].should be_nil
+      @deep_hash[:c].should be_nil
+      @deep_hash[:leaf_3_also].should be_nil
+    end
+
+    it "replaces child hashes, and does not merge them"  do
+      @deep_hash = @deep_hash.merge!({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      @deep_hash.should           == { :nested_1 => { :nested_2  => { :leaf_3_also => "val3a" } }, :other1 => { :other2  => "other_val2" }, :leaf_at_top => 'val1b' }
+      @deep_hash.should_not       == { :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }, :leaf_at_top => 'val1b' }
+    end
+  end
+
+  describe "#reverse_merge" do
+    it 'merges given Hash' do
+      @deep_hash.reverse_merge!(:no => "in between", :leaf_at_top => 'NOT_USED')
+      @deep_hash.should == { :nested_1 => { :nested_2 => { :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => 'val1b', :no => 'in between' }
+    end
+
+    it 'returns a new instance' do
+      @deep_hash.reverse_merge!(:no => "in between")
+      @deep_hash.should equal(@deep_hash)
+    end
+
+    it 'returns instance of DeepHash' do
+      @deep_hash.reverse_merge!(:no => "in between")
+      @deep_hash.should be_an_instance_of(DeepHash)
+      @deep_hash[:no].should  == "in between"
+      @deep_hash["no"].should == "in between"
+    end
+
+    it "converts all Hash values into DeepHashes"  do
+      @deep_hash.reverse_merge!({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      @deep_hash[:nested_1].should be_an_instance_of(DeepHash)
+      @deep_hash[:nested_1][:nested_2].should be_an_instance_of(DeepHash)
+      @deep_hash[:other1].should be_an_instance_of(DeepHash)
+    end
+
+    it "converts string keys to symbol keys even if they occur deep in the given hash" do
+      merged = @deep_hash.reverse_merge({   'a' => { 'b' => { 'c' => { :d => :e }}}})
+      merged[:a].should     == { :b  => { :c  => { :d => :e }}}
+      merged[:a].should_not == { 'b' => { 'c' => { :d => :e }}}
+    end
+
+    it "DOES merge values where given hash has nil value" do
+      @deep_hash.reverse_merge!(:a => { :b => nil }, :c => nil)
+      @deep_hash[:a][:b].should be_nil
+      @deep_hash[:c].should     be_nil
+    end
+
+    it "replaces child hashes, and does not merge them"  do
+      @deep_hash = @deep_hash.reverse_merge!({ :nested_1 => { 'nested_2' => { :leaf_3_also => "val3a" } },                     :other1 => { "other2" => "other_val2" }})
+      @deep_hash.should                   == { :nested_1 => { :nested_2  => { :leaf_3      => "val3"  }, :leaf_2 => ['arr'] }, :other1 => { :other2 => "other_val2" }, :leaf_at_top => 'val1b' }
     end
   end
 
   describe "#deep_merge!" do
     it "merges two subhashes when they share a key" do
       @deep_hash.deep_merge!(:nested_1 => { :nested_2  => { :leaf_3_also  => "val3a" } })
-      @deep_hash.should == { :nested_1 => { :nested_2  => { :leaf_3_also  => "val3a", :leaf_3 => "val3" }, :leaf_2 => "val2" }, :leaf_at_top => 'val1b' }
+      @deep_hash.should == { :nested_1 => { :nested_2  => { :leaf_3_also  => "val3a", :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => 'val1b' }
     end
+
     it "merges two subhashes when they share a symbolized key" do
       @deep_hash.deep_merge!(:nested_1 => { "nested_2" => { "leaf_3_also" => "val3a" } })
-      @deep_hash.should == { :nested_1 => { :nested_2  => { :leaf_3_also  => "val3a", :leaf_3 => "val3" }, :leaf_2 => "val2" }, :leaf_at_top => "val1b" }
+      @deep_hash.should == { :nested_1 => { :nested_2  => { :leaf_3_also  => "val3a", :leaf_3 => "val3" }, :leaf_2 => ['arr'] }, :leaf_at_top => "val1b" }
     end
+
     it "preserves values in the original" do
       @deep_hash.deep_merge! :other_key => "other_val"
-      @deep_hash[:nested_1][:leaf_2].should == "val2"
+      @deep_hash[:nested_1][:leaf_2].should == ['arr']
       @deep_hash[:other_key].should == "other_val"
     end
-    # it "converts all Hash values into DeepHashes if param is a Hash"  do
-    #   @deep_hash.deep_merge!({:nested_1 => { :nested_2 => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
-    #   @deep_hash[:nested_1].should be_an_instance_of(DeepHash)
-    #   @deep_hash[:nested_1][:nested_2].should be_an_instance_of(DeepHash)
-    #   @deep_hash[:other1].should be_an_instance_of(DeepHash)
-    # end
-    it "replaces values from the given DeepHash" do
+
+    it "converts all Hash values into DeepHashes"  do
+      @deep_hash.deep_merge!({:nested_1 => { :nested_2 => { :leaf_3_also => "val3a" } }, :other1 => { "other2" => "other_val2" }})
+      @deep_hash[:nested_1].should be_an_instance_of(DeepHash)
+      @deep_hash[:nested_1][:nested_2].should be_an_instance_of(DeepHash)
+      @deep_hash[:other1].should be_an_instance_of(DeepHash)
+    end
+
+    it "converts string keys to symbol keys even if they occur deep in the given hash" do
+      @deep_hash.deep_merge!({   'a' => { 'b' => { 'c' => { :d => :e }}}})
+      @deep_hash[:a].should     == { :b  => { :c  => { :d => :e }}}
+      @deep_hash[:a].should_not == { 'b' => { 'c' => { :d => :e }}}
+    end
+
+    it "replaces values from the given hash" do
       @deep_hash.deep_merge!(:nested_1 => { :nested_2 => { :leaf_3 => "new_val3" }, :leaf_2 => { "other2" => "other_val2" }})
       @deep_hash[:nested_1][:nested_2][:leaf_3].should == 'new_val3'
       @deep_hash[:nested_1][:leaf_2].should == { :other2 => "other_val2" }
     end
 
-    it "replaces values from the given DeepHash" do
-      @deep_hash.deep_merge!(:nested_1 => { :nested_2 => { :leaf_3 => [] }, :leaf_2 => nil }, :leaf_at_top => '')
+    it "replaces arrays and does not append to them" do
+      @deep_hash.deep_merge!(:nested_1 => { :nested_2 => { :leaf_3 => [] }, :leaf_2 => ['val2'] })
       @deep_hash[:nested_1][:nested_2][:leaf_3].should == []
-      @deep_hash[:nested_1][:leaf_2].should == "val2"
+      @deep_hash[:nested_1][:leaf_2].should == ['val2']
+    end
+
+    it "does not replaces values where given hash has nil value" do
+      @deep_hash.deep_merge!(:nested_1 => { :leaf_2 => nil }, :leaf_at_top => '')
+      @deep_hash[:nested_1][:leaf_2].should == ['arr']
       @deep_hash[:leaf_at_top].should == ""
     end
   end
+
 
   describe "#deep_set" do
     it 'should set a new value (single arg)' do
@@ -378,7 +521,7 @@ describe DeepHash do
     it 'should remove the key from the array (multiple args)' do
       @deep_hash.deep_delete(:nested_1, :nested_2, :leaf_3)
       @deep_hash[:nested_1][:nested_2][:leaf_3].should be_nil
-      @deep_hash.should == {:leaf_at_top => "val1b", :nested_1 => {:leaf_2 => "val2", :nested_2 => {}}}
+      @deep_hash.should == {:leaf_at_top => "val1b", :nested_1 => {:leaf_2 => ['arr'], :nested_2 => {}}}
     end
     it 'should return the value if present (single args)' do
       returned_val = @deep_hash.deep_delete(:leaf_at_top)

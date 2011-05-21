@@ -73,8 +73,6 @@ class DeepHash < Hash
     self.dup.update(hash, &block)
   end
 
-  alias_method :merge!, :update
-
   # @param other_hash<Hash>
   #   A hash to update values in the deep_hash with. The keys and the values will be
   #   converted to DeepHash format.
@@ -89,16 +87,57 @@ class DeepHash < Hash
     regular_update(deep_hash, &block)
   end
 
-  # Return a new hash with all keys converted to symbols, as long as
-  # they respond to +to_sym+.
+  alias_method :merge!, :update
+
+  # Allows for reverse merging two hashes where the keys in the calling hash take precedence over those
+  # in the <tt>other_hash</tt>. This is particularly useful for initializing an option hash with default values:
+  #
+  #   def setup(options = {})
+  #     options.reverse_merge! :size => 25, :velocity => 10
+  #   end
+  #
+  # Using <tt>merge</tt>, the above example would look as follows:
+  #
+  #   def setup(options = {})
+  #     { :size => 25, :velocity => 10 }.merge(options)
+  #   end
+  #
+  # The default <tt>:size</tt> and <tt>:velocity</tt> are only set if the +options+ hash passed in doesn't already
+  # have the respective key.
+  def reverse_merge(other_hash)
+    self.class.new(other_hash).merge!(self)
+  end unless method_defined?(:reverse_merge)
+
+  # Performs the opposite of <tt>merge</tt>, with the keys and values from the first hash taking precedence over the second.
+  # Modifies the receiver in place.
+  def reverse_merge!(other_hash)
+    merge!( other_hash ){|k,o,n| convert_value(o) }
+  end unless method_defined?(:reverse_merge!)
+
+  # This DeepHash with all its keys converted to symbols, as long as they
+  # respond to +to_sym+. (this is always true for a deep_hash)
+  #
+  # @return [DeepHash] A copy of this deep_hash.
   def symbolize_keys
     dup.symbolize_keys!
   end unless method_defined?(:symbolize_keys)
 
-  # Used to provide the same interface as Hash.
+  # This DeepHash with all its keys converted to symbols, as long as they
+  # respond to +to_sym+. (this is always true for a deep_hash)
   #
   # @return [DeepHash] This deep_hash unchanged.
   def symbolize_keys!; self end
+
+  # Return a new hash with all top-level keys converted to strings.
+  #
+  # @return [Hash]
+  def stringify_keys
+    hsh = Hash.new(default)
+    self.each do |key, val|
+      hsh[key.to_s] = val
+    end
+    hsh
+  end
 
   #
   # remove all key-value pairs where the value is nil
@@ -112,6 +151,7 @@ class DeepHash < Hash
   def compact!
     replace(compact)
   end
+
   # Slice a hash to include only the given keys. This is useful for
   # limiting an options hash to valid keys before passing to a method:
   #
@@ -162,31 +202,6 @@ class DeepHash < Hash
     keys.each{|key| result[key] = delete(key) }
     result
   end unless method_defined?(:extract!)
-
-  # Allows for reverse merging two hashes where the keys in the calling hash take precedence over those
-  # in the <tt>other_hash</tt>. This is particularly useful for initializing an option hash with default values:
-  #
-  #   def setup(options = {})
-  #     options.reverse_merge! :size => 25, :velocity => 10
-  #   end
-  #
-  # Using <tt>merge</tt>, the above example would look as follows:
-  #
-  #   def setup(options = {})
-  #     { :size => 25, :velocity => 10 }.merge(options)
-  #   end
-  #
-  # The default <tt>:size</tt> and <tt>:velocity</tt> are only set if the +options+ hash passed in doesn't already
-  # have the respective key.
-  def reverse_merge(other_hash)
-    other_hash.merge(self)
-  end unless method_defined?(:reverse_merge)
-
-  # Performs the opposite of <tt>merge</tt>, with the keys and values from the first hash taking precedence over the second.
-  # Modifies the receiver in place.
-  def reverse_merge!(other_hash)
-    merge!( other_hash ){|k,o,n| o }
-  end unless method_defined?(:reverse_merge!)
 
   # Validate all keys in a hash match *valid keys, raising ArgumentError on a mismatch.
   # Note that keys are NOT treated indifferently, meaning if you use strings for keys but assert symbols
