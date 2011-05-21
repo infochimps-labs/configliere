@@ -1,3 +1,7 @@
+h2. Version 0.4.6
+
+Unwittingly moved DeepHash's alias_method(:merge,:update) *above* the redefinition of update, and so made merge be quietly broken. Fixed, and many more specs added.
+
 h2. Version 0.4.5
 
 * can now ask for @has_definition?(:my_param)@ or @has_definition?(:my_param, :description)@.
