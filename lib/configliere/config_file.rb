@@ -30,11 +30,15 @@ module Configliere
       if filename.is_a?(Symbol) then raise Configliere::DeprecatedError, "Loading from a default config file is no longer provided" ; end
       filename = expand_filename(filename)
       begin
-        new_data = YAML.load(File.open(filename)) || {}
+        read_yaml(File.open(filename), options)
       rescue Errno::ENOENT => e
         warn "Loading empty configliere settings file #{filename}"
-        new_data = {}
       end
+      self
+    end
+
+    def read_yaml yaml_str, options={}
+      new_data = YAML.load(yaml_str) || {}
       # Extract the :env (production/development/etc)
       if options[:env]
         new_data = new_data[options[:env]] || {}

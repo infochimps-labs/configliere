@@ -45,57 +45,62 @@ describe Configliere::ConfigFile do
       @config.should_receive(:warn).with("Loading empty configliere settings file #{Configliere::DEFAULT_CONFIG_DIR}/nonexistent_file.yaml")
       @config.read('nonexistent_file.yaml').should == {}
     end
+  end
 
+  describe '#read_yaml' do
+    before do
+      @config.merge! :reload => :whatever
+      @simple_yaml       = { :my_param => 'override_val', 'also_a_param' => true, 'strkey' => 'val', :falsekey => false, :nilkey => nil }.to_yaml
+      @yaml_with_subenvs = { :development => { :reload => true }, :production => { :reload => false }}.to_yaml
+    end
+
+    it 'loads yaml' do
+      @config.read_yaml(@simple_yaml)
+      @config.should     == { :reload => :whatever, :my_param => 'override_val', :also_a_param  => true, :strkey  => 'val', :falsekey => false, :nilkey => nil }
+      @config.should_not == { :reload => :whatever, :my_param => 'override_val', 'also_a_param' => true, 'strkey' => 'val', :falsekey => false, :nilkey => nil }
+    end
 
     describe 'with an environment scope' do
-      before do
-        @config.defaults :reload => :unset
-        @hash_with_subenvs = { :development => { :reload => true }, :production => { :reload => false }}
-        File.stub :open
-        YAML.should_receive(:load).and_return(@hash_with_subenvs)
-      end
-
       it 'slices out a subhash given by :env' do
-        @config.read('f', :env => :development)
+        @config.read_yaml(@yaml_with_subenvs, :env => :development)
         @config.should == { :reload => true, :my_param => 'default_val', :also_a_param => true }
       end
 
       it 'slices out a different subhash with a different :env' do
-        @config.read('f', :env => :production)
+        @config.read_yaml(@yaml_with_subenvs, :env => :production)
         @config.should == { :reload => false, :my_param => 'default_val', :also_a_param => true }
       end
 
       it 'does no slicing without the :env option' do
-        @config.read('f')
-        @config.should == { :development => { :reload => true }, :production => { :reload => false }, :reload => :unset, :my_param => 'default_val', :also_a_param => true }
+        @config.read_yaml(@yaml_with_subenvs)
+        @config.should == { :development => { :reload => true }, :production => { :reload => false }, :reload => :whatever, :my_param => 'default_val', :also_a_param => true }
       end
 
       it 'has no effect if the key given by :env option is absent' do
-        @config.read('f', :env => :foobar)
-        @config.should == { :reload => :unset, :my_param => 'default_val', :also_a_param => true }
+        @config.read_yaml(@yaml_with_subenvs, :env => :foobar)
+        @config.should == { :reload => :whatever, :my_param => 'default_val', :also_a_param => true }
       end
 
-      it 'does not type convert the :env option' do
-        @hash_with_subenvs['john_woo'] = { :reload => :sideways }
-        @config.read('f', :env => 'john_woo')
+      it 'lets you use a string if the loading hash has a string' do
+        yaml_with_string_subenv = { 'john_woo' => { :reload => :sideways }}.to_yaml
+        @config.read_yaml(yaml_with_string_subenv, :env => 'john_woo')
         @config.should == { :reload => :sideways, :my_param => 'default_val', :also_a_param => true }
       end
     end
   end
 
-
   describe 'saves to a config file' do
     it 'with an absolute pathname, as given' do
       fake_file = StringIO.new('', 'w')
       File.should_receive(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
-      fake_file.should_receive(:<<).with("--- \n:my_param: default_val\n:also_a_param: true\n")
+      fake_file.should_receive(:<<).with({ :my_param => 'default_val', :also_a_param => true }.to_yaml)
       @config.save! '/fake/path.yaml'
     end
 
     it 'with a simple pathname, in the default config dir' do
       fake_file = StringIO.new('', 'w')
       File.should_receive(:open).with(Configliere::DEFAULT_CONFIG_DIR + '/file.yaml', 'w').and_yield(fake_file)
-      fake_file.should_receive(:<<).with("--- \n:my_param: default_val\n:also_a_param: true\n")
+      fake_file.should_receive(:<<).with({ :my_param => 'default_val', :also_a_param => true }.to_yaml)
       @config.save! 'file.yaml'
     end
 

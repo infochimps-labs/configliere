@@ -68,12 +68,14 @@ Configliere::ConfigFile
       with an absolute pathname uses it directly
       with a simple filename, references it to the default config dir
       returns the config object for chaining
+  #read_yaml
+    loads yaml
     with an environment scope
       slices out a subhash given by :env
       slices out a different subhash with a different :env
       does no slicing without the :env option
       has no effect if the key given by :env option is absent
-      does not type convert the :env option
+      lets you use a string if the loading hash has a string
   saves to a config file
     with an absolute pathname, as given
     with a simple pathname, in the default config dir
@@ -88,6 +90,7 @@ Crypter
   decrypts
 
 DeepHash
+  responds to #symbolize_keys, #symbolize_keys! and #stringify_keys but not #stringify_keys!
   #initialize
     adopts a Hash when given
     converts all pure Hash values into DeepHashes if param is a Hash
@@ -128,32 +131,58 @@ DeepHash
     gets values for all given keys even if missing
     is OK when empty
     returns an instance of the same class
-  assert_valid_keys
-    is true and does not raise when valid
-    fails when invalid
   #delete
     converts Symbol key into String before deleting
     works with String keys as well
-  #merge
-    returns instance of DeepHash
-    merges in give Hash
   #fetch
     converts key before fetching
     returns alternative value if key lookup fails
   #values_at
     is indifferent to whether keys are strings or symbols
   #symbolize_keys
-    with bang returns the deep_hash itself
     returns a dup of itself
+  #symbolize_keys!
+    with bang returns the deep_hash itself
+  #stringify_keys
+    converts keys that are all symbols
+    returns a Hash, not a DeepHash
+    only stringifies and hashifies the top level
+  #assert_valid_keys
+    is true and does not raise when valid
+    fails when invalid
+  #merge
+    merges given Hash
+    returns a new instance
+    returns instance of DeepHash
+    converts all Hash values into DeepHashes
+    converts string keys to symbol keys even if they occur deep in the given hash
+    DOES merge values where given hash has nil value
+    replaces child hashes, and does not merge them
+  #merge!
+    merges given Hash
+    returns a new instance
+    returns instance of DeepHash
+    converts all Hash values into DeepHashes
+    converts string keys to symbol keys even if they occur deep in the given hash
+    DOES merge values where given hash has nil value
+    replaces child hashes, and does not merge them
   #reverse_merge
-    merges defaults into options, creating a new hash
-    with bang merges! defaults into options, replacing options
+    merges given Hash
+    returns a new instance
+    returns instance of DeepHash
+    converts all Hash values into DeepHashes
+    converts string keys to symbol keys even if they occur deep in the given hash
+    DOES merge values where given hash has nil value
+    replaces child hashes, and does not merge them
   #deep_merge!
     merges two subhashes when they share a key
     merges two subhashes when they share a symbolized key
     preserves values in the original
-    replaces values from the given DeepHash
-    replaces values from the given DeepHash
+    converts all Hash values into DeepHashes
+    converts string keys to symbol keys even if they occur deep in the given hash
+    replaces values from the given hash
+    replaces arrays and does not append to them
+    does not replaces values where given hash has nil value
   #deep_set
     should set a new value (single arg)
     should set a new value (multiple args)
@@ -309,5 +338,5 @@ Configliere
   creates a global method Settings, so you can say Settings(:foo => :bar)
   requires corresponding plugins when you call use
 
-Finished in 0.27345 seconds
-222 examples, 0 failures
+Finished in 0.61948 seconds
+247 examples, 0 failures
