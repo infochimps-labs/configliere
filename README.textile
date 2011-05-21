@@ -180,7 +180,7 @@ h2. Command-line parameters
 
 <pre>
     # Head back
-    time_machine --delorean.power_source='1.21 gigawatt lightning strike' --dest_time=11-05-1985
+    time_machine --delorean.power_source='1.21 jiggawatt lightning strike' --dest_time=11-05-1985
     # (in the time_machine script:)
     Settings.use(:commandline)
     Settings.resolve!
