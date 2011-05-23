@@ -29,7 +29,7 @@ module Configliere
     end
 
     def command_info
-      commands[command_name]
+      commands[command_name] if command_name
     end
 
     def resolve!

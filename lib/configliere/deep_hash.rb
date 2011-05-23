@@ -265,21 +265,21 @@ class DeepHash < Hash
   # Merge hashes recursively.
   # Nothing special happens to array values
   #
-  #     x = { :subhash => { 1 => :val_from_x, 222 => :only_in_x, 333 => :only_in_x }, :scalar => :scalar_from_x}
-  #     y = { :subhash => { 1 => :val_from_y, 999 => :only_in_y },                    :scalar => :scalar_from_y }
+  #     x = { :subhash => { :a => :val_from_x, :b => :only_in_x, :c => :only_in_x }, :scalar => :scalar_from_x}
+  #     y = { :subhash => { :a => :val_from_y, :d => :only_in_y },                   :scalar => :scalar_from_y }
   #     x.deep_merge y
-  #     => {:subhash=>{1=>:val_from_y, 222=>:only_in_x, 333=>:only_in_x, 999=>:only_in_y}, :scalar=>:scalar_from_y}
+  #     => {:subhash=>{:a=>:val_from_y, :b=>:only_in_x, :c=>:only_in_x, :d=>:only_in_y}, :scalar=>:scalar_from_y}
   #     y.deep_merge x
-  #     => {:subhash=>{1=>:val_from_x, 222=>:only_in_x, 333=>:only_in_x, 999=>:only_in_y}, :scalar=>:scalar_from_x}
+  #     => {:subhash=>{:a=>:val_from_x, :b=>:only_in_x, :c=>:only_in_x, :d=>:only_in_y}, :scalar=>:scalar_from_x}
   #
   # Nil values always lose.
   #
-  #     x = {:subhash=>{:nil_in_x=>nil, 1=>:val1,}, :nil_in_x=>nil}
+  #     x = {:subhash=>{:nil_in_x=>nil, a=>:val_a}, :nil_in_x=>nil}
   #     y = {:subhash=>{:nil_in_x=>5},              :nil_in_x=>5}
   #     y.deep_merge x
-  #     => {:subhash=>{1=>:val1, :nil_in_x=>5}, :nil_in_x=>5}
+  #     => {:subhash=>{:a=>:val_a, :nil_in_x=>5}, :nil_in_x=>5}
   #     x.deep_merge y
-  #     => {:subhash=>{1=>:val1, :nil_in_x=>5}, :nil_in_x=>5}
+  #     => {:subhash=>{:a=>:val_a, :nil_in_x=>5}, :nil_in_x=>5}
   #
   def deep_merge hsh2
     merge hsh2, &DeepHash::DEEP_MERGER
@@ -293,11 +293,11 @@ class DeepHash < Hash
   #
   # Treat hash as tree of hashes:
   #
-  #     x = { 1 => :val, :subhash => { 1 => :val1 } }
+  #     x = { :a => :val, :subhash => { :b => :val_b } }
   #     x.deep_set(:subhash, :cat, :hat)
-  #     # => { 1 => :val, :subhash => { 1 => :val1,   :cat => :hat } }
-  #     x.deep_set(:subhash, 1, :newval)
-  #     # => { 1 => :val, :subhash => { 1 => :newval, :cat => :hat } }
+  #     # => { :a => :val, :subhash => { :b => :val_b,   :cat => :hat } }
+  #     x.deep_set(:subhash, :b, :newval)
+  #     # => { :a => :val, :subhash => { :b => :newval, :cat => :hat } }
   #
   #
   def deep_set *args
@@ -316,14 +316,14 @@ class DeepHash < Hash
   #
   # Treat hash as tree of hashes:
   #
-  #     x = { 1 => :val, :subhash => { 1 => :val1 } }
-  #     x.deep_get(:subhash, 1)
-  #     # => :val
-  #     x.deep_get(:subhash, 2)
+  #     x = { :a => :val_a, :subhash => { :b => :val_b } }
+  #     x.deep_get(:a)
+  #     # => :val_a
+  #     x.deep_get(:subhash, :c)
   #     # => nil
-  #     x.deep_get(:subhash, 2, 3)
+  #     x.deep_get(:subhash, :c, :f)
   #     # => nil
-  #     x.deep_get(:subhash, 2)
+  #     x.deep_get(:subhash, :b)
   #     # => nil
   #
   def deep_get *args
@@ -337,15 +337,15 @@ class DeepHash < Hash
   #
   # Treat hash as tree of hashes:
   #
-  #     x = { 1 => :val, :subhash => { 1 => :val1, 2 => :val2 } }
-  #     x.deep_delete(:subhash, 1)
+  #     x = { :a => :val, :subhash => { :a => :val1, :b => :val2 } }
+  #     x.deep_delete(:subhash, :a)
   #     #=> :val
   #     x
-  #     #=> { 1 => :val, :subhash => { 2 => :val2 } }
+  #     #=> { :a => :val, :subhash => { :b => :val2 } }
   #
   def deep_delete *args
-    last_key  = args.pop
-    last_hsh  = args.empty? ? self : (deep_get(*args)||{})
+    last_key  = args.pop                                   # key to delete
+    last_hsh  = args.empty? ? self : (deep_get(*args)||{}) # hsh containing that key
     last_hsh.delete(last_key)
   end
 
@@ -359,9 +359,9 @@ protected
   # @private
   def convert_key(attr)
     case
-    when attr.to_s.include?('.') then attr.to_s.split(".").map{|sub_attr| sub_attr.to_sym }
-    when attr.is_a?(String)      then attr.to_sym
-    else                              attr
+    when attr.to_s.include?('.')   then attr.to_s.split(".").map{|sub_attr| sub_attr.to_sym }
+    when attr.is_a?(Array)         then attr.map{|sub_attr| sub_attr.to_sym }
+    else                                attr.to_sym
     end
   end
 

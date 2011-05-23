@@ -81,6 +81,13 @@ describe DeepHash do
       deep_hash[:hash] = { :sym_key => "is buggy in Ruby 1.8.6" }
       deep_hash[:hash].should be_an_instance_of(DeepHash)
     end
+
+    it "only accepts #to_sym'bolizable things as keys" do
+      lambda{ @deep_hash[1] = 'hi'            }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ @deep_hash[{ :a => :b }] = 'hi' }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ @deep_hash[Object.new] = 'hi'   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ @deep_hash[:a] = 'hi'           }.should_not raise_error
+    end
   end
 
   describe '#[]' do
@@ -95,6 +102,12 @@ describe DeepHash do
       if (RUBY_VERSION >= '1.9') then lambda{ @deep_hash['hat.cat'] }.should raise_error(TypeError)
       else                            lambda{ @deep_hash['hat.cat'] }.should raise_error(NoMethodError, 'undefined method `[]\' for :cat:Symbol') end
       @deep_hash.should == hsh # shouldn't change from reading (specifically, shouldn't autovivify)
+    end
+
+    it "only accepts #to_sym'bolizable things as keys" do
+      lambda{ @deep_hash[1]            }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ @deep_hash[{ :a => :b }] }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ @deep_hash[Object.new]   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
     end
   end
 
@@ -122,25 +135,25 @@ describe DeepHash do
 
   describe '#compact' do
     it 'removes nils but not empties or falsehoods' do
-      DeepHash.new({ 1 => nil }).compact.should == {}
-      DeepHash.new({ 1 => nil, 2 => false, 3 => {}, 4 => "", :remains => true }).compact!.should == { 2 => false, 3 => {}, 4 => "", :remains => true }
+      DeepHash.new({ :a => nil }).compact.should == {}
+      DeepHash.new({ :a => nil, :b => false, :c => {}, :d => "", :remains => true }).compact.should == { :b => false, :c => {}, :d => "", :remains => true }
     end
 
     it 'leaves original alone' do
-      deep_hash = DeepHash.new({ 1 => nil, :remains => true })
+      deep_hash = DeepHash.new({ :a => nil, :remains => true })
       deep_hash.compact.should == { :remains => true }
-      deep_hash.should == { 1 => nil, :remains => true }
+      deep_hash.should == { :a => nil, :remains => true }
     end
   end
 
   describe '#compact!' do
     it 'removes nils but not empties or falsehoods' do
-      DeepHash.new({ 1 => nil}).compact!.should == {}
-      DeepHash.new({ 1 => nil, 2 => false, 3 => {}, 4 => "", :remains => true }).compact!.should == { 2 => false, 3 => {}, 4 => "", :remains => true }
+      DeepHash.new({ :a => nil}).compact!.should == {}
+      DeepHash.new({ :a => nil, :b => false, :c => {}, :d => "", :remains => true }).compact!.should == { :b => false, :c => {}, :d => "", :remains => true }
     end
 
     it 'modifies in-place' do
-      deep_hash = DeepHash.new({ 1 => nil, :remains => true })
+      deep_hash = DeepHash.new({ :a => nil, :remains => true })
       deep_hash.compact!.should == { :remains => true }
       deep_hash.should == { :remains => true }
     end
