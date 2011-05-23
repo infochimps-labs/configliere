@@ -107,7 +107,7 @@ describe Configliere::ConfigFile do
     it 'and ensures the directory exists' do
       fake_file = StringIO.new('', 'w')
       File.stub!(:open).with(%r{/fake/path.yaml}, 'w').and_yield(fake_file)
-      FileUtils.should_receive(:mkdir_p).with('/fake')
+      FileUtils.should_receive(:mkdir_p).with(%r{/fake})
       @config.save! '/fake/path.yaml'
     end
   end
