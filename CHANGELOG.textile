@@ -1,3 +1,10 @@
+h2. Version 0.4.7
+
+* can now load JSON
+* updated specs to run on Windows
+* Only accepts things that are to_sym'bolizable as keys
+* pings rdoc.info on commit
+
 h2. Version 0.4.6
 
 Unwittingly moved DeepHash's alias_method(:merge,:update) *above* the redefinition of update, and so made merge be quietly broken. Fixed, and many more specs added.
