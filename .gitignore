@@ -37,3 +37,7 @@ pkg
 
 ## PROJECT::SPECIFIC
 tmp
+
+.vendor
+.bundle
+Gemfile.lock
