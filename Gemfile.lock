@@ -9,6 +9,7 @@ GEM
       bundler (~> 1.0.0)
       git (>= 1.2.5)
       rake
+    json (1.5.1)
     rake (0.8.7)
     rcov (0.9.9)
     reek (1.2.8)
@@ -43,6 +44,7 @@ DEPENDENCIES
   bundler (~> 1.0.12)
   highline (>= 1.5.2)
   jeweler (~> 1.5.2)
+  json
   rcov (>= 0.9.9)
   reek
   roodi

@@ -30,7 +30,11 @@ module Configliere
       if filename.is_a?(Symbol) then raise Configliere::DeprecatedError, "Loading from a default config file is no longer provided" ; end
       filename = expand_filename(filename)
       begin
-        read_yaml(File.open(filename), options)
+        case filetype(filename)
+        when 'json' then read_json(File.open(filename), options)
+        when 'yaml' then read_yaml(File.open(filename), options)
+        else            read_yaml(File.open(filename), options)
+        end
       rescue Errno::ENOENT => e
         warn "Loading empty configliere settings file #{filename}"
       end
@@ -38,7 +42,21 @@ module Configliere
     end
 
     def read_yaml yaml_str, options={}
+      require 'yaml'
       new_data = YAML.load(yaml_str) || {}
+      # Extract the :env (production/development/etc)
+      if options[:env]
+        new_data = new_data[options[:env]] || {}
+      end
+      deep_merge! new_data
+      self
+    end
+
+    #
+    # we depend on you to require some sort of JSON
+    #
+    def read_json json_str, options={}
+      new_data = JSON.load(json_str) || {}
       # Extract the :env (production/development/etc)
       if options[:env]
         new_data = new_data[options[:env]] || {}
@@ -58,6 +76,11 @@ module Configliere
     end
 
   protected
+
+    def filetype filename
+      filename =~ /\.([^\.]+)$/ ;
+      $1
+    end
 
     def expand_filename filename
       if filename.to_s.include?('/')

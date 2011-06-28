@@ -10,7 +10,7 @@ describe Configliere::ConfigFile do
     @config.should respond_to(:read)
   end
 
-  describe 'loading a config file' do
+  describe 'loading a yaml config file' do
     before do
       @fake_file = '{ :my_param: val_from_file }'
     end
@@ -44,6 +44,44 @@ describe Configliere::ConfigFile do
       File.stub(:open).and_raise(Errno::ENOENT)
       @config.should_receive(:warn).with("Loading empty configliere settings file #{Configliere::DEFAULT_CONFIG_DIR}/nonexistent_file.yaml")
       @config.read('nonexistent_file.yaml').should == {}
+    end
+  end
+
+  describe 'loading a json config file' do
+    before do
+      require 'json'
+      @fake_file = '{"my_param":"val_from_file"}'
+    end
+
+    describe 'successfully' do
+      it 'with an absolute pathname uses it directly' do
+        File.should_receive(:open).with(%r{/fake/path.json}).and_return(@fake_file)
+        @config.read '/fake/path.json'
+      end
+      it 'with a simple filename, references it to the default config dir' do
+        File.should_receive(:open).with(File.join(Configliere::DEFAULT_CONFIG_DIR, 'file.json')).and_return(@fake_file)
+        @config.read 'file.json'
+      end
+      it 'returns the config object for chaining' do
+        File.should_receive(:open).with(File.join(Configliere::DEFAULT_CONFIG_DIR, 'file.json')).and_return(@fake_file)
+        @config.defaults :also_a_param => true
+        @config.read('file.json').should == { :my_param => 'val_from_file', :also_a_param => true }
+      end
+      after do
+        @config[:my_param].should == 'val_from_file'
+      end
+    end
+
+    it 'no longer provides a default config file' do
+      lambda{ @config.read(:my_settings) }.should raise_error(Configliere::DeprecatedError)
+      defined?(Configliere::DEFAULT_CONFIG_FILE).should_not be_true
+    end
+
+    it 'warns but does not fail if the file is missing' do
+      @config = Configliere::Param.new
+      File.stub(:open).and_raise(Errno::ENOENT)
+      @config.should_receive(:warn).with("Loading empty configliere settings file #{Configliere::DEFAULT_CONFIG_DIR}/nonexistent_file.json")
+      @config.read('nonexistent_file.json').should == {}
     end
   end
 
