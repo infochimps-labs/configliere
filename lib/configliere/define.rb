@@ -29,7 +29,7 @@ module Configliere
       self[param] = pdefs[:default]           if pdefs.include?(:default)
       self.env_vars param => pdefs[:env_var]  if pdefs.include?(:env_var)
       self.finally(&pdefs[:finally])          if pdefs.include?(:finally)
-      self.finally(&block) if block
+      self.finally(&block)                    if block
       self
     end
 
@@ -131,7 +131,7 @@ module Configliere
         when ((val.to_s == 'now') && (type == DateTime)) then val = DateTime.now
         when ((val.to_s == 'now') && (type == Time))     then val = Time.now
         when [Date, Time, DateTime].include?(type)       then val = type.parse(val) rescue nil
-        else true # nothing
+        else warn("Unknown type #{type} given") # nothing
         end
         self[param] = val
       end

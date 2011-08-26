@@ -246,7 +246,6 @@ class DeepHash < Hash
   #
   def [] attr
     attr = convert_key(attr)
-    raise if (attr == [:made])
     attr.is_a?(Array) ? deep_get(*attr) : super(attr)
   end
 
