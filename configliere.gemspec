@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{configliere}
-  s.version = "0.4.7"
+  s.version = "0.4.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["infochimps", "mrflip"]
-  s.date = %q{2011-06-28}
+  s.authors = [%q{infochimps}, %q{mrflip}]
+  s.date = %q{2011-08-26}
   s.description = %q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
 Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 }
   s.email = %q{coders@infochimps.org}
-  s.executables = ["configliere", "configliere-decrypt", "configliere-delete", "configliere-dump", "configliere-encrypt", "configliere-list", "configliere-set"]
   s.extra_rdoc_files = [
     "LICENSE",
     "README.textile"
@@ -28,7 +27,6 @@ Configliere manage settings from many sources: static constants, simple config f
     "CHANGELOG.textile",
     "FEATURES.txt",
     "Gemfile",
-    "Gemfile.lock",
     "LICENSE",
     "README.textile",
     "Rakefile",
@@ -77,9 +75,9 @@ Configliere manage settings from many sources: static constants, simple config f
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://infochimps.com/labs}
-  s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.0}
+  s.licenses = [%q{MIT}]
+  s.require_paths = [%q{lib}]
+  s.rubygems_version = %q{1.8.6}
   s.summary = %q{Wise, discreet configuration management}
   s.test_files = [
     "examples/config_block_script.rb",

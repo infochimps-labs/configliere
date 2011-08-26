@@ -24,6 +24,7 @@ Configliere manage settings from many sources: static constants, simple config f
 } #'
     gem.email = "coders@infochimps.org"
     gem.authors = ["infochimps", "mrflip"]
+    gem.executables = []
   end
   Jeweler::RubygemsDotOrgTasks.new
 rescue LoadError
