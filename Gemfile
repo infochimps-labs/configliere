@@ -7,7 +7,7 @@ gem 'json'
 group :development do
   gem 'bundler',   "~> 1.0.12"
   gem 'yard',      "~> 0.6.7"
-  gem 'jeweler',   "~> 1.5.2"
+  gem 'jeweler',         "~> 1.6.4"
   gem 'rspec',     "~> 2.5.0"
   gem 'spork',     "~> 0.9.0.rc5"
   gem 'RedCloth' # for yard
