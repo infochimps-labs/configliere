@@ -1,27 +1,37 @@
 source "http://rubygems.org"
 
-gem 'json'
+gem   'multi_json',  "~> 1.1"
+gem   'yajl-ruby',   "~> 1.1", :platform => :mri
+gem   'json',                  :platform => :jruby
 
-# Add dependencies to develop your gem here.
-# Include everything needed to run rake, tests, features, etc.
-group :development do
-  gem 'bundler',   "~> 1.0.12"
-  gem 'yard',      "~> 0.6.7"
-  gem 'jeweler',         "~> 1.6.4"
-  gem 'rspec',     "~> 2.5.0"
-  gem 'spork',     "~> 0.9.0.rc5"
-  gem 'RedCloth' # for yard
-end
+# Only necessary if you want to use Configliere::Prompt
+gem   'highline',    ">= 1.5.2"
+
 
 group :development do
-  # Only necessary if you want to use Configliere::Prompt
-  gem 'highline',  ">= 1.5.2"
+  gem 'bundler',     "~> 1"
+  gem 'jeweler',     "~> 1.6"
+  gem 'pry'
 end
 
-group :optional do
-  # only interesting for coverage testing
-  gem 'rcov',      ">= 0.9.9"
-  gem 'reek'
-  gem 'roodi'
-  gem 'watchr'
+group :docs do
+  gem 'yard',        ">= 0.7"
+  gem 'RedCloth',    "~> 4.2"
+  gem 'redcarpet',   "~> 2.1"
+end
+
+group :test do
+  gem 'spork',       "~> 0.9.0.rc5"
+  gem 'rspec',       "~> 2.8"
+  gem 'guard',       ">= 1.0"
+  gem 'guard-rspec', ">= 0.6"
+  gem 'guard-yard'
+  gem 'guard-process'
+
+  if RUBY_PLATFORM.include?('darwin')
+    gem 'growl',      ">= 1"
+    gem 'rb-fsevent', ">= 0.9"
+    # gem 'ruby_gntp'
+  end
+  gem 'simplecov',   ">= 0.5", :platform => :ruby_19
 end
