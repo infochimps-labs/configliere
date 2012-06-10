@@ -12,7 +12,7 @@ describe Configliere::ConfigFile do
 
   describe 'loading a yaml config file' do
     before do
-      @fake_file = '{ :my_param: val_from_file }'
+      @fake_file = ':my_param: val_from_file'
     end
 
     describe 'successfully' do
