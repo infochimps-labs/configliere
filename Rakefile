@@ -1,7 +1,7 @@
 require 'rubygems' unless defined?(Gem)
 require 'bundler'
 begin
-  Bundler.setup(:default, :development)
+  Bundler.setup(:default, :development, :support)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"
@@ -13,8 +13,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name        = "configliere"
-    gem.homepage    = "http://infochimps.com/labs"
-    gem.license     = "MIT"
+    gem.homepage    = "http://infochimps.com/tools"
+    gem.license     = "Apache"
     gem.summary     = %Q{Wise, discreet configuration management}
     gem.email       = "coders@infochimps.org"
     gem.authors     = ["infochimps", "mrflip"]

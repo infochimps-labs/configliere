@@ -1,27 +1,29 @@
 source "http://rubygems.org"
 
-gem   'multi_json',  "~> 1.1"
-gem   'oj',          "~> 1.2.9"
+gem   'multi_json',  ">= 1.1"
+gem   'oj',          ">= 1.2"
 gem   'json',                    :platform => :jruby
 
 # Only necessary if you want to use Configliere::Prompt
 gem   'highline',    ">= 1.5.2"
 
 group :development do
-  gem 'bundler',     "~> 1.1"
-  gem 'jeweler',     "~> 1.6"
-  gem 'pry'
   gem 'rake'
+end
+
+group :support do
+  gem 'bundler',     ">= 1.1"
+  gem 'jeweler',     ">= 1.6"
+  gem 'pry'
+  #
+  gem 'yard',        ">= 0.7"
+  gem 'RedCloth',    ">= 4.2"
+  gem 'redcarpet',   ">= 2.1"
   gem 'rspec',       "~> 2.8"
 end
 
-group :docs do
-  gem 'yard',        ">= 0.7"
-  gem 'RedCloth',    "~> 4.2"
-  gem 'redcarpet',   "~> 2.1"
-end
-
 group :test do
+  #
   gem 'guard',       ">= 1.0"
   gem 'guard-rspec', ">= 0.6"
   gem 'guard-yard'
