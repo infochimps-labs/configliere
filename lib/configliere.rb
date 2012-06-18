@@ -1,6 +1,5 @@
 require 'date'                      # type conversion
 require 'time'                      # type conversion
-require 'yaml'                      # read files
 require 'fileutils'                 # so save! can mkdir
 require 'configliere/deep_hash'     # magic hash for params
 require 'configliere/param'         # params container

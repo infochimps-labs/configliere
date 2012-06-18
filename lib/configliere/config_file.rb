@@ -33,7 +33,7 @@ module Configliere
         case filetype(filename)
         when 'json' then read_json(File.open(filename), options)
         when 'yaml' then read_yaml(File.open(filename), options)
-        else            read_yaml(File.open(filename), options)
+        else             read_yaml(File.open(filename), options)
         end
       rescue Errno::ENOENT => e
         warn "Loading empty configliere settings file #{filename}"
@@ -56,7 +56,8 @@ module Configliere
     # we depend on you to require some sort of JSON
     #
     def read_json json_str, options={}
-      new_data = JSON.load(json_str) || {}
+      require 'multi_json'
+      new_data = MultiJson.load(json_str) || {}
       # Extract the :env (production/development/etc)
       if options[:env]
         new_data = new_data[options[:env]] || {}

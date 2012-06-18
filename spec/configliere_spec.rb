@@ -10,6 +10,6 @@ describe "Configliere" do
   end
 
   it 'requires corresponding plugins when you call use' do
-    lambda{ Configliere.use(:param, :foo) }.should raise_error(LoadError, 'no such file to load -- configliere/foo')
+    lambda{ Configliere.use(:param, :foo) }.should raise_error(LoadError, /no.*load.*configliere\/foo/)
   end
 end
