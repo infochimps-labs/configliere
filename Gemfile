@@ -8,9 +8,11 @@ gem   'json',                    :platform => :jruby
 gem   'highline',    ">= 1.5.2"
 
 group :development do
-  gem 'bundler',     "~> 1"
+  gem 'bundler',     "~> 1.1"
   gem 'jeweler',     "~> 1.6"
   gem 'pry'
+  gem 'rake'
+  gem 'rspec',       "~> 2.8"
 end
 
 group :docs do
@@ -20,7 +22,6 @@ group :docs do
 end
 
 group :test do
-  gem 'rspec',       "~> 2.8"
   gem 'guard',       ">= 1.0"
   gem 'guard-rspec', ">= 0.6"
   gem 'guard-yard'
