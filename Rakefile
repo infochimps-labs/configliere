@@ -1,7 +1,7 @@
 require 'rubygems' unless defined?(Gem)
 require 'bundler'
 begin
-  Bundler.setup(:default, :development, :support, :test)
+  Bundler.setup(:default, :development, :support)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"
@@ -38,10 +38,8 @@ begin
     spec.pattern = FileList['spec/**/*_spec.rb']
   end
 
-  #
   # if rcov shits the bed with ruby 1.9, see
   #   https://github.com/relevance/rcov/issues/31
-  #
   RSpec::Core::RakeTask.new(:rcov) do |spec|
     spec.pattern = 'spec/**/*_spec.rb'
     spec.rcov = true
@@ -54,7 +52,9 @@ end
 
 begin
   require 'yard'
-  YARD::Rake::YardocTask.new
+  YARD::Rake::YardocTask.new do
+    Bundler.setup(:default, :development, :doc)
+  end
 rescue LoadError
   task :yardoc do
     abort "YARD is not available. In order to run yardoc, you must: bundle install"

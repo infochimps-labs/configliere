@@ -17,15 +17,17 @@ end
 group :support do
   gem 'jeweler',     ">= 1.6"
   gem 'pry'
-  #
   gem 'yard',        ">= 0.7"
-  gem 'RedCloth',    ">= 4.2"
+  gem 'rspec',       "~> 2.8"
+end
+
+group :doc do
+  gem 'RedCloth',    ">= 4.2", :require => "redcloth"
   gem 'redcarpet',   ">= 2.1"
 end
 
 # Gems for testing and coverage
 group :test do
-  gem 'rspec',       "~> 2.8"
   gem 'simplecov',   ">= 0.5", :platform => :ruby_19
   #
   gem 'guard',       ">= 1.0"
