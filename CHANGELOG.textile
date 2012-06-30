@@ -1,3 +1,12 @@
+h2. Version 0.4.10
+
+Minor improvement to the sub-command (git-style) module. Still not great.
+
+h2. Version 0.4.9
+
+Gemfile dependencies less aggressive.
+Uses MultiJSON; removed strict dependency on JSON
+
 h2. Version 0.4.7
 
 * can now load JSON

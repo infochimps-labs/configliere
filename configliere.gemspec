@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["infochimps", "mrflip"]
-  s.date = "2012-06-18"
+  s.date = "2012-06-30"
   s.description = " You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.\n\n   \"\" So, Consigliere of mine, I think you should tell your Don what everyone knows. \"\" -- Don Corleone\n\nConfigliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.\n"
   s.email = "coders@infochimps.org"
   s.extra_rdoc_files = [
@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
     "README.textile"
   ]
   s.files = [
-    ".document",
     ".rspec",
     ".watchr",
     "CHANGELOG.textile",
@@ -41,6 +40,7 @@ Gem::Specification.new do |s|
     "examples/env_var_script.rb",
     "examples/help_message_demo.rb",
     "examples/independent_config.rb",
+    "examples/joke.rb",
     "examples/prompt.rb",
     "examples/simple_script.rb",
     "examples/simple_script.yaml",
@@ -71,8 +71,8 @@ Gem::Specification.new do |s|
     "spec/spec.opts",
     "spec/spec_helper.rb"
   ]
-  s.homepage = "http://infochimps.com/labs"
-  s.licenses = ["MIT"]
+  s.homepage = "http://infochimps.com/tools"
+  s.licenses = ["Apache"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.11"
   s.summary = "Wise, discreet configuration management"
@@ -81,33 +81,27 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<multi_json>, ["~> 1.1"])
-      s.add_runtime_dependency(%q<oj>, ["~> 1.2"])
+      s.add_runtime_dependency(%q<multi_json>, [">= 1.1"])
+      s.add_runtime_dependency(%q<oj>, [">= 1.2"])
       s.add_runtime_dependency(%q<json>, [">= 0"])
       s.add_runtime_dependency(%q<highline>, [">= 1.5.2"])
-      s.add_development_dependency(%q<bundler>, [">= 1.1"])
+      s.add_development_dependency(%q<bundler>, ["~> 1.1"])
       s.add_development_dependency(%q<rake>, [">= 0"])
-      s.add_development_dependency(%q<jeweler>, [">= 1.6"])
-      s.add_development_dependency(%q<pry>, [">= 0"])
     else
-      s.add_dependency(%q<multi_json>, ["~> 1.1"])
-      s.add_dependency(%q<oj>, ["~> 1.2"])
+      s.add_dependency(%q<multi_json>, [">= 1.1"])
+      s.add_dependency(%q<oj>, [">= 1.2"])
       s.add_dependency(%q<json>, [">= 0"])
       s.add_dependency(%q<highline>, [">= 1.5.2"])
-      s.add_dependency(%q<bundler>, [">= 1.1"])
+      s.add_dependency(%q<bundler>, ["~> 1.1"])
       s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<jeweler>, [">= 1.6"])
-      s.add_dependency(%q<pry>, [">= 0"])
     end
   else
-    s.add_dependency(%q<multi_json>, ["~> 1.1"])
-    s.add_dependency(%q<oj>, ["~> 1.2"])
+    s.add_dependency(%q<multi_json>, [">= 1.1"])
+    s.add_dependency(%q<oj>, [">= 1.2"])
     s.add_dependency(%q<json>, [">= 0"])
     s.add_dependency(%q<highline>, [">= 1.5.2"])
-    s.add_dependency(%q<bundler>, [">= 1.1"])
+    s.add_dependency(%q<bundler>, ["~> 1.1"])
     s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<jeweler>, [">= 1.6"])
-    s.add_dependency(%q<pry>, [">= 0"])
   end
 end
 
