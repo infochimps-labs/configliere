@@ -21,7 +21,9 @@ module Configliere
       command_configuration = Configliere::Param.new
       command_configuration.use :commandline, :env_var
       yield command_configuration if block_given?
-      commands[cmd] = options.merge(:config => command_configuration)
+      commands[cmd] = options
+      commands[cmd][:config] = command_configuration
+      commands[cmd]
     end
 
     def commands
@@ -34,8 +36,13 @@ module Configliere
 
     def resolve!
       super()
-      commands.each_value do |cmd_info|
+      commands.each do |cmd, cmd_info|
         cmd_info[:config].resolve!
+      end
+      if command_name
+        sub_config = commands[command_name][:config]
+        adoptable  = sub_config.send(:definitions).keys
+        merge!(sub_config.select{|k,v| adoptable.include?(k) } )
       end
       self
     end
@@ -72,6 +79,7 @@ module Configliere
       help = ["\nAvailable commands:"]
       commands.sort_by(&:to_s).each do |cmd, info|
         help << ("  %-27s %s" % [cmd, info[:description]]) unless info[:internal]
+        info[:config].param_lines[1..-1].each{|line| help << "    #{line}" } rescue nil
       end
       help << "\nRun `#{script_base_and_command.first} help COMMAND' for more help on COMMAND" if commands.include?(:help)
       help.flatten.join("\n")
