@@ -14,7 +14,7 @@ Settings.define_command :a2, :description => "The second joke (answer -- PG-13, 
 end
 Settings.define_command :a3, :description => "The third joke (answer -- R, strong language)" do |cmd|
   cmd.define :age_limit, :type => Integer,  :default => 17, :description => "minimum age to be able to enjoy joke 3"
-  cmd.define :bleep,     :type => :boolean, :default => false, :description => "if enabled, solecisms will be bowlerized"
+  cmd.define :bleep,     :type => :boolean, :default => false, :description => "if enabled, solecisms will be bowdlerized"
 end
 
 Settings.define :debug,   :type => :boolean, :default => false, :description => "show verbose progress", :internal => true
