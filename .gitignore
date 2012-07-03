@@ -1,18 +1,23 @@
 ## OS
 .DS_Store
-Icon?
+Icon
 nohup.out
+.bak
+
+*.pem
 
 ## EDITORS
-*.tmproj
-tmtags
-*~
 \#*
 .\#*
+\#*\#
+*~
 *.swp
 REVISION
 TAGS*
+tmtags
 *_flymake.*
+*_flymake
+*.tmproj
 .project
 .settings
 
@@ -28,16 +33,23 @@ a.out
 .svn
 
 ## PROJECT::GENERAL
+
+log/*
+tmp/*
+pkg/*
+
 coverage
 rdoc
 doc
 pkg
+.rake_test_cache
+.bundle
 .yardoc
-*private*
-
-## PROJECT::SPECIFIC
-tmp
 
 .vendor
-.bundle
+
+## PROJECT::SPECIFIC
+
 Gemfile.lock
+.rvmrc
+.rbenv-version
