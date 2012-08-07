@@ -3,7 +3,7 @@ module Configliere
   DEFAULT_CONFIG_LOCATION = {
     machine: ->(scope){ Pathname('/etc').join(scope) },
     user:    ->(scope){ Pathname(ENV['HOME'] || '/').join(".#{scope}") },
-    app:     ->(scope){ app_dir = nil ; Pathname(Dir.pwd).ascend{ |path| app_dir = path.join('config') if path.join('config').exist? } ; app_dir }
+    app:     ->(scope){ app_dir = '/' ; Pathname(Dir.pwd).ascend{ |path| app_dir = path.join('config') if path.join('config').exist? } ; app_dir }
   } unless defined?(DEFAULT_CONFIG_LOCATION)
 
   #
