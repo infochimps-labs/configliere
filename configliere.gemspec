@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "configliere"
-  s.version = "0.4.12"
+  s.version = "0.4.13"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["infochimps", "mrflip"]
