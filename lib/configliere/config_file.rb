@@ -1,6 +1,10 @@
 module Configliere
-  # Where to load params given a bare filename
-  DEFAULT_CONFIG_DIR  = ENV['HOME'].to_s+'/.configliere'      unless defined?(DEFAULT_CONFIG_DIR)
+  # Default locations where config files live
+  DEFAULT_CONFIG_LOCATION = {
+    machine: ->(scope){ Pathname('/etc').join(scope) },
+    user:    ->(scope){ Pathname(ENV['HOME'] || '/').join(".#{scope}") },
+    app:     ->(scope){ app_dir = nil ; Pathname(Dir.pwd).ascend{ |path| app_dir = path.join('config') if path.join('config').exist? } ; app_dir }
+  } unless defined?(DEFAULT_CONFIG_LOCATION)
 
   #
   # ConfigFile -- load configuration from a simple YAML file
@@ -35,7 +39,7 @@ module Configliere
         when 'yaml' then read_yaml(File.open(filename), options)
         else             read_yaml(File.open(filename), options)
         end
-      rescue Errno::ENOENT => e
+      rescue Errno::ENOENT
         warn "Loading empty configliere settings file #{filename}"
       end
       self
@@ -76,6 +80,26 @@ module Configliere
       File.open(filename, 'w'){|f| f << YAML.dump(hsh) }
     end
 
+    def determine_conf_location(level, scope)
+      lookup_conf_dir(level, scope).join("#{scope}.yaml").to_s
+    end
+    
+    def default_conf_dir
+      lookup_conf_dir(:user, 'configliere')
+    end
+    
+    def lookup_conf_dir(level, scope)
+      Configliere::DEFAULT_CONFIG_LOCATION[level].call(scope)
+    end
+
+    def load_configuration_in_order!(scope = 'configliere')
+      [ :machine, :user, :app ].each do |level| 
+        conf = determine_conf_location(level, scope)
+        read(conf) if Pathname(conf).exist? 
+      end
+      resolve!
+    end
+    
   protected
 
     def filetype filename
@@ -87,7 +111,7 @@ module Configliere
       if filename.to_s.include?('/')
         File.expand_path(filename)
       else
-        File.expand_path(File.join(Configliere::DEFAULT_CONFIG_DIR, filename))
+        default_conf_dir.join(filename).to_s
       end
     end
   end
