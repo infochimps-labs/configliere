@@ -13,7 +13,7 @@ group :development do
   gem 'rspec',       "~> 2.8"
   gem 'jeweler',     ">= 1.6"
   #
-  gem 'oj',          ">= 1.2"
+  gem 'oj',          ">= 1.2",   :platform => :ruby
   gem 'json',                    :platform => :jruby
 end
 
