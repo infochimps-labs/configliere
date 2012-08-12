@@ -1,8 +1,6 @@
 source "http://rubygems.org"
 
 gem   'multi_json',  ">= 1.1"
-gem   'oj',          ">= 1.2"
-gem   'json',                    :platform => :jruby
 
 # Only necessary if you want to use Configliere::Prompt
 gem   'highline',    ">= 1.5.2"
@@ -11,6 +9,8 @@ gem   'highline',    ">= 1.5.2"
 group :development do
   gem 'bundler',     "~> 1.1"
   gem 'rake'
+  gem 'oj',          ">= 1.2"
+  gem 'json',                    :platform => :jruby
 end
 
 # Gems you would use if hacking on this gem (rather than with it)

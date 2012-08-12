@@ -1,7 +1,7 @@
 require 'rubygems' unless defined?(Gem)
 require 'bundler'
 begin
-  Bundler.setup(:default, :development, :support)
+  Bundler.setup(:default, :support)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"
@@ -26,7 +26,9 @@ begin
 Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
 } #'
   end
-  Jeweler::RubygemsDotOrgTasks.new
+  Jeweler::RubygemsDotOrgTasks.new do
+    Bundler.setup(:default)
+  end
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: bundle install"
 end
