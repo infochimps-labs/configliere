@@ -7,9 +7,5 @@ rvm:
 
 bundler_args: --without docs support
 
-branches:
-  only:
-    - master
-
 notifications:
   email: false
