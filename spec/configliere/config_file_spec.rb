@@ -35,7 +35,7 @@ describe Configliere::ConfigFile do
 
     context 'a json file' do
       let(:file_path)   { '/absolute/path.json' }
-      let(:file_string) { file_params.to_json   }
+      let(:file_string) { '{"my_param":"val_from_file"}'   }
 
       it 'reads successfully' do
         subject.should_receive(:read_json).with(file_string, {})
