@@ -56,7 +56,7 @@ module Configliere
 
     # prepend the initialization vector to the encoded message
     def self.combine_iv_and_ciphertext iv, message
-      iv + message
+      iv.force_encoding("BINARY") + message.force_encoding("BINARY")
     end
     # pull the initialization vector from the front of the encoded message
     def self.separate_iv_and_ciphertext cipher, iv_and_ciphertext

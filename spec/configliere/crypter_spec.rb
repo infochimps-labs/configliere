@@ -11,7 +11,7 @@ describe "Crypter" do
     Crypter.should_receive(:new_cipher).and_return(@cipher)
     @cipher.should_receive(:random_iv).and_return FOO_VAL_IV
     # OK so do the test now.
-    Crypter.encrypt('foo_val', 'sekrit').force_encoding("BINARY").should == ENCRYPTED_FOO_VAL
+    Crypter.encrypt('foo_val', 'sekrit').should == ENCRYPTED_FOO_VAL
   end
   it "decrypts" do
     Crypter.decrypt(ENCRYPTED_FOO_VAL, 'sekrit').should == 'foo_val'
