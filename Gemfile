@@ -11,7 +11,7 @@ group :development do
   gem 'bundler',     "~> 1.1"
   gem 'rake'
   gem 'yard',        ">= 0.7"
-  gem 'rspec',       "~> 2.8"
+  gem 'rspec',       ">= 2.8"
   gem 'jeweler',     ">= 1.6"
   #
   gem 'oj',          ">= 1.2",   :platform => :ruby
