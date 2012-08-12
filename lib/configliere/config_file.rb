@@ -79,29 +79,29 @@ module Configliere
       filename = expand_filename(filename)
       hsh = self.export.to_hash
       FileUtils.mkdir_p(File.dirname(filename))
-      File.open(filename, 'w'){|f| f << YAML.dump(hsh) }
+      File.open(filename, 'w'){|file| file << YAML.dump(hsh) }
     end
 
     def determine_conf_location(level, scope)
       lookup_conf_dir(level, scope).join("#{scope}.yaml").to_s
     end
-    
+
     def default_conf_dir
       lookup_conf_dir(:user, 'configliere')
     end
-    
+
     def lookup_conf_dir(level, scope)
       Configliere::DEFAULT_CONFIG_LOCATION[level].call(scope)
     end
 
     def load_configuration_in_order!(scope = 'configliere')
-      [ :machine, :user, :app ].each do |level| 
+      [ :machine, :user, :app ].each do |level|
         conf = determine_conf_location(level, scope)
-        read(conf) if Pathname(conf).exist? 
+        read(conf) if Pathname(conf).exist?
       end
       resolve!
     end
-    
+
   protected
 
     def filetype filename

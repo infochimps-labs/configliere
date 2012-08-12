@@ -39,7 +39,7 @@ module Configliere
       commands.each do |cmd, cmd_info|
         cmd_info[:config].resolve!
       end
-      if command_name
+      if command_name && commands[command_name]
         sub_config = commands[command_name][:config]
         adoptable  = sub_config.send(:definitions).keys
         merge!(sub_config.select{|k,v| adoptable.include?(k) } )
