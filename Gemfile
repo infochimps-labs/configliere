@@ -5,6 +5,8 @@ gem   'multi_json',  ">= 1.1"
 # Only necessary if you want to use Configliere::Prompt
 gem   'highline',    ">= 1.5.2"
 
+gem   'jruby-openssl', :platform => :jruby
+
 # Only gems that you want listed as development dependencies in the gemspec
 group :development do
   gem 'bundler',     "~> 1.1"
