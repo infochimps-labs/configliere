@@ -8,6 +8,8 @@ You've got a script. It's got some settings. Some settings are for this module, 
 
 Configliere manages settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Basically: *Settings go in, the right thing happens*.
 
+"!https://secure.travis-ci.org/infochimps-labs/configliere.png!":http://travis-ci.org/infochimps-labs/configliere
+
 h2. Example
 
 Here's a simple example, using params from a config file and the command line. In the script:
