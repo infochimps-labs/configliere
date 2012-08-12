@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".rspec",
-    ".watchr",
+    ".travis.yml",
     "CHANGELOG.textile",
     "FEATURES.txt",
     "Gemfile",
@@ -86,6 +86,9 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<highline>, [">= 1.5.2"])
       s.add_development_dependency(%q<bundler>, ["~> 1.1"])
       s.add_development_dependency(%q<rake>, [">= 0"])
+      s.add_development_dependency(%q<yard>, [">= 0.7"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.8"])
+      s.add_development_dependency(%q<jeweler>, [">= 1.6"])
       s.add_development_dependency(%q<oj>, [">= 1.2"])
       s.add_development_dependency(%q<json>, [">= 0"])
     else
@@ -93,6 +96,9 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<highline>, [">= 1.5.2"])
       s.add_dependency(%q<bundler>, ["~> 1.1"])
       s.add_dependency(%q<rake>, [">= 0"])
+      s.add_dependency(%q<yard>, [">= 0.7"])
+      s.add_dependency(%q<rspec>, ["~> 2.8"])
+      s.add_dependency(%q<jeweler>, [">= 1.6"])
       s.add_dependency(%q<oj>, [">= 1.2"])
       s.add_dependency(%q<json>, [">= 0"])
     end
@@ -101,6 +107,9 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<highline>, [">= 1.5.2"])
     s.add_dependency(%q<bundler>, ["~> 1.1"])
     s.add_dependency(%q<rake>, [">= 0"])
+    s.add_dependency(%q<yard>, [">= 0.7"])
+    s.add_dependency(%q<rspec>, ["~> 2.8"])
+    s.add_dependency(%q<jeweler>, [">= 1.6"])
     s.add_dependency(%q<oj>, [">= 1.2"])
     s.add_dependency(%q<json>, [">= 0"])
   end
