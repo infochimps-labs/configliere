@@ -9,10 +9,10 @@ gem   'jruby-openssl',           :platform => [:jruby]
 # Only gems that you want listed as development dependencies in the gemspec
 group :development do
   gem 'bundler',     "~> 1.1"
-  gem 'rake'
-  gem 'yard',        ">= 0.7"
-  gem 'rspec',       ">= 2.8"
-  gem 'jeweler',     ">= 1.6"
+  gem 'rake',                    :require => false
+  gem 'yard',        ">= 0.7",   :require => false
+  gem 'rspec',       ">= 2.8",   :require => false
+  gem 'jeweler',     ">= 1.6",   :require => false
 end
 
 group :docs do
@@ -23,7 +23,7 @@ end
 
 # Gems for testing and coverage
 group :test do
-  gem 'simplecov',   ">= 0.5",   :platform => [:ruby_19]
+  gem 'simplecov',   ">= 0.5",   :platform => [:ruby_19],   :require => false
   gem 'json'
 end
 
