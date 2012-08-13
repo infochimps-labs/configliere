@@ -42,16 +42,18 @@ RSpec.configure do |config|
       cipher = OpenSSL::Cipher::Cipher.new('aes-128-cbc')
       p cipher
       cipher.encrypt
-      key = Digest::SHA256.digest("HI JRUBY")
+      cipher.key = Digest::SHA256.digest("HI JRUBY")
       cipher.iv  = iv = cipher.random_iv
       ciphertext = cipher.update("O HAI TO YOU!")
-      p [__LINE__, cipher, ciphertext]
+      ciphertext << cipher.final
+      p [__LINE__, ciphertext]
       cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
       cipher.encrypt
-      key = Digest::SHA256.digest("HI JRUBY")
+      cipher.key = Digest::SHA256.digest("HI JRUBY")
       cipher.iv  = iv = cipher.random_iv
       ciphertext = cipher.update("O HAI TO YOU!")
-      p [__LINE__, cipher, ciphertext]
+      ciphertext << cipher.final
+      p [__LINE__, ciphertext]
     end
   end
 
