@@ -24,18 +24,22 @@ end
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
-  gem.name        = "configliere"
-  gem.homepage    = "http://infochimps.com/tools"
-  gem.license     = "Apache"
+  Bundler.setup(:default, :development, :test)
+  gem.name        = 'configliere'
+  gem.homepage    = 'https://github.com/infochimps-labs/configliere'
+  gem.license     = 'Apache 2.0'
+  gem.email       = 'coders@infochimps.org'
+  gem.authors     = ['Infochimps']
+
   gem.summary     = %Q{Wise, discreet configuration management}
-  gem.email       = "coders@infochimps.org"
-  gem.authors     = ["infochimps", "mrflip"]
-  gem.executables = []
-  gem.description = %Q{ You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.
+  gem.description = <<-EOF
+You\'ve got a script. It\'s got some settings. Some settings are for this module, some are for that module. Most of them don\'t change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you\'re testing from the command line.
 
    "" So, Consigliere of mine, I think you should tell your Don what everyone knows. "" -- Don Corleone
 
 Configliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.
-} #'
+EOF
+
+  gem.executables = []
 end
 Jeweler::RubygemsDotOrgTasks.new
