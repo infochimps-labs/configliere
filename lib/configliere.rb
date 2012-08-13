@@ -11,6 +11,8 @@ require 'configliere/config_file'   # read / save! files
 # running the specs requires rspec and spork
 
 module Configliere
+  RUBY_ENGINE = 'ruby' if not defined?(::RUBY_ENGINE)
+
   ALL_MIXINS = [:define, :config_file, :commandline, :encrypted, :env_var, :config_block, :commands, :prompt]
   def self.use *mixins
     mixins = ALL_MIXINS if mixins.include?(:all) || mixins.empty?

@@ -83,7 +83,6 @@ describe DeepHash do
     end
 
     it "only accepts #to_sym'bolizable things as keys" do
-      lambda{ @deep_hash[1] = 'hi'            }.should raise_error(NoMethodError, /undefined method `to_sym'/)
       lambda{ @deep_hash[{ :a => :b }] = 'hi' }.should raise_error(NoMethodError, /undefined method `to_sym'/)
       lambda{ @deep_hash[Object.new] = 'hi'   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
       lambda{ @deep_hash[:a] = 'hi'           }.should_not raise_error
@@ -91,23 +90,32 @@ describe DeepHash do
   end
 
   describe '#[]' do
+    let(:orig_hash){ { :hat => :cat, :basket => :lotion, :moon => { :man => :smiling, :cheese => {:type => :tilsit} } } }
+    let(:subject  ){ Configliere::Param.new({ :hat => :cat, :basket => :lotion, :moon => { :man => :smiling, :cheese => {:type => :tilsit} } }) }
+
     it 'deep-gets dotted vals' do
-      hsh = { :hat => :cat, :basket => :lotion, :moon => { :man => :smiling, :cheese => {:type => :tilsit} } }
-      @deep_hash = Configliere::Param.new hsh.dup
-      @deep_hash['moon.man'].should == :smiling
-      @deep_hash['moon.cheese.type'].should == :tilsit
-      @deep_hash['moon.cheese.smell'].should be_nil
-      @deep_hash['moon.non.existent.interim.values'].should be_nil
-      @deep_hash['moon.non'].should be_nil
-      if (RUBY_VERSION >= '1.9') then lambda{ @deep_hash['hat.cat'] }.should raise_error(TypeError)
-      else                            lambda{ @deep_hash['hat.cat'] }.should raise_error(NoMethodError, 'undefined method `[]\' for :cat:Symbol') end
-      @deep_hash.should == hsh # shouldn't change from reading (specifically, shouldn't autovivify)
+      subject['moon.man'].should == :smiling
+      subject['moon.cheese.type'].should == :tilsit
+      subject['moon.cheese.smell'].should be_nil
+      subject['moon.non.existent.interim.values'].should be_nil
+      subject['moon.non'].should be_nil
+      subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)
+    end
+    it 'indexing through a non-hash will raise an error' do
+      begin ; p subject['hat']        ; rescue StandardError => err ; p [err, err.class] ; end
+      begin ; p subject['hat.dog']    ; rescue StandardError => err ; p [err, err.class] ; end
+      begin ; p subject['hat']['dog'] ; rescue StandardError => err ; p [err, err.class] ; end
+      begin ; p :happy_sym['dog']     ; rescue StandardError => err ; p [err, err.class] ; end
+    end
+    it 'indexing through a non-hash will raise an error' do
+      err_klass = (RUBY_VERSION >= "1.9.0") ? TypeError : NoMethodError
+      expect{ subject['hat.dog'] }.to raise_error(err_klass, /Symbol/)
+      subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)
     end
 
     it "only accepts #to_sym'bolizable things as keys" do
-      lambda{ @deep_hash[1]            }.should raise_error(NoMethodError, /undefined method `to_sym'/)
-      lambda{ @deep_hash[{ :a => :b }] }.should raise_error(NoMethodError, /undefined method `to_sym'/)
-      lambda{ @deep_hash[Object.new]   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ subject[{ :a => :b }] }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      lambda{ subject[Object.new]   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
     end
   end
 
@@ -160,59 +168,55 @@ describe DeepHash do
   end
 
   describe '#slice' do
-    before do
-      @deep_hash = DeepHash.new({ :a => 'x', :b => 'y', :c => 10 })
-    end
+    let(:subject  ){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
 
     it 'returns a new hash with only the given keys' do
-      @deep_hash.slice(:a, :b).should == { :a => 'x', :b => 'y' }
-      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+      subject.slice(:a, :b).should == { :a => 'x', :b => 'y' }
+      subject.should == { :a => 'x', :b => 'y', :c => 10 }
     end
 
     it 'with bang replaces the hash with only the given keys' do
-      @deep_hash.slice!(:a, :b).should == { :c => 10 }
-      @deep_hash.should == { :a => 'x', :b => 'y' }
+      subject.slice!(:a, :b).should == { :c => 10 }
+      subject.should == { :a => 'x', :b => 'y' }
     end
 
     it 'ignores an array key' do
-      @deep_hash.slice([:a, :b], :c).should == { :c => 10 }
-      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+      subject.slice([:a, :b], :c).should == { :c => 10 }
+      subject.should == { :a => 'x', :b => 'y', :c => 10 }
     end
 
     it 'with bang ignores an array key' do
-      @deep_hash.slice!([:a, :b], :c).should == { :a => 'x', :b => 'y' }
-      @deep_hash.should == { :c => 10 }
+      subject.slice!([:a, :b], :c).should == { :a => 'x', :b => 'y' }
+      subject.should == { :c => 10 }
     end
 
     it 'uses splatted keys individually' do
-      @deep_hash.slice(*[:a, :b]).should == { :a => 'x', :b => 'y' }
-      @deep_hash.should == { :a => 'x', :b => 'y', :c => 10 }
+      subject.slice(*[:a, :b]).should == { :a => 'x', :b => 'y' }
+      subject.should == { :a => 'x', :b => 'y', :c => 10 }
     end
 
     it 'with bank uses splatted keys individually' do
-      @deep_hash.slice!(*[:a, :b]).should == { :c => 10 }
-      @deep_hash.should == { :a => 'x', :b => 'y' }
+      subject.slice!(*[:a, :b]).should == { :c => 10 }
+      subject.should == { :a => 'x', :b => 'y' }
     end
   end
 
   describe '#extract' do
-    before do
-      @deep_hash = DeepHash.new({ :a => 'x', :b => 'y', :c => 10 })
-    end
+    let(:subject  ){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
 
     it 'replaces the hash with only the given keys' do
-      @deep_hash.extract!(:a, :b).should == { :a => 'x', :b => 'y' }
-      @deep_hash.should == { :c => 10 }
+      subject.extract!(:a, :b).should == { :a => 'x', :b => 'y' }
+      subject.should == { :c => 10 }
     end
 
     it 'leaves the hash empty if all keys are gone' do
-      @deep_hash.extract!(:a, :b, :c).should == { :a => 'x', :b => 'y', :c => 10 }
-      @deep_hash.should == {}
+      subject.extract!(:a, :b, :c).should == { :a => 'x', :b => 'y', :c => 10 }
+      subject.should == {}
     end
 
     it 'gets values for all given keys even if missing' do
-      @deep_hash.extract!(:bob, :c).should == { :bob => nil, :c => 10 }
-      @deep_hash.should == { :a => 'x', :b => 'y' }
+      subject.extract!(:bob, :c).should == { :bob => nil, :c => 10 }
+      subject.should == { :a => 'x', :b => 'y' }
     end
 
     it 'is OK when empty' do
@@ -220,7 +224,7 @@ describe DeepHash do
     end
 
     it 'returns an instance of the same class' do
-      @deep_hash.slice(:a).should be_a(DeepHash)
+      subject.slice(:a).should be_a(DeepHash)
     end
   end
 
@@ -241,26 +245,23 @@ describe DeepHash do
   end
 
   describe "#fetch" do
-    before(:each) do
-      @deep_hash = DeepHash.new(:no => "in between")
-    end
+    let(:subject  ){ Configliere::Param.new({ :no => :in_between }) }
 
     it 'converts key before fetching' do
-      @deep_hash.fetch("no").should == "in between"
+      subject.fetch("no").should == :in_between
     end
 
     it 'returns alternative value if key lookup fails' do
-      @deep_hash.fetch("flying", "screwdriver").should == "screwdriver"
+      subject.fetch("flying", "screwdriver").should == "screwdriver"
     end
   end
 
   describe "#values_at" do
-    before(:each) do
-      @deep_hash = DeepHash.new(@hash).merge(:no => "in between")
-    end
+
+    let(:subject  ){ Configliere::Param.new({ :no => :in_between, "str_key" => "strk_val", :sym_key => "symk_val"}) }
 
     it 'is indifferent to whether keys are strings or symbols' do
-      @deep_hash.values_at("sym_key", :str_key, :no).should == ["symk_val", "strk_val", "in between"]
+      subject.values_at("sym_key", :str_key, :no).should == ["symk_val", "strk_val", :in_between]
     end
   end
 
