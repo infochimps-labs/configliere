@@ -24,7 +24,7 @@ describe "Configliere::Encrypted", :if => check_openssl do
   let(:foo_val_iv){  Base64.decode64(encrypted_foo_val)[0..15] }
 
 
-  describe "Crypter", :if => check_openssl do
+  describe "Crypter" do
     it "encrypts" do
       # Force the same initialization vector as used to prepare the test value
       @cipher = Configliere::Crypter.send(:new_cipher, :encrypt, 'sekrit')

@@ -20,10 +20,9 @@ module Configliere
   #
   module Crypter
     CIPHER_TYPE = "aes-256-cbc" unless defined?(CIPHER_TYPE)
-
-    def self.check_platform_can_encrypt!
-      return if not PLATFORM_ENCRYPTION_ERROR
-      raise "Encryption broken on this platform: #{PLATFORM_ENCRYPTION_ERROR}"
+    def check_platform_can_encrypt!
+      return true unless PLATFORM_ENCRYPTION_ERROR
+      raise PLATFORM_ENCRYPTION_ERROR.class, "Encryption broken on this platform: #{PLATFORM_ENCRYPTION_ERROR}"
     end
 
     #
