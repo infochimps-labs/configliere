@@ -62,7 +62,6 @@ Gem::Specification.new do |s|
     "spec/configliere/commands_spec.rb",
     "spec/configliere/config_block_spec.rb",
     "spec/configliere/config_file_spec.rb",
-    "spec/configliere/crypter_spec.rb",
     "spec/configliere/deep_hash_spec.rb",
     "spec/configliere/define_spec.rb",
     "spec/configliere/encrypted_spec.rb",
@@ -85,7 +84,6 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<multi_json>, [">= 1.1"])
       s.add_runtime_dependency(%q<highline>, [">= 1.5.2"])
-      s.add_runtime_dependency(%q<jruby-openssl>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.1"])
       s.add_development_dependency(%q<rake>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0.7"])
@@ -94,7 +92,6 @@ Gem::Specification.new do |s|
     else
       s.add_dependency(%q<multi_json>, [">= 1.1"])
       s.add_dependency(%q<highline>, [">= 1.5.2"])
-      s.add_dependency(%q<jruby-openssl>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.1"])
       s.add_dependency(%q<rake>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0.7"])
@@ -104,7 +101,6 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<multi_json>, [">= 1.1"])
     s.add_dependency(%q<highline>, [">= 1.5.2"])
-    s.add_dependency(%q<jruby-openssl>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.1"])
     s.add_dependency(%q<rake>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0.7"])
