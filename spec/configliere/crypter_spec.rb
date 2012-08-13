@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Crypter", :if => load_sketchy_lib('openssl', /openssl/)  do
-  #
+describe "Crypter", :if => check_openssl do
   let(:encrypted_foo_val){ "cc+Bp5jMUBHFCvPNZIfleeatB4IGaaXjVINl12HOpcs=\n" }
   # ENCRYPTED_FOO_VAL.force_encoding("BINARY") if ENCRYPTED_FOO_VAL.respond_to?(:force_encoding)
   let(:foo_val_iv){  Base64.decode64(encrypted_foo_val)[0..15] }

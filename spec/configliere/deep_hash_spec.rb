@@ -101,7 +101,7 @@ describe DeepHash do
       subject['moon.non'].should be_nil
       subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)
     end
-    it 'indexing through a non-hash will raise an error' do
+    it 'indexing through a non-hash will raise an error', :if => (defined?(RUBY_ENGINE) && (RUBY_ENGINE !~ /rbx/)) do
       err_klass = (RUBY_VERSION >= "1.9.0") ? TypeError : NoMethodError
       expect{ subject['hat.dog'] }.to raise_error(err_klass, /Symbol/)
       subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Configliere::Encrypted", :if => load_sketchy_lib('openssl', /openssl/) do
+describe "Configliere::Encrypted", :if => check_openssl do
   before do
     @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
     @config.use :encrypted

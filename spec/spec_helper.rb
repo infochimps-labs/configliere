@@ -11,13 +11,14 @@ end
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
 
-  def load_sketchy_lib(lib, sentinel)
+  def load_sketchy_lib(lib)
     begin
       require lib
+      yield if block_given?
       return true
     rescue LoadError, StandardError => err
-      raise unless (err.to_s =~ sentinel)
-      warn "#{RUBY_DESCRIPTION} doesn't seem to like #{lib}. Sorry!"
+      warn "#{RUBY_DESCRIPTION} doesn't seem to like #{lib}: got error"
+      warn "  #{err.class} #{err}"
       warn "Skipping specs on '#{caller(2).first}'"
       return false
     end
@@ -33,6 +34,16 @@ RSpec.configure do |config|
       true # pass
     end
     stderr_output
+  end
+
+  def check_openssl
+    load_sketchy_lib('openssl') do
+      p OpenSSL::Cipher.ciphers
+      cipher = OpenSSL::Cipher::Cipher.new('aes-128-cbc')
+      cipher.encrypt
+      cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
+      cipher.encrypt
+    end
   end
 
 end
