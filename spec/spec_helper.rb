@@ -40,9 +40,18 @@ RSpec.configure do |config|
     load_sketchy_lib('openssl') do
       p OpenSSL::Cipher.ciphers
       cipher = OpenSSL::Cipher::Cipher.new('aes-128-cbc')
+      p cipher
       cipher.encrypt
+      key = Digest::SHA256.digest("HI JRUBY")
+      cipher.iv  = iv = cipher.random_iv
+      ciphertext = cipher.update("O HAI TO YOU!")
+      p [__LINE__, cipher, ciphertext]
       cipher = OpenSSL::Cipher::Cipher.new('aes-256-cbc')
       cipher.encrypt
+      key = Digest::SHA256.digest("HI JRUBY")
+      cipher.iv  = iv = cipher.random_iv
+      ciphertext = cipher.update("O HAI TO YOU!")
+      p [__LINE__, cipher, ciphertext]
     end
   end
 
