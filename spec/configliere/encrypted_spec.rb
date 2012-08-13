@@ -1,12 +1,44 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
+module Configliere ; module Crypter ; CIPHER_TYPE = 'aes-128-cbc' ; end ; end
+
 describe "Configliere::Encrypted", :if => check_openssl do
+  require 'configliere/crypter'
+
   before do
     @config = Configliere::Param.new :secret => 'encrypt_me', :normal_param => 'normal'
     @config.use :encrypted
     @config.define :secret, :encrypted => true
     @config[:encrypt_pass] = 'pass'
   end
+
+  if    Configliere::Crypter::CIPHER_TYPE == 'aes-256-cbc'
+    let(:encrypted_str){     "KohCTcXr1aAulopntmZ8f5Gqa7PzsBmz+R2vFGYrAeg=\n" }
+    let(:encrypted_foo_val){ "cc+Bp5jMUBHFCvPNZIfleeatB4IGaaXjVINl12HOpcs=\n" }
+  elsif Configliere::Crypter::CIPHER_TYPE == 'aes-128-cbc'
+    let(:encrypted_str){     "mHse6HRTANh8JpIfIuyANQ8b2rXAf0+/3pzQnYsd8LE=\n" }
+    let(:encrypted_foo_val){ "cc+Bp5jMUBHFCvPNZIfleZYRoDmLK1LSxPkAMemhDTQ=\n" }
+  else
+    warn "Can't make test strings for #{Configliere::Crypter::CIPHER_TYPE} cipher"
+  end
+  let(:foo_val_iv){  Base64.decode64(encrypted_foo_val)[0..15] }
+
+
+  describe "Crypter", :if => check_openssl do
+    it "encrypts" do
+      # Force the same initialization vector as used to prepare the test value
+      @cipher = Configliere::Crypter.send(:new_cipher, :encrypt, 'sekrit')
+      Configliere::Crypter.should_receive(:new_cipher).and_return(@cipher)
+      @cipher.should_receive(:random_iv).and_return foo_val_iv
+      # OK so do the test now.
+      Configliere::Crypter.encrypt('foo_val', 'sekrit').should == encrypted_foo_val
+    end
+
+    it "decrypts" do
+      Configliere::Crypter.decrypt(encrypted_foo_val, 'sekrit').should == 'foo_val'
+    end
+  end
+
 
   describe 'defines encrypted params' do
     it 'with :encrypted => true' do
@@ -63,18 +95,16 @@ describe "Configliere::Encrypted", :if => check_openssl do
   end
 
   describe 'loading a file' do
-    before do
-      @encrypted_str = "KohCTcXr1aAulopntmZ8f5Gqa7PzsBmz+R2vFGYrAeg=\n"
-    end
     it 'encrypts' do
-      Configliere::Crypter.should_receive(:encrypt).and_return(@encrypted_str)
+      Configliere::Crypter.should_receive(:encrypt).and_return(encrypted_str)
       FileUtils.stub(:mkdir_p)
       File.should_receive(:open).and_yield([])
-      YAML.should_receive(:dump).with({ :normal_param => "normal", :encrypted_secret => @encrypted_str })
+      YAML.should_receive(:dump).with({ :normal_param => "normal", :encrypted_secret => encrypted_str })
       @config.save! '/fake/file'
     end
     it 'decrypts' do
-      @hsh = { :loaded_param => "loaded", :encrypted_secret => @encrypted_str }
+      # encrypted_str = Configliere::Crypter.encrypt('decrypt_me', 'pass')
+      @hsh = { :loaded_param => "loaded", :encrypted_secret => encrypted_str }
       File.stub(:open)
       YAML.should_receive(:load).and_return(@hsh)
       @config.read 'file.yaml'
