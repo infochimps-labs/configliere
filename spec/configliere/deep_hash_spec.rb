@@ -102,12 +102,6 @@ describe DeepHash do
       subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)
     end
     it 'indexing through a non-hash will raise an error' do
-      begin ; p subject['hat']        ; rescue StandardError => err ; p [err, err.class] ; end
-      begin ; p subject['hat.dog']    ; rescue StandardError => err ; p [err, err.class] ; end
-      begin ; p subject['hat']['dog'] ; rescue StandardError => err ; p [err, err.class] ; end
-      begin ; p :happy_sym['dog']     ; rescue StandardError => err ; p [err, err.class] ; end
-    end
-    it 'indexing through a non-hash will raise an error' do
       err_klass = (RUBY_VERSION >= "1.9.0") ? TypeError : NoMethodError
       expect{ subject['hat.dog'] }.to raise_error(err_klass, /Symbol/)
       subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)

@@ -1,7 +1,7 @@
-require 'spec_helper'
+require File.expand_path('../spec_helper', File.dirname(__FILE__))
 
 describe Configliere::ConfigFile do
-  let(:default_params) { { my_param: 'default_val', also_a_param: true } }
+  let(:default_params) { { :my_param => 'default_val', :also_a_param => true } }
 
   subject{ Configliere::Param.new default_params }
 
@@ -10,7 +10,7 @@ describe Configliere::ConfigFile do
   end
 
   context '#read' do
-    let(:file_params) { { my_param: 'val_from_file' } }
+    let(:file_params) { { :my_param => 'val_from_file' } }
     let(:file_string) { file_params.to_yaml           }
     let(:file_path)   { '/absolute/path.yaml'         }
 
@@ -85,26 +85,26 @@ describe Configliere::ConfigFile do
     end
 
     context 'with options' do
-      let(:file_params) { { development: { reload: true }, production: { reload: false } } }
+      let(:file_params) { { :development => { :reload => true }, :production => { :reload => false } } }
 
-      before{ subject.merge!(reload: 'whatever') }
+      before{ subject.merge!(:reload => 'whatever') }
 
       context ':env key' do
         context 'valid :env' do
-          let(:opts) { { env: :development } }
+          let(:opts) { { :env => :development } }
 
           it 'slices out a subhash given by :env' do
             subject.read(file_path, opts)
-            subject.should == default_params.merge(reload: true)
+            subject.should == default_params.merge(:reload => true)
           end
         end
 
         context 'invalid :env' do
-          let(:opts) { { env: :not_there } }
+          let(:opts) { { :env => :not_there } }
 
           it 'has no effect if the key given by :env option is absent' do
             subject.read(file_path, opts)
-            subject.should == default_params.merge(reload: 'whatever')
+            subject.should == default_params.merge(:reload => 'whatever')
           end
         end
       end
@@ -114,7 +114,7 @@ describe Configliere::ConfigFile do
 
         it 'does no slicing without the :env option' do
           subject.read(file_path, opts)
-          subject.should == default_params.merge(reload: 'whatever').merge(file_params)
+          subject.should == default_params.merge(:reload => 'whatever').merge(file_params)
         end
       end
     end

@@ -92,13 +92,19 @@ describe "Configliere::Define" do
       [Array,  'alone',                     ['alone'] ],
       [Array,  '',                          []        ],
       [Array,  nil,                         nil       ],
-      ['other', '5', '5'],     ['other', 5,   5],    ['other', nil, nil],    ['other', '', nil],
     ].each do |type, orig, desired|
       it "for #{type} converts #{orig.inspect} to #{desired.inspect}" do
         @config.define :has_type, :type => type
         @config[:has_type] = orig ; @config.resolve! ; @config[:has_type].should == desired
       end
     end
+
+    it 'raises an error (FIXME: on resolve, which is not that great) if you define an unknown type' do
+      @config.define :has_type, :type => 'bogus, man'
+      @config[:has_type] = "WHOA" ;
+      expect{ @config.resolve! }.to raise_error(ArgumentError, /Unknown type.*bogus, man/)
+    end
+
     it 'converts :now to the current moment' do
       @config.define :has_type, :type => DateTime
       @config[:has_type] = 'now' ; @config.resolve! ; @config[:has_type].should be_within(4).of(DateTime.now)

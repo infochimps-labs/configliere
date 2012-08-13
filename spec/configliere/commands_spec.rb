@@ -1,14 +1,14 @@
-require 'spec_helper'
+require File.expand_path('../spec_helper', File.dirname(__FILE__))
 require 'configliere/commands'
 
 describe Configliere::Commands do
-  
+
   subject{ Configliere::Param.new.use(:commands) }
 
   after{ ::ARGV.replace [] }
 
   context 'when no commands are defined' do
-    
+
     its(:commands){ should be_empty }
 
     let(:args) { %w[ not_command_but_arg another_arg ] }
@@ -35,14 +35,14 @@ describe Configliere::Commands do
     let(:args) { %w[ the_command  --fuzziness=wuzzy extra_arg ] }
 
     before do
-      subject.defaults(fuzziness: 'smooth')
-      subject.define_command(:the_command, description: 'foobar')
+      subject.defaults(:fuzziness => 'smooth')
+      subject.define_command(:the_command, :description => 'foobar')
     end
 
     it "should continue to parse flags when the command is given" do
       ::ARGV.replace args
       subject.resolve!
-      subject.should == { fuzziness: 'wuzzy' }
+      subject.should == { :fuzziness => 'wuzzy' }
     end
 
     it "should continue to set args when the command is given" do
@@ -90,23 +90,11 @@ describe Configliere::Commands do
     end
   end
 
-  def capture_help_message
-    stderr_output = ''
-    subject.should_receive(:warn){|str| stderr_output << str }
-    begin
-      yield
-      fail('should exit via system exit')
-    rescue SystemExit
-      true # pass
-    end
-    stderr_output
-  end
-
   describe "the help message" do
     before do
       subject.define_command :run, :description => "forrest"
       subject.define_command :stop, :description => "hammertime"
-      subject.define :reel, :type => Integer
+      subject.define         :reel, :type => Integer
     end
 
     it "displays a modified usage" do
@@ -115,7 +103,7 @@ describe Configliere::Commands do
       stderr_output.should =~ %r{usage:.*\[command\]}m
     end
 
-    it "displays the commands and their descriptions" do
+    it "displays the commands and their descriptions", :if => (RUBY_VERSION < "2.0") do
       ::ARGV.replace ['--help']
       stderr_output = capture_help_message{ subject.resolve! }
       stderr_output.should =~ %r{Available commands:\s+run\s*forrest\s+stop\s+hammertime}m

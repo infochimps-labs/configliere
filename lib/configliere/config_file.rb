@@ -3,9 +3,9 @@ require 'pathname'
 module Configliere
   # Default locations where config files live
   DEFAULT_CONFIG_LOCATION = {
-    machine: ->(scope){ Pathname('/etc').join(scope) },
-    user:    ->(scope){ Pathname(ENV['HOME'] || '/').join(".#{scope}") },
-    app:     ->(scope){ app_dir = Pathname('/') ; Pathname(Dir.pwd).ascend{ |path| app_dir = path.join('config') if path.join('config').exist? } ; app_dir }
+    :machine => lambda{|scope| Pathname('/etc').join(scope) },
+    :user    => lambda{|scope| Pathname(ENV['HOME'] || '/').join(".#{scope}") },
+    :app     => lambda{|scope| app_dir = Pathname('/') ; Pathname(Dir.pwd).ascend{ |path| app_dir = path.join('config') if path.join('config').exist? } ; app_dir }
   } unless defined?(DEFAULT_CONFIG_LOCATION)
 
   #

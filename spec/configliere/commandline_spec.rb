@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require File.expand_path('../spec_helper', File.dirname(__FILE__))
 
 describe "Configliere::Commandline" do
   before do
@@ -163,8 +163,8 @@ describe "Configliere::Commandline" do
       @config.define :dest_time, :type => DateTime, :description => "Arrival time", :required => true
       @config.define :takes_opt, :flag => 't',      :description => "Takes a single-letter flag '-t'"
       @config.define :foobaz, :internal => true,    :description => "You won't see me"
-      @config.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
       @config.define :password, :required => true, :encrypted => true
+      @config.define 'delorean.power_source', :env_var => 'POWER_SOURCE', :description => 'Delorean subsytem supplying power to the Flux Capacitor.'
       @config.description = 'This is a sample script to demonstrate the help message. Notice how pretty everything lines up YAY'
 
       stderr_output = capture_help_message{ @config.resolve! }

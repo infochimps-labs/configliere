@@ -1,7 +1,15 @@
 # Settings.use :prompt
 # you must install the highline gem
 
-require 'highline/import'
+begin
+  require 'highline/import'
+rescue LoadError, NameError => err
+  warn "************"
+  warn "Highline does not work with JRuby 1.7.0+ as of Mid 2012. See https://github.com/JEG2/highline/issues/41."
+  warn "************"
+  raise
+end
+
 module Configliere
   #
   # Method to prompt for

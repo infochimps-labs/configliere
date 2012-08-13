@@ -1,6 +1,16 @@
 module Configliere
   # for encryption
-  require 'openssl'
+
+  begin
+    require 'openssl'
+    OPENSSL_OK = true
+  rescue LoadError => err
+    raise unless err.to_s.include?('openssl')
+    warn "Your ruby doesn't appear to have been built with OpenSSL."
+    warn "So you don't get to have Encryption."
+    OPENSSL_OK = false
+  end
+
   require 'digest/sha2'
   # base64-encode the binary encrypted string
   require "base64"
@@ -51,6 +61,7 @@ module Configliere
     # @param [String] encrypt_pass secret passphrase to decrypt with
     #
     def self.new_cipher direction, encrypt_pass, options={}
+      raise "OpenSSL broken on this platform" unless OPENSSL_OK
       cipher     = OpenSSL::Cipher::Cipher.new(CIPHER_TYPE)
       case direction when :encrypt then cipher.encrypt when :decrypt then cipher.decrypt else raise "Bad cipher direction #{direction}" end
       cipher.key = encrypt_key(encrypt_pass, options)
@@ -59,7 +70,8 @@ module Configliere
 
     # prepend the initialization vector to the encoded message
     def self.combine_iv_and_ciphertext iv, message
-      iv.force_encoding("BINARY") + message.force_encoding("BINARY")
+      message.force_encoding("BINARY") if message.respond_to?(:force_encoding)
+      iv + message
     end
     # pull the initialization vector from the front of the encoded message
     def self.separate_iv_and_ciphertext cipher, iv_and_ciphertext

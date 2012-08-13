@@ -3,10 +3,8 @@ source 'http://rubygems.org'
 gem   'multi_json',  ">= 1.1"
 
 # Only necessary if you want to use Configliere::Prompt
-gem   'highline',    ">= 1.5.2"
-gem   'jruby-openssl',           :platform => :jruby # if RUBY_PLATFORM =~ /java/
-
-puts [RUBY_PLATFORM, RUBY_ENGINE, RUBY_DESCRIPTION]
+gem   'highline',    ">= 1.5.2", :require => false  # unless (defined?(JRUBY_VERSION) && (JRUBY_VERSION >= "1.7.0"))
+gem   'jruby-openssl',           :platform => [:jruby]
 
 # Only gems that you want listed as development dependencies in the gemspec
 group :development do
@@ -19,25 +17,26 @@ end
 
 group :docs do
   gem 'RedCloth',    ">= 4.2",   :require => "redcloth"
-  gem 'redcarpet',   ">= 2.1",   :platform => [:mri, :rbx]
-  gem 'kramdown',                :platform => :jruby
+  gem 'redcarpet',   ">= 2.1",   :platform => [:ruby]
+  gem 'kramdown',                :platform => [:jruby]
 end
 
 # Gems for testing and coverage
 group :test do
-  gem 'simplecov',   ">= 0.5",   :platform => :ruby_19
+  gem 'simplecov',   ">= 0.5",   :platform => [:ruby_19]
   #
-  gem 'oj',          ">= 1.2",   :platform => [:mri, :rbx]
-  gem 'json',                    :platform => :jruby
+  gem 'oj',          ">= 1.2",   :platform => [:ruby]
+  gem 'json',                    :platform => [:jruby]
 end
 
 # Gems you would use if hacking on this gem (rather than with it)
 group :support do
   gem 'pry'
-  gem 'guard',       ">= 1.0"
-  gem 'guard-rspec', ">= 0.6"
-  gem 'guard-yard'
+  #
+  gem 'guard',       ">= 1.0",   :platform => [:ruby_19]
+  gem 'guard-rspec', ">= 0.6",   :platform => [:ruby_19]
+  gem 'guard-yard',              :platform => [:ruby_19]
   if RUBY_PLATFORM.include?('darwin')
-    gem 'rb-fsevent', ">= 0.9"
+    gem 'rb-fsevent', ">= 0.9",  :platform => [:ruby_19]
   end
 end

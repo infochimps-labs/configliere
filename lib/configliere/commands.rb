@@ -42,7 +42,7 @@ module Configliere
       if command_name && commands[command_name]
         sub_config = commands[command_name][:config]
         adoptable  = sub_config.send(:definitions).keys
-        merge!(sub_config.select{|k,v| adoptable.include?(k) } )
+        merge!( Hash[sub_config.select{|k,v| adoptable.include?(k) }] )
       end
       self
     end

@@ -1,6 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe "Configliere::Prompt" do
+# Highline does not work with JRuby 1.7.0+ as of Mid 2012. See https://github.com/JEG2/highline/issues/41.
+
+describe "Configliere::Prompt", :if => load_sketchy_lib('highline/import', /highline|jline\.Terminal/) do
   before do
     @config = Configliere::Param.new
     @config.use :prompt
@@ -45,5 +47,4 @@ describe "Configliere::Prompt" do
       Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
     end
   end
-
 end
