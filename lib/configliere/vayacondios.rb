@@ -1,1 +1,1 @@
-require 'vayacondios/configliere'
+require 'vayacondios-client'
