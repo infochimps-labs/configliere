@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "configliere"
-  s.version = "0.4.16"
+  s.version = "0.4.17"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-08-13"
+  s.date = "2012-08-17"
   s.description = "You've got a script. It's got some settings. Some settings are for this module, some are for that module. Most of them don't change. Except on your laptop, where the paths are different.  Or when you're in production mode. Or when you're testing from the command line.\n\n   \"\" So, Consigliere of mine, I think you should tell your Don what everyone knows. \"\" -- Don Corleone\n\nConfigliere manage settings from many sources: static constants, simple config files, environment variables, commandline options, straight ruby. You don't have to predefine anything, but you can ask configliere to type-convert, require, document or password-obscure any of its fields. Modules can define config settings independently of each other and the main program.\n"
   s.email = "coders@infochimps.org"
   s.extra_rdoc_files = [
@@ -75,7 +75,7 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/infochimps-labs/configliere"
   s.licenses = ["Apache 2.0"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.24"
+  s.rubygems_version = "1.8.15"
   s.summary = "Wise, discreet configuration management"
 
   if s.respond_to? :specification_version then
