@@ -82,5 +82,8 @@ module Configliere
       USE_HANDLERS[mw] = block
     end
 
+    def extractable_options?
+      true
+    end
   end
 end
