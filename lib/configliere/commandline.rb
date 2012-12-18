@@ -141,6 +141,7 @@ module Configliere
     def usage
       %Q{usage: #{raw_script_name} [...--param=val...]}
     end
+    attr_writer :usage
 
     # the script basename, for recycling into help messages
     def raw_script_name
