@@ -84,11 +84,6 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<multi_json>, [">= 1.1"])
       s.add_runtime_dependency(%q<highline>, [">= 1.5.2"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.1"])
-      s.add_development_dependency(%q<rake>, [">= 0"])
-      s.add_development_dependency(%q<yard>, [">= 0.7"])
-      s.add_development_dependency(%q<rspec>, [">= 2.8"])
-      s.add_development_dependency(%q<jeweler>, [">= 1.6"])
     else
       s.add_dependency(%q<multi_json>, [">= 1.1"])
       s.add_dependency(%q<highline>, [">= 1.5.2"])
