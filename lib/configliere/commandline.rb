@@ -12,23 +12,27 @@ module Configliere
     attr_reader   :unknown_argvs
 
     # Processing to reconcile all options
-    #
-    # Configliere::Commandline's resolve!:
-    #
+    # 
     # * processes all commandline params
-    # * if the --help param was given, prints out a usage statement describing all #define'd params and exits
     # * calls up the resolve! chain.
     #
-    def resolve!
+    # * if the --help param was given, prints out a usage statement describing all #define'd params and exits
+    #
+    # If the --help param was given, Will print out a usage statement
+    # describing all #define'd params and exit.  To avoid this, pass
+    # `false` as the first argument.
+    #
+    # @param [true,false] print_help_and_exit whether to print help and exit if the --help param was given
+    def resolve!(print_help_and_exit=true)
       process_argv!
-      if self[:help]
+      if print_help_and_exit && self[:help]
         dump_help
         exit(2)
       end
       super()
       self
     end
-
+    
     #
     # Parse the command-line args into the params hash.
     #
