@@ -1,6 +1,3 @@
-require 'bundler/setup' ; Bundler.require(:default, :development, :test)
-require 'rspec/autorun'
-
 puts "Running specs in version #{RUBY_VERSION} on #{RUBY_PLATFORM} #{RUBY_DESCRIPTION}"
 
 if ENV['CONFIGLIERE_COV']
@@ -26,7 +23,7 @@ RSpec.configure do |config|
 
   def capture_help_message
     stderr_output = ''
-    subject.should_receive(:warn){|str| stderr_output << str }
+    subject.should_receive(:warn){ |str| stderr_output << str }
     begin
       yield
       fail('should exit via system exit')
