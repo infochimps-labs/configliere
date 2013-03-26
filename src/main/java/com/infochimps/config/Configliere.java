@@ -77,12 +77,10 @@ public class Configliere {
 
   public static String propertyOrDie(String name) {
     String property = System.getProperty(name);
-    if (property == null) {
-      System.err.println("property " + name + " not provided");
-      System.exit(1);
-      // never reached. to silence compiler.
-      return null;
-    } else return property;
+    // Java assertions are disabled by default, so do this instead.
+    if (property != null)
+      throw new AssertionError("property " + name + " not provided");
+    return property;
   }
 
   private static final String JOIN = ",";
