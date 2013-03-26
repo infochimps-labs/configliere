@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.Iterator;
 
@@ -18,22 +20,25 @@ import org.slf4j.Logger;
 
 public class Configliere {
   public static void loadFlatItemSet(String topic, String id) {
-    loadFlatItemSet(topic, id, ",");
+    loadFlatItemSet(propertyOrDie("vayacondios.organization"), topic, id);
   }
 
-  public static void loadFlatItemSet(String topic, String id, String join) {
-    if (vayacondios == null)
-      vayacondios =
-	new VayacondiosClient(
-	      propertyOrDie("vayacondios.host"),
-	      Integer.parseInt(propertyOrDie("vayacondios.port"))).
-	organization(propertyOrDie("vayacondios.organization")).
-	itemsets();
+  public static void loadFlatItemSet(String orgName, String topic, String id) {
+    ItemSets org = organizations.get(orgName);
+    if (org == null) {
+      org = (new VayacondiosClient(
+		  propertyOrDie("vayacondios.host"),
+		  Integer.parseInt(propertyOrDie("vayacondios.port"))).
+	     organization(orgName).
+	     itemsets());
+
+      organizations.put(orgName, org);
+    }
 
     StringBuilder builder = new StringBuilder();
 
     List<Item> items = null;
-    try { items = vayacondios.fetch(topic, id); }
+    try { items = org.fetch(topic, id); }
     catch (IOException ex) {
       LOG.warn("error loading " + topic + "." + id + " from vayacondios:", ex);
       return;
@@ -44,7 +49,7 @@ public class Configliere {
       Iterator<Item> iter = items.iterator();
       builder.append(iter.next().getObject().toString());
       while (iter.hasNext())
-	builder.append(join).append(iter.next().getObject().toString());
+	builder.append(JOIN).append(iter.next().getObject().toString());
 
       System.setProperty(topic + "." + id, builder.toString());
     }
@@ -57,7 +62,7 @@ public class Configliere {
     } catch (FileNotFoundException ex) {
       System.err.println("file " + name + " not found");
       System.err.flush();
-      System.exit(-1);
+      System.exit(1);
     } catch (IOException ex) {
       System.err.println("trouble reading from " + name);
       ex.printStackTrace();
@@ -80,6 +85,8 @@ public class Configliere {
     } else return property;
   }
 
-  private static ItemSets vayacondios = null;
+  private static final String JOIN = ",";
+  private static Map<String, ItemSets> organizations =
+    new HashMap<String, ItemSets>();
   private static final Logger LOG = getLogger();
 }

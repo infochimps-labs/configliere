@@ -14,6 +14,45 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.infochimps.config.IntegrationTests</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>exec-maven-plugin</artifactId>
+	<version>1.2.1</version>
+	<configuration>
+	  <executable>java</executable>
+	  <arguments>
+	    <argument>-cp</argument>
+	    <classpath/>
+	    <argument>-jar</argument>
+	    <argument>target/${project.artifactId}-${project.version}.jar</argument>
+	  </arguments>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <repositories>
     <!-- Infochimps Repositories -->
     <repository>
@@ -37,6 +76,17 @@
       <groupId>com.infochimps</groupId>
       <artifactId>vayacondios</artifactId>
       <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.2</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
