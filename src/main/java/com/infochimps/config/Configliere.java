@@ -60,13 +60,9 @@ public class Configliere {
       System.err.println("loading config from: " + name);
       System.getProperties().load(new FileReader(name));
     } catch (FileNotFoundException ex) {
-      System.err.println("file " + name + " not found");
-      System.err.flush();
-      System.exit(1);
+      throw new AssertionError(ex);
     } catch (IOException ex) {
-      System.err.println("trouble reading from " + name);
-      ex.printStackTrace();
-      System.exit(1);
+      throw new AssertionError(ex);
     }
   }
 
