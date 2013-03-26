@@ -78,7 +78,7 @@ public class Configliere {
   public static String propertyOrDie(String name) {
     String property = System.getProperty(name);
     // Java assertions are disabled by default, so do this instead.
-    if (property != null)
+    if (property == null)
       throw new AssertionError("property " + name + " not provided");
     return property;
   }
