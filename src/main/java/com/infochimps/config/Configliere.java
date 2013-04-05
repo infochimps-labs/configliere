@@ -24,6 +24,10 @@ public class Configliere {
   }
 
   public static void loadFlatItemSet(String orgName, String topic, String id) {
+    loadFlatItemSet(orgName, topic, id, Boolean.FALSE);
+  }
+
+  public static void loadFlatItemSet(String orgName, String topic, String id, Boolean withOrg) {
     ItemSets org = organizations.get(orgName);
     if (org == null) {
       org = (new VayacondiosClient(
@@ -44,14 +48,19 @@ public class Configliere {
       return;
     }
 
-    if (items.size() == 0) System.setProperty(topic + "." + id, "");
+    String propertyName = topic + "." + id;
+    if (withOrg) {
+      propertyName = orgName + "." + propertyName;
+    }
+
+    if (items.size() == 0) System.setProperty(propertyName, "");
     else {
       Iterator<Item> iter = items.iterator();
       builder.append(iter.next().getObject().toString());
       while (iter.hasNext())
 	builder.append(JOIN).append(iter.next().getObject().toString());
 
-      System.setProperty(topic + "." + id, builder.toString());
+      System.setProperty(propertyName, builder.toString());
     }
   }
 
