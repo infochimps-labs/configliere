@@ -4,7 +4,7 @@
   <groupId>com.infochimps</groupId>
   <artifactId>configliere</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>configliere</name>
   <url>http://maven.apache.org</url>
 
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>com.infochimps</groupId>
       <artifactId>vayacondios</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
