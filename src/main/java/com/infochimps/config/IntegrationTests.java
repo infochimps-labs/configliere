@@ -1,6 +1,8 @@
 package com.infochimps.config;
 
 import com.infochimps.config.Configliere;
+import com.infochimps.vayacondios.StandardVCDLink;
+import static com.infochimps.config.Configliere.propertyOr;
 import static com.infochimps.config.Configliere.propertyOrDie;
 import static com.infochimps.vayacondios.ItemSets.ItemSet;
 import static com.infochimps.vayacondios.ItemSets.Item;
@@ -16,6 +18,8 @@ public class IntegrationTests {
   final static String VCD_ID = "samples";
 
   public static void main(String argv[]) throws IOException {
+    StandardVCDLink
+      .forceLegacy(Boolean.valueOf(propertyOr("vayacondios.legacy", "false")));
     VayacondiosClient client = new VayacondiosClient(VCD_HOST, VCD_PORT);
 
     System.setProperty("vayacondios.host", VCD_HOST);
@@ -43,8 +47,8 @@ public class IntegrationTests {
   }
 
   public static String populateSet(VayacondiosClient client,
-			  String orgName,
-			  String... itemStrings) throws IOException {
+                          String orgName,
+                          String... itemStrings) throws IOException {
     ArrayList<Item> items = new ArrayList();
     for (String str : itemStrings) items.add(new Item(str));
     client.organization(orgName).itemsets().create(VCD_TOPIC, VCD_ID, items);

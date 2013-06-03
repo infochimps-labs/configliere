@@ -2,6 +2,7 @@ package com.infochimps.config;
 
 import com.infochimps.util.HttpHelper;
 import com.infochimps.vayacondios.ItemSets;
+import com.infochimps.vayacondios.StandardVCDLink;
 import com.infochimps.vayacondios.VayacondiosClient;
 
 import static com.infochimps.util.CurrentClass.getLogger;
@@ -29,12 +30,14 @@ public class Configliere {
 
   public static void loadFlatItemSet(String orgName, String topic, String id, Boolean withOrg) {
     ItemSets org = organizations.get(orgName);
+    StandardVCDLink
+      .forceLegacy(Boolean.valueOf(propertyOr("vayacondios.legacy", "false")));
     if (org == null) {
       org = (new VayacondiosClient(
-		  propertyOrDie("vayacondios.host"),
-		  Integer.parseInt(propertyOrDie("vayacondios.port"))).
-	     organization(orgName).
-	     itemsets());
+                  propertyOrDie("vayacondios.host"),
+                  Integer.parseInt(propertyOrDie("vayacondios.port"))).
+             organization(orgName).
+             itemsets());
 
       organizations.put(orgName, org);
     }
@@ -58,7 +61,7 @@ public class Configliere {
       Iterator<Item> iter = items.iterator();
       builder.append(iter.next().getObject().toString());
       while (iter.hasNext())
-	builder.append(JOIN).append(iter.next().getObject().toString());
+        builder.append(JOIN).append(iter.next().getObject().toString());
 
       System.setProperty(propertyName, builder.toString());
     }
