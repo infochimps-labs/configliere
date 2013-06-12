@@ -4,14 +4,15 @@
   <groupId>com.infochimps</groupId>
   <artifactId>configliere</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.4-SNAPSHOT</version>
+<!-- ICSVERS --><version>1.5.0-SNAPSHOT</version>
   <name>configliere</name>
   <url>http://maven.apache.org</url>
 
   <parent>
     <groupId>com.infochimps</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+<!-- ICSVERS --><version>1.5.0-SNAPSHOT</version>
+    <relativePath></relativePath>
   </parent>
 
   <properties>
@@ -40,24 +41,7 @@
     <dependency>
       <groupId>com.infochimps</groupId>
       <artifactId>vayacondios</artifactId>
-      <version>1.0.4-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.5</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>
