@@ -4,14 +4,14 @@
   <groupId>com.infochimps</groupId>
   <artifactId>configliere</artifactId>
   <packaging>jar</packaging>
-<!-- ICSVERS --><version>1.5.3-SNAPSHOT</version>
+<!-- ICSVERS --><version>1.6.0-SNAPSHOT</version>
   <name>configliere</name>
   <url>http://maven.apache.org</url>
 
   <parent>
     <groupId>com.infochimps</groupId>
     <artifactId>parent-pom</artifactId>
-<!-- ICSVERS --><version>1.5.3-SNAPSHOT</version>
+<!-- ICSVERS --><version>1.6.0-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
 
