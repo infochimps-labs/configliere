@@ -17,20 +17,19 @@ describe Configliere::Param do
   end
 
   describe 'adding plugins with #use' do
-    before do
-      Configliere.should_receive(:use).with(:foobar)
-    end
-
     it 'requires the corresponding library' do
+      Configliere.should_receive(:use).with(:foobar)
       subject.use(:foobar)
     end
 
     it 'returns self, to allow chaining' do
+      Configliere.should_receive(:use).with(:foobar)
       return_value = subject.use(:foobar)
       return_value.should equal(subject)
     end
 
     it 'invokes the on_use handler' do
+      Configliere.should_receive(:use).with(:foobar)
       described_class.on_use(:foobar) do
         method_on_config(:param)
       end
