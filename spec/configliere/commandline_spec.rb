@@ -5,9 +5,7 @@ describe Configliere::Commandline do
   
   subject{ Configliere::Param.new(:date => '11-05-1955', :cat => :hat).use :commandline }
   
-  after do
-    ::ARGV.replace []
-  end
+  after{ ::ARGV.replace [] }
 
   describe "with long-format argvs" do
     it 'accepts --param=val pairs' do
@@ -189,16 +187,16 @@ describe Configliere::Commandline do
       stderr_output.should_not be_nil
       stderr_output.should_not be_empty
 
-      stderr_output.should =~ %r{--debug\s}s                                 # type :boolean
-      stderr_output.should =~ %r{--logfile=String\s}s                        # type String
-      stderr_output.should =~ %r{--dest_time=DateTime[^\n]+\[Required\]}s    # shows required params
-      stderr_output.should =~ %r{--password=String[^\n]+\[Encrypted\]}s      # shows encrypted params
-      stderr_output.should =~ %r{--delorean.power_source=String\s}s          # undefined type
-      stderr_output.should =~ %r{--password=String\s*password}s              # uses name as dummy description
-      stderr_output.should =~ %r{-t, --takes_opt}s                           # single-letter flags
+      stderr_output.should =~ %r{--debug\s}s                                         # type :boolean
+      stderr_output.should =~ %r{--logfile=String\s}s                                # type String
+      stderr_output.should =~ %r{--dest_time=DateTime[^\n]+\[Required\]}s            # shows required params
+      stderr_output.should =~ %r{--password=String[^\n]+\[Encrypted\]}s              # shows encrypted params
+      stderr_output.should =~ %r{--delorean.power_source=String\s}s                  # undefined type
+      stderr_output.should =~ %r{--password=String\s*password}s                      # uses name as dummy description
+      stderr_output.should =~ %r{-t, --takes_opt}s                                   # single-letter flags
 
-      stderr_output.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s    # environment variable
-      stderr_output.should =~ %r{This is a sample script}s                         # extra description
+      stderr_output.should =~ %r{delorean\.power_source[^\n]+Env Var: POWER_SOURCE}s # environment variable
+      stderr_output.should =~ %r{This is a sample script}s                           # extra description
     end
 
     it 'lets me die' do
@@ -212,11 +210,11 @@ describe Configliere::Commandline do
   describe 'recycling a commandline' do
     it 'exports dashed flags' do
       subject.define :has_underbar, :type => Integer,  :default => 1
-      subject.define :not_here,     :type => Integer
-      subject.define :is_truthy,    :type => :boolean, :default => true
-      subject.define :is_falsehood, :type => :boolean, :default => false
-      subject.dashed_flags(:has_underbar, :not_here, :is_truthy, :is_falsehood, :date, :cat
-        ).should == ["--has-underbar=1", "--is-truthy", "--date=11-05-1955", "--cat=hat"]
+      subject.define :missing,      :type => Integer
+      subject.define :truthy,       :type => :boolean, :default => true
+      subject.define :falsehood,    :type => :boolean, :default => false      
+      subject.dashed_flags(:has_underbar, :missing, :truthy).should == %w[ --has-underbar=1 --truthy   ]
+      subject.dashed_flags(:falsehood, :date, :cat).should          == %w[ --date=11-05-1955 --cat=hat ]
     end
   end
 
