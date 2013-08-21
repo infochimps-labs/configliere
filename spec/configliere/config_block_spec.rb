@@ -7,12 +7,12 @@ describe Configliere::ConfigBlock do
 
   describe 'resolving' do
     it 'runs blocks' do
-      @block_watcher = 'watcher'
-      # @block_watcher.should_receive(:fnord).with(@config)
-      @block_watcher.should_receive(:fnord)
-      subject.finally{|arg| @block_watcher.fnord(arg) }
+      outside_scope = double :watcher, :fnord => true
+      outside_scope.should_receive(:fnord)
+      subject.finally{ |arg| outside_scope.fnord(arg) }
       subject.resolve!
     end
+
     it 'resolves blocks last' do
       Configliere.use :config_block, :encrypted
       subject.should_receive(:resolve_types!).ordered
