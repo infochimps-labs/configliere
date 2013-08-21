@@ -11,8 +11,8 @@ describe Configliere::Param do
     end
 
     it 'returns self, to allow chaining' do
-      obj = subject.defaults(:basket => :ball)
-      obj.should equal(subject)
+      return_value = subject.defaults(:basket => :ball)
+      return_value.should equal(subject)
     end
   end
 
@@ -22,16 +22,16 @@ describe Configliere::Param do
     end
 
     it 'requires the corresponding library' do
-      obj = subject.use(:foobar)
+      subject.use(:foobar)
     end
 
     it 'returns self, to allow chaining' do
-      obj = subject.use(:foobar)
-      obj.should equal(subject)
+      return_value = subject.use(:foobar)
+      return_value.should equal(subject)
     end
 
     it 'invokes the on_use handler' do
-      Configliere::Param.on_use(:foobar) do
+      described_class.on_use(:foobar) do
         method_on_config(:param)
       end
       subject.should_receive(:method_on_config).with(:param)
