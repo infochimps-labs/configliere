@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 module Configliere ; module Crypter ; CIPHER_TYPE = 'aes-128-cbc' ; end ; end
 

@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 # Highline does not work with JRuby 1.7.0+ as of Mid 2012. See https://github.com/JEG2/highline/issues/41.
 

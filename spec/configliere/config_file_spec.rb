@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', File.dirname(__FILE__))
+require 'spec_helper'
 
 describe Configliere::ConfigFile do
   let(:default_params) { { :my_param => 'default_val', :also_a_param => true } }
