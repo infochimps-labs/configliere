@@ -164,7 +164,7 @@ describe Configliere::ConfigFile do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     around do |example|
       Configliere::ParamParent.class_eval{ def validate!() parent_method ; end }
       example.run

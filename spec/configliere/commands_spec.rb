@@ -66,7 +66,7 @@ describe Configliere::Commands do
     end
   end
 
-  describe "a complex command" do
+  context "a complex command" do
     before do
       subject.defaults :outer => 'val 1'
       subject.define_command "the_command", :description => "the command" do |cmd|
@@ -90,7 +90,7 @@ describe Configliere::Commands do
     end
   end
 
-  describe "the help message" do
+  context "the help message" do
     before do
       subject.define_command :run, :description => "forrest"
       subject.define_command :stop, :description => "hammertime"
@@ -111,7 +111,7 @@ describe Configliere::Commands do
     end
   end
 
-  describe '#resolve!' do
+  context '#resolve!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
       subject.should_receive(:dummy)
@@ -120,7 +120,7 @@ describe Configliere::Commands do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
       subject.should_receive(:dummy)

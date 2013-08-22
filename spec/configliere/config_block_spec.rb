@@ -5,7 +5,7 @@ describe Configliere::ConfigBlock do
 
   subject{ Configliere::Param.new :normal_param => 'normal' }
 
-  describe 'resolving' do
+  context 'resolving' do
     it 'runs blocks' do
       outside_scope = double :watcher, :fnord => true
       outside_scope.should_receive(:fnord)
@@ -28,7 +28,7 @@ describe Configliere::ConfigBlock do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
       subject.should_receive(:dummy)
