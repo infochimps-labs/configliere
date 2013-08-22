@@ -11,8 +11,8 @@ describe Configliere::ConfigFile do
 
   context '#read' do
     let(:file_params) { { :my_param => 'val_from_file' } }
-    let(:file_string) { file_params.to_yaml           }
-    let(:file_path)   { '/absolute/path.yaml'         }
+    let(:file_string) { file_params.to_yaml              }
+    let(:file_path)   { '/absolute/path.yaml'            }
 
     before{ File.stub(:open).and_return(file_string) }
 
