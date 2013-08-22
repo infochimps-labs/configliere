@@ -128,5 +128,4 @@ describe Configliere::Commands do
       Configliere::ParamParent.class_eval do def validate!() self ; end ; end
     end
   end
-
 end
