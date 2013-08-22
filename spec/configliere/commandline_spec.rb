@@ -7,7 +7,7 @@ describe Configliere::Commandline do
   
   after{ ::ARGV.replace [] }
 
-  describe "with long-format argvs" do
+  context "with long-format argvs" do
     it 'accepts --param=val pairs' do
       ::ARGV.replace ['--enchantment=under_sea']
       subject.resolve!
@@ -79,7 +79,7 @@ describe Configliere::Commandline do
     end
   end
 
-  describe "with single-letter flags" do
+  context "with single-letter flags" do
     before do
       subject.define :date,    :flag => :d
       subject.define :cat,     :flag => 'c'
@@ -153,7 +153,7 @@ describe Configliere::Commandline do
     stderr_output
   end
 
-  describe "the help message" do
+  context "the help message" do
     it 'displays help' do
       ::ARGV.replace ['--help']
       stderr_output = capture_help_message{ subject.resolve! }
@@ -207,7 +207,7 @@ describe Configliere::Commandline do
     end
   end
 
-  describe 'recycling a commandline' do
+  context 'recycling a commandline' do
     it 'exports dashed flags' do
       subject.define :has_underbar, :type => Integer,  :default => 1
       subject.define :missing,      :type => Integer
@@ -218,7 +218,7 @@ describe Configliere::Commandline do
     end
   end
 
-  describe '#resolve!' do
+  context '#resolve!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
       subject.should_receive(:dummy)
@@ -227,7 +227,7 @@ describe Configliere::Commandline do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
       subject.should_receive(:dummy)
