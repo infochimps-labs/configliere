@@ -101,6 +101,7 @@ describe DeepHash do
       subject['moon.non'].should be_nil
       subject.should == orig_hash # shouldn't change from reading (specifically, shouldn't autovivify)
     end
+
     it 'indexing through a non-hash will raise an error', :if => (defined?(RUBY_ENGINE) && (RUBY_ENGINE !~ /rbx/)) do
       err_klass = (RUBY_VERSION >= "1.9.0") ? TypeError : NoMethodError
       expect{ subject['hat.dog'] }.to raise_error(err_klass, /Symbol/)
@@ -108,8 +109,8 @@ describe DeepHash do
     end
 
     it "only accepts #to_sym'bolizable things as keys" do
-      lambda{ subject[{ :a => :b }] }.should raise_error(NoMethodError, /undefined method `to_sym'/)
-      lambda{ subject[Object.new]   }.should raise_error(NoMethodError, /undefined method `to_sym'/)
+      expect{ subject[{ :a => :b }] }.to raise_error(NoMethodError, /undefined method `to_sym'/)
+      expect{ subject[Object.new]   }.to raise_error(NoMethodError, /undefined method `to_sym'/)
     end
   end
 
@@ -162,7 +163,7 @@ describe DeepHash do
   end
 
   describe '#slice' do
-    let(:subject  ){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
+    let(:subject){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
 
     it 'returns a new hash with only the given keys' do
       subject.slice(:a, :b).should == { :a => 'x', :b => 'y' }
@@ -196,7 +197,7 @@ describe DeepHash do
   end
 
   describe '#extract' do
-    let(:subject  ){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
+    let(:subject){ Configliere::Param.new({ :a => 'x', :b => 'y', :c => 10 }) }
 
     it 'replaces the hash with only the given keys' do
       subject.extract!(:a, :b).should == { :a => 'x', :b => 'y' }
@@ -225,21 +226,19 @@ describe DeepHash do
   describe "#delete" do
     it 'converts Symbol key into String before deleting' do
       deep_hash = DeepHash.new(@hash)
-
       deep_hash.delete(:sym_key)
       deep_hash.key?("hash").should be_false
     end
 
     it 'works with String keys as well' do
       deep_hash = DeepHash.new(@hash)
-
       deep_hash.delete("str_key")
       deep_hash.key?("str_key").should be_false
     end
   end
 
   describe "#fetch" do
-    let(:subject  ){ Configliere::Param.new({ :no => :in_between }) }
+    let(:subject){ Configliere::Param.new({ :no => :in_between }) }
 
     it 'converts key before fetching' do
       subject.fetch("no").should == :in_between
@@ -260,9 +259,9 @@ describe DeepHash do
   end
 
   it 'responds to #symbolize_keys, #symbolize_keys! and #stringify_keys but not #stringify_keys!' do
-    DeepHash.new.should respond_to(:symbolize_keys )
-    DeepHash.new.should respond_to(:symbolize_keys!)
-    DeepHash.new.should respond_to(:stringify_keys )
+    DeepHash.new.should     respond_to(:symbolize_keys )
+    DeepHash.new.should     respond_to(:symbolize_keys!)
+    DeepHash.new.should     respond_to(:stringify_keys )
     DeepHash.new.should_not respond_to(:stringify_keys!)
   end
 
@@ -310,8 +309,8 @@ describe DeepHash do
 
     it 'fails when invalid' do
       @deep_hash[:failore] = @deep_hash.delete(:failure)
-      lambda{ @deep_hash.assert_valid_keys([ :failure, :funny ]) }.should raise_error(ArgumentError, "Unknown key(s): failore")
-      lambda{ @deep_hash.assert_valid_keys(:failure, :funny)     }.should raise_error(ArgumentError, "Unknown key(s): failore")
+      expect{ @deep_hash.assert_valid_keys([ :failure, :funny ]) }.to raise_error(ArgumentError, "Unknown key(s): failore")
+      expect{ @deep_hash.assert_valid_keys(:failure, :funny)     }.to raise_error(ArgumentError, "Unknown key(s): failore")
     end
   end
 
@@ -496,24 +495,27 @@ describe DeepHash do
     end
   end
 
-
   describe "#deep_set" do
     it 'should set a new value (single arg)' do
       @deep_hash.deep_set :new_key, 'new_val'
       @deep_hash[:new_key].should == 'new_val'
     end
+
     it 'should set a new value (multiple args)' do
       @deep_hash.deep_set :nested_1, :nested_2, :new_key, 'new_val'
       @deep_hash[:nested_1][:nested_2][:new_key].should == 'new_val'
     end
+
     it 'should replace an existing value (single arg)' do
       @deep_hash.deep_set :leaf_at_top, 'new_val'
       @deep_hash[:leaf_at_top].should == 'new_val'
     end
+
     it 'should replace an existing value (multiple args)' do
       @deep_hash.deep_set :nested_1, :nested_2, 'new_val'
       @deep_hash[:nested_1][:nested_2].should == 'new_val'
     end
+
     it 'should auto-vivify intermediate hashes' do
       @deep_hash.deep_set :one, :two, :three, :four, 'new_val'
       @deep_hash[:one][:two][:three][:four].should == 'new_val'
@@ -526,27 +528,31 @@ describe DeepHash do
       @deep_hash[:nested_1].should be_nil
       @deep_hash.should == { :leaf_at_top => 'val1b'}
     end
+
     it 'should remove the key from the array (multiple args)' do
       @deep_hash.deep_delete(:nested_1, :nested_2, :leaf_3)
       @deep_hash[:nested_1][:nested_2][:leaf_3].should be_nil
       @deep_hash.should == {:leaf_at_top => "val1b", :nested_1 => {:leaf_2 => ['arr'], :nested_2 => {}}}
     end
+
     it 'should return the value if present (single args)' do
       returned_val = @deep_hash.deep_delete(:leaf_at_top)
       returned_val.should == 'val1b'
     end
+
     it 'should return the value if present (multiple args)' do
       returned_val = @deep_hash.deep_delete(:nested_1, :nested_2, :leaf_3)
       returned_val.should == 'val3'
     end
+
     it 'should return nil if the key is absent (single arg)' do
       returned_val = @deep_hash.deep_delete(:nested_1, :nested_2, :missing_key)
       returned_val.should be_nil
     end
+
     it 'should return nil if the key is absent (multiple args)' do
       returned_val = @deep_hash.deep_delete(:missing_key)
       returned_val.should be_nil
     end
   end
-
 end
