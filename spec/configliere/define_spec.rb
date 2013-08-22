@@ -4,7 +4,7 @@ describe Configliere::Define do
   
   subject{ Configliere::Param.new :normal_param => 'normal' }
 
-  describe 'defining any aspect of a param' do
+  context 'defining any aspect of a param' do
     it 'adopts values' do
       subject.define :simple, :description => 'desc'
       subject.definition_of(:simple).should == { :description => 'desc'}
@@ -33,15 +33,17 @@ describe Configliere::Define do
     end
   end
 
-  describe 'definition_of' do
+  context 'definition_of' do
     it 'with a param, gives me the description hash' do
       subject.define :has_description,      :description => 'desc 1'
       subject.definition_of(:has_description).should == { :description => 'desc 1' }
     end
+
     it 'with a param and attr, gives me the description hash' do
       subject.define :has_description,      :description => 'desc 1'
       subject.definition_of(:has_description, :description).should == 'desc 1'
     end
+
     it 'symbolizes the param' do
       subject.define :has_description,      :description => 'desc 1'
       subject.definition_of('has_description').should == { :description => 'desc 1' }
@@ -49,25 +51,17 @@ describe Configliere::Define do
     end
   end
 
-  describe 'has_definition?' do
+  context 'has_definition?' do
     before do
       subject.define :i_am_defined, :description => 'desc 1'
     end
-    it 'is true if defined (one arg)' do
-      subject.has_definition?(:i_am_defined).should == true
-    end
-    it 'is false if not defined (one arg)' do
-      subject.has_definition?(:i_am_not_defined).should == false
-    end
-    it 'is true if defined and attribute is defined' do
-      subject.has_definition?(:i_am_defined, :description).should == true
-    end
-    it 'is false if defined and attribute is defined' do
-      subject.has_definition?(:i_am_defined, :zoink).should == false
-    end
-    it 'is false if not defined and attribute is given' do
-      subject.has_definition?(:i_am_not_defined, :zoink).should == false
-    end
+
+    it{ should     have_definition(:i_am_defined)               }
+    it{ should_not have_definition(:i_am_not_defined)           }
+    it{ should     have_definition(:i_am_defined, :description) }
+    it{ should_not have_definition(:i_am_defined, :zoink)       }
+    it{ should_not have_definition(:i_am_not_defined, :zoink)   }
+
   end
 
   it 'takes a description' do
@@ -76,7 +70,7 @@ describe Configliere::Define do
     subject.definition_of(:has_description, :description).should == 'desc 1'
   end
 
-  describe 'type coercion' do
+  context 'type coercion' do
     [
       [:boolean, '0', false],  [:boolean, 0, false], [:boolean, '',  false], [:boolean, [],     true], [:boolean, nil, nil],
       [:boolean, '1', true],   [:boolean, 1, true],  [:boolean, '5', true],  [:boolean, 'true', true],
@@ -114,55 +108,64 @@ describe Configliere::Define do
     end
   end
 
-  describe 'creates magical methods' do
+  context 'creates magical methods' do
     before do
       subject.define :has_magic_method, :default => 'val1'
       subject[:no_magic_method] = 'val2'
     end
+
     it 'answers to a getter if the param is defined' do
       subject.has_magic_method.should == 'val1'
     end
+
     it 'answers to a setter if the param is defined' do
       subject.has_magic_method = 'new_val1'
       subject.has_magic_method.should == 'new_val1'
       subject[:has_magic_method].should == 'new_val1'
     end
+
     it 'does not answer to a getter if the param is not defined' do
-      lambda{ subject.no_magic_method }.should raise_error(NoMethodError)
+      expect{ subject.no_magic_method }.to raise_error(NoMethodError)
     end
+
     it 'does not answer to a setter if the param is not defined' do
-      lambda{ subject.no_magic_method = 3 }.should raise_error(NoMethodError)
+      expect{ subject.no_magic_method = 3 }.to raise_error(NoMethodError)
     end
   end
 
-  describe 'defining requireds' do
+  context 'defining requireds' do
     before do
       subject.define :param_1, :required => true
       subject.define :param_2, :required => true
       subject.define :optional_1, :required => false
       subject.define :optional_2
     end
+
     it 'lists required params' do
       subject.params_with(:required).should include(:param_1)
       subject.params_with(:required).should include(:param_2)
     end
+
     it 'counts false values as present' do
       subject.defaults :param_1 => true, :param_2 => false
       subject.validate!.should equal(subject)
     end
+
     it 'counts nil-but-set values as missing' do
       subject.defaults :param_1 => true, :param_2 => nil
-      lambda{ subject.validate! }.should raise_error(RuntimeError)
+      expect{ subject.validate! }.to raise_error(RuntimeError)
     end
+
     it 'counts never-set values as missing' do
-      lambda{ subject.validate! }.should raise_error(RuntimeError)
+      expect{ subject.validate! }.to raise_error(RuntimeError)
     end
+
     it 'lists all missing values when it raises' do
-      lambda{ subject.validate! }.should raise_error(RuntimeError, "Missing values for: param_1, param_2")
+      expect{ subject.validate! }.to raise_error(RuntimeError, "Missing values for: param_1, param_2")
     end
   end
 
-  describe 'defining deep keys' do
+  context 'defining deep keys' do
     it 'allows required params' do
       subject.define 'delorean.power_supply', :required => true
       subject[:'delorean.power_supply'] = 'household waste'
@@ -192,7 +195,7 @@ describe Configliere::Define do
     end
   end
 
-  describe '#resolve!' do
+  context '#resolve!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
       subject.should_receive(:dummy)
@@ -201,7 +204,7 @@ describe Configliere::Define do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
       subject.should_receive(:dummy)
