@@ -1,15 +1,17 @@
 require 'spec_helper'
 
-describe "Configliere" do
+describe 'Configliere' do
+
   it 'creates a global variable Settings, for universality' do
     Settings.class.should == Configliere::Param
   end
+
   it 'creates a global method Settings, so you can say Settings(:foo => :bar)' do
     Settings.should_receive(:defaults).with(:foo => :bar)
     Settings(:foo => :bar)
   end
 
   it 'requires corresponding plugins when you call use' do
-    lambda{ Configliere.use(:param, :foo) }.should raise_error(LoadError, /no.*load.*configliere\/foo/)
+    expect{ Configliere.use(:param, :foo) }.to raise_error(LoadError, /no.*load.*configliere\/foo/)
   end
 end
