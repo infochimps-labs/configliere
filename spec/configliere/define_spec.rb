@@ -124,12 +124,20 @@ describe Configliere::Define do
       subject[:has_magic_method].should == 'new_val1'
     end
 
+    it 'answers respond_to? correctly if the param is defined' do
+      subject.should respond_to(:has_magic_method)
+    end
+
     it 'does not answer to a getter if the param is not defined' do
       expect{ subject.no_magic_method }.to raise_error(NoMethodError)
     end
 
     it 'does not answer to a setter if the param is not defined' do
       expect{ subject.no_magic_method = 3 }.to raise_error(NoMethodError)
+    end
+
+    it 'does not answer to respond_to? if the param is not defined' do
+      subject.should_not respond_to(:no_magic_method)
     end
   end
 
