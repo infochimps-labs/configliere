@@ -1,5 +1,6 @@
 require 'bundler/setup' ; Bundler.require(:default, :development, :test)
 require 'rspec/autorun'
+require 'yaml'
 
 puts "Running specs in version #{RUBY_VERSION} on #{RUBY_PLATFORM} #{RUBY_DESCRIPTION}"
 
