@@ -1,19 +1,9 @@
 source 'http://rubygems.org'
 
-gem   'multi_json',  ">= 1.1"
+gemspec
 
 # Only necessary if you want to use Configliere::Prompt
-gem   'highline',    ">= 1.5.2", :require => false
 gem   'jruby-openssl',           :platform => [:jruby] if RUBY_PLATFORM =~ /java/
-
-# Only gems that you want listed as development dependencies in the gemspec
-group :development do
-  gem 'bundler',     "~> 1.1"
-  gem 'rake',                   :require => false
-  gem 'yard',        ">= 0.7",  :require => false
-  gem 'rspec',       ">= 2.8",  :require => false
-  gem 'jeweler',     ">= 1.6",  :require => false
-end
 
 group :docs do
   gem 'RedCloth',    ">= 4.2",  :require => "redcloth"
