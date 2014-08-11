@@ -1,5 +1,8 @@
 h1. Configliere
 
+This repository has moved: "infodhimps-platform/configliere":https://github.com/infochimps-platform/configliere
+All further code work and gems will take place in the above repo, not here.
+
 Configliere provides discreet configuration for ruby scripts.
 
 bq. So, Consigliere of mine, I think you should tell your Don what everyone knows. -- Don Corleone
