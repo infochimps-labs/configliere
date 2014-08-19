@@ -173,6 +173,20 @@ module Configliere
       else super ; end
     end
 
+    # Must override respond_to_missing? whenever overriding method_missing
+    #
+    # @example
+    #   Settings.respond_to? :foo
+    #   #=> false
+    #   Settings.define :foo
+    #   Settings.respond_to? :foo
+    #   #=> true
+    def respond_to_missing?(meth, include_private = false)
+      meth.to_s =~ /^(\w+)(=)?$/ or return super
+      name, setter = [$1.to_sym, $2]
+      has_definition?(name) ? true : super
+    end
+
   end
 
   # Define is included by default

@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', File.dirname(__FILE__))
+require 'spec_helper'
 
 describe Configliere::ConfigFile do
   let(:default_params) { { :my_param => 'default_val', :also_a_param => true } }
@@ -11,8 +11,8 @@ describe Configliere::ConfigFile do
 
   context '#read' do
     let(:file_params) { { :my_param => 'val_from_file' } }
-    let(:file_string) { file_params.to_yaml           }
-    let(:file_path)   { '/absolute/path.yaml'         }
+    let(:file_string) { file_params.to_yaml              }
+    let(:file_path)   { '/absolute/path.yaml'            }
 
     before{ File.stub(:open).and_return(file_string) }
 
@@ -164,7 +164,7 @@ describe Configliere::ConfigFile do
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     around do |example|
       Configliere::ParamParent.class_eval{ def validate!() parent_method ; end }
       example.run

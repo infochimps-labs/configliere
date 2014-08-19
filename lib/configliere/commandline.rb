@@ -70,7 +70,7 @@ module Configliere
         # -a val
         when arg =~ /\A-(\w)\z/
           flag = find_param_for_flag($1)
-          unless flag then @unknown_argvs << flag ; next ; end
+          unless flag then @unknown_argvs << $1 ; next ; end
           if (not args.empty?) && (args.first !~ /\A-/)
             val = args.shift
           else
@@ -80,7 +80,7 @@ module Configliere
         # -a=val
         when arg =~ /\A-(\w)=(.*)\z/
           flag, val = [find_param_for_flag($1), $2]
-          unless flag then @unknown_argvs << flag ; next ; end
+          unless flag then @unknown_argvs << $1 ; next ; end
           self[flag] = parse_value(val)
         else
           self.rest << arg
