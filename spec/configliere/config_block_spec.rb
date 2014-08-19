@@ -1,41 +1,39 @@
-require File.expand_path('../spec_helper', File.dirname(__FILE__))
+require 'spec_helper'
 Configliere.use :config_block
 
-describe "Configliere::ConfigBlock" do
-  before do
-    @config = Configliere::Param.new :normal_param => 'normal'
-  end
+describe Configliere::ConfigBlock do
 
-  describe 'resolving' do
+  subject{ Configliere::Param.new :normal_param => 'normal' }
+
+  context 'resolving' do
     it 'runs blocks' do
-      @block_watcher = 'watcher'
-      # @block_watcher.should_receive(:fnord).with(@config)
-      @block_watcher.should_receive(:fnord)
-      @config.finally{|arg| @block_watcher.fnord(arg) }
-      @config.resolve!
+      outside_scope = double :watcher, :fnord => true
+      outside_scope.should_receive(:fnord)
+      subject.finally{ |arg| outside_scope.fnord(arg) }
+      subject.resolve!
     end
+
     it 'resolves blocks last' do
       Configliere.use :config_block, :encrypted
-      @config.should_receive(:resolve_types!).ordered
-      @config.should_receive(:resolve_finally_blocks!).ordered
-      @config.resolve!
+      subject.should_receive(:resolve_types!).ordered
+      subject.should_receive(:resolve_finally_blocks!).ordered
+      subject.resolve!
     end
 
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def resolve!() dummy ; end ; end
-      @config.should_receive(:dummy)
-      @config.resolve!.should equal(@config)
+      subject.should_receive(:dummy)
+      subject.resolve!.should equal(subject)
       Configliere::ParamParent.class_eval do def resolve!() self ; end ; end
     end
   end
 
-  describe '#validate!' do
+  context '#validate!' do
     it 'calls super and returns self' do
       Configliere::ParamParent.class_eval do def validate!() dummy ; end ; end
-      @config.should_receive(:dummy)
-      @config.validate!.should equal(@config)
+      subject.should_receive(:dummy)
+      subject.validate!.should equal(subject)
       Configliere::ParamParent.class_eval do def validate!() self ; end ; end
     end
   end
-
 end
