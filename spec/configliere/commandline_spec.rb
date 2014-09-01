@@ -103,6 +103,12 @@ describe "Configliere::Commandline" do
       @config.should == { :date => 'new_val', :cat => true }
     end
 
+    it 'stores unknown flags with values in unknown_argvs' do
+      ::ARGV.replace ['-f=path/to/file']
+      @config.resolve!
+      @config.unknown_argvs.should == ['f']
+    end
+
     it 'accepts a space-separated value (-d new_val)' do
       ::ARGV.replace ['-d', 'new_val', '-c', '-p']
       @config.resolve!
@@ -122,6 +128,12 @@ describe "Configliere::Commandline" do
       lambda{ @config.resolve! }.should_not raise_error(Configliere::Error)
       @config.should == { :date => true, :cat => true }
       @config.unknown_argvs.should == ['z']
+    end
+
+    it 'stores unknown single-letter flags in unknown_argvs, even when singular' do
+      ::ARGV.replace ['-T']
+      lambda{ @config.resolve! }.should_not raise_error(Configliere::Error)
+      @config.unknown_argvs.should == ['T']
     end
   end
 

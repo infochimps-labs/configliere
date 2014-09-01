@@ -1,6 +1,10 @@
 require 'date'                      # type conversion
 require 'time'                      # type conversion
 require 'fileutils'                 # so save! can mkdir
+
+require 'multi_json'
+require 'yaml'
+
 require 'configliere/deep_hash'     # magic hash for params
 require 'configliere/param'         # params container
 require 'configliere/define'        # define param behavior

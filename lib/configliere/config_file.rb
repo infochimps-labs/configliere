@@ -48,7 +48,6 @@ module Configliere
     end
 
     def read_yaml yaml_str, options={}
-      require 'yaml'
       new_data = YAML.load(yaml_str) || {}
       # Extract the :env (production/development/etc)
       if options[:env]
@@ -58,11 +57,7 @@ module Configliere
       self
     end
 
-    #
-    # we depend on you to require some sort of JSON
-    #
     def read_json json_str, options={}
-      require 'multi_json'
       new_data = MultiJson.load(json_str) || {}
       # Extract the :env (production/development/etc)
       if options[:env]
